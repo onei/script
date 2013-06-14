@@ -129,18 +129,24 @@
 
             var body,
                 form,
-                formBackground;
+                formBackground,
+                formLeft,
+                formTop;
 
             // use this for formBackground height/width        
             body = document.body;
+
+            // for config positioning
+            formTop = (($(window).height() - 195) / 2) + 'px';
+            formLeft = (($(window).width() - 509) / 2) + 'px';
 
             // create form container
             form = $('<div/>', {
                 'id': 'rsw-config'
             }).css({
                 // @todo set these with script
-                'top': '50px',
-                'left': '10px'
+                'top': formTop,
+                'left': formLeft
             }).append(
                 $('<div/>', {
                     'id': 'rsw-config-header'
