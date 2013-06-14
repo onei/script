@@ -66,6 +66,16 @@
             tooltipsDelay = settings[1]; // 0 - 1000 (in milliseconds)
             tooltipsAction = settings[2]; // 'hover' or 'click'
 
+            if (tooltipsAction === 'hover') {
+                tooltipsHover = true;
+                tooltipsClick = false;
+            }
+
+            if (tooltipsAction = 'click')
+                tooltipsHover = false;
+                tooltipsClick = true;
+            }
+
         }
 
         function modifyCookie() {
@@ -224,7 +234,7 @@
                 )
             );
 
-            $('<div/>', {
+            formBackground = $('<div/>', {
                 'id': 'rsw-config-background',
                 'click': function () {
                     removeConfig();
