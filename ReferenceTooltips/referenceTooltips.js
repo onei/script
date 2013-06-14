@@ -137,7 +137,7 @@
             body = document.body;
 
             // for config positioning
-            formTop = ($(window).height() / 3) + 'px';
+            formTop = ($(window).height() / 4) + 'px';
             formLeft = (($(window).width() - 510) / 2) + 'px';
 
             // create form container
@@ -259,7 +259,7 @@
 
         function removeTooltip() {
 
-            $('#rsw-tooltip').remove();
+            $('.rsw-tooltip').remove();
 
         }
 
@@ -267,12 +267,11 @@
 
             var tooltip;
 
-            if (document.getElementById('rsw-tooltip').length) {
+            if ($('.rsw-tooltip').length) {
                 removeTooltip();
             }
 
-            tooltip = document.createElement('ul');
-            tooltip.id = 'rsw-tooltip';
+            // make tooltip here
 
         }
 
