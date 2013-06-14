@@ -137,7 +137,7 @@
             body = document.body;
 
             // for config positioning
-            formTop = (($(window).height() - 199) / 3) + 'px';
+            formTop = ($(window).height() / 3) + 'px';
             formLeft = (($(window).width() - 510) / 2) + 'px';
 
             // create form container
