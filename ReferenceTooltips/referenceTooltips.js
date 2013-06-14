@@ -34,7 +34,9 @@
             cookie,
             tooltipsOn,
             tooltipsDelay,
-            tooltipsAction;
+            tooltipsAction,
+            tooltipsHover,
+            tooltipsClick;
 
         /**
          * Cookie functions
@@ -71,7 +73,7 @@
                 tooltipsClick = false;
             }
 
-            if (tooltipsAction = 'click')
+            if (tooltipsAction === 'click') {
                 tooltipsHover = false;
                 tooltipsClick = true;
             }
@@ -251,10 +253,7 @@
 
         function removeTooltip() {
 
-            var removeRefTooltip;
-
-            removeRefTooltip = document.getElementById('rsw-tooltip');
-            removeRefTooltip.parentNode.removeChild(removeRefTooltip);
+            $('#rsw-tooltip').remove();
 
         }
 
@@ -317,7 +316,7 @@
                 tooltipClick();
             }
 
-            if (tooltipAction === 'hover') {
+            if (tooltipsAction === 'hover') {
                 tooltipHover();
             }
 
