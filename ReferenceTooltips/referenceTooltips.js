@@ -108,167 +108,134 @@
          */
         function removeConfig() {
 
-            document.getElementById('rsw-config').parentNode.removeChild(document.getElementById('rsw-config'));
-            document.getElementById('rsw-config-background').parentNode.removeChild(document.getElementById('rsw-config-background'));
+            $('#rsw-config').remove();
+            $('#rsw-config-background').remove();
 
         }
 
         function createConfig() {
 
             var body,
-                // form container
                 form,
-                // form header
-                formHeader,
-                formTitle,
-                formClose,
-                // form body
-                formBody,
-                formContainer,
-                formDisableTooltips,
-                formDisableNote,
-                formDelay,
-                formDelayInput,
-                formActionSpan,
-                formActionHoverLabel,
-                formActionHoverInput,
-                formActionClickLabel,
-                formActionClickInput,
-                // form footer
-                formFooter,
-                formSave,
-                // form background
                 formBackground;
 
-            // cache body                
+            // use this for formBackground height/width        
             body = document.body;
 
             // create form container
-            form = document.createElement('div');
-            form.id = 'rsw-config';
+            form = $('<div/>', {
+                'id': 'rsw-config'
+            }).css({
+                // @todo set these with script
+                'top': '50px',
+                'left': '10px'
+            }).append(
+                $('<div/>', {
+                    'id': 'rsw-config-header'
+                }).append(
+                    $('<span/>', {
+                        'id': 'rsw-config-title',
+                        'html': 'Reference Tooltip Settings'
+                    }),
 
-            // create form header
-            formHeader = document.createElement('div');
-            formHeader.id = 'rsw-config-header';
+                    $('<span/>', {
+                        'id': 'rsw-config-close',
+                        'title': 'Close settings',
+                        'click': function () {
+                            removeConfig();
+                        }
+                    })
+                ),
 
-            formTitle = document.createElement('span');
-            formTitle.id = 'rsw-config-title';
-            formTitle.innerHTML = 'Reference Tooltip Settings';
+                $('<div/>', {
+                    'id': 'rsw-config-body'
+                }).append(
+                    $('<form/>').append(
+                        $('<input>', {
+                            'id': 'rsw-config-disable',
+                            'type': 'button',
+                            'value': 'Disable reference tooltips',
+                            'click': function () {
+                                disableTooltips();
+                            }
+                        }),
 
-            formClose = document.createElement('span');
-            formClose.id = 'rsw-config-close';
-            formClose.title = 'Close settings';
-            formClose.onclick = function () {
-                removeConfig();
-            };
+                        $('<div/>', {
+                            'id': 'rsw-config-note',
+                            'html': 'Once disabled, reference tooltips can be re-enabled using the link at the bottom of the page.'
+                        }),
 
-            formHeader.appendChild(formTitle);
-            formHeader.appendChild(formClose);
+                        $('<label/>', {
+                            'id': 'rsw-config-delay',
+                            'html': 'Delay before the tooltip appears (in milliseconds): '
+                        }).append(
+                            $('<input>', {
+                                'type': 'number',
+                                'step': '50',
+                                'min': '0',
+                                'max': '1000',
+                                'value': tooltipsDelay
+                            })
+                        ),
 
-            form.appendChild(formHeader);
+                        $('<br>'),
 
-            // create form body
-            formBody = document.createElement('div');
-            formBody.id = 'rsw-config-body';
+                        $('<span/>', {
+                            'id': 'rsw-config-action',
+                            'html': 'Tooltip is activated by: '
+                        }).append(
+                            $('<label/>', {
+                                'html': 'Hover'
+                            }).prepend(
+                                $('<input>', {
+                                    'type': 'radio',
+                                    'name': 'tooltip-action',
+                                    // 'checked': @todo
+                                    'value': 'hover'
+                                })
+                            ),
 
-            formContainer = document.createElement('form');
+                            $('<label/>', {
+                                'html': 'Click'
+                            }).prepend(
+                                $('<input>', {
+                                    'type': 'radio',
+                                    'name': 'tooltip-action',
+                                    // 'checked': @todo
+                                    'value': 'click'
+                                })
+                            )
+                        )
+                    )
+                ),
 
-            // disable button
-            formDisableTooltips = document.createElement('input');
-            formDisableTooltips.id = 'rsw-config-disable';
-            formDisableTooltips.type = 'button';
-            formDisableTooltips.value = 'Disable reference tooltips';
-            formDisableTooltips.onclick = function () {
-                disableTooltips();
-            };
+                $('<div/>', {
+                    'id': 'rsw-config-footer'
+                }).append(
+                    $('<button/>', {
+                        'id': 'rsw-config-save',
+                        'type': 'button',
+                        'html': 'Save settings',
+                        // 'class': '', in case it needs a wikia class to blend in
+                        'click': function () {
+                            modifyCookie();
+                        }
+                    })
+                )
+            );
 
-            formDisableNote = document.createElement('div');
-            formDisableNote.id = 'rsw-config-note';
-            formDisableNote.innerHTML = 'Once disabled, reference tooltips can be re-enabled using the link at the bottom of the page.';
+            $('<div/>', {
+                'id': 'rsw-config-background',
+                'click': function () {
+                    removeConfig();
+                }
+            }).css({
+                'height': body.clientHeight + 'px',
+                'width': body.clientWidth + 'px'
+            });
 
-            // step input for delay
-            formDelay = document.createElement('label');
-            formDelay.id = 'rsw-config-delay';
-            formDelay.innerHTML = 'Delay before the tooltip appears (in milliseconds): ';
-
-            formDelayInput = document.createElement('input');
-            formDelayInput.type = 'number';
-            formDelayInput.step = '50';
-            formDelayInput.min = '0';
-            formDelayInput.max = '1000';
-            formDelayInput.value = '200'; // get this from cookie
-
-            formDelay.appendChild(formDelayInput);
-
-            // action radio buttons
-            formActionSpan = document.createElement('span');
-            formActionSpan.id = 'rsw-config-action';
-            formActionSpan.innerHTML = 'Tooltip is activated by: ';
-
-            // hover
-            formActionHoverLabel = document.createElement('label');
-
-            formActionHoverInput = document.createElement('input');
-            formActionHoverInput.type = 'radio';
-            formActionHoverInput.name = 'tooltip-action';
-            formActionHoverInput.value = 'hover';
-
-            formActionHoverLabel.appendChild(formActionHoverInput);
-            formActionHoverLabel.innerHTML += 'Hover';
-
-            // click
-            formActionClickLabel = document.createElement('label');
-
-            formActionClickInput = document.createElement('input');
-            formActionClickInput.type = 'radio';
-            formActionClickInput.name = 'tooltip-action';
-            formActionClickInput.value = 'click';
-
-            formActionClickLabel.appendChild(formActionClickInput);
-            formActionClickLabel.innerHTML += 'Click';
-
-            // add actions together
-            formActionSpan.appendChild(formActionHoverLabel);
-            formActionSpan.appendChild(formActionClickLabel);
-
-            formContainer.appendChild(formDisableTooltips);
-            formContainer.appendChild(formDisableNote);
-            formContainer.appendChild(document.createElement('br'));
-            formContainer.appendChild(formDelay);
-            formContainer.appendChild(document.createElement('br'));
-            formContainer.appendChild(formActionSpan);
-
-            formBody.appendChild(formContainer);
-            form.appendChild(formBody);
-
-            // create form footer
-            formFooter = document.createElement('div');
-            formFooter.id = 'rsw-config-footer';
-
-            formSave = document.createElement('button');
-            formSave.type = 'button';
-            formSave.innerHTML = 'Save settings';
-            formSave.id = 'rsw-config-save';
-            // formSave.className = ''; in case it needs a wikia class to blend in
-            formSave.onclick = function () {
-                modifyCookie();
-            };
-
-            formFooter.appendChild(formSave);
-
-            form.appendChild(formFooter);
-
-            // create background, make it more lightbox-ish
-            formBackground = document.createElement('div');
-            formBackground.id = 'rsw-config-background';
-            formBackground.style.height = body.clientHeight + 'px';
-            formBackground.style.width = body.clientWidth + 'px';
-            formBackground.onclick = function () {
-                removeConfig();
-            };
-
-            body.appendChild(form);
-            body.appendChild(formBackground);
+            $('body').append(form);
+            $('body').append(formBackground);
 
         }
 
@@ -310,21 +277,21 @@
          */
         function accessConfig() {
 
-            var settingsLinkSpan,
-                settingsLink;
+            var settingsLink;
 
-            settingsLinkSpan = document.createElement('span');
-            settingsLinkSpan.id = 'rsw-config-open';
-            settingsLinkSpan.title = 'Configure reference tooltips';
+            settingsLink = $('<span/>', {
+                'id': 'rsw-config-open',
+                'title': 'Configure reference tooltips'
+            }).append(
+                $('<a/>', {
+                    'html': '[Reference Tooltip Settings]',
+                    'click': function () {
+                        createConfig();
+                    }
+                })
+            );
 
-            settingsLink = document.createElement('a');
-            settingsLink.innerHTML = '[Reference Tooltip Settings]';
-            settingsLink.onclick = function () {
-                createConfig();
-            };
-
-            settingsLinkSpan.appendChild(settingsLink);
-            document.getElementById('mw-content-text').appendChild(settingsLinkSpan);
+            $('#mw-content-text').append(settingsLink);
 
         }
 
