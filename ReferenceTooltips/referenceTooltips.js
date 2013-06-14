@@ -202,7 +202,7 @@
                                 $('<input>', {
                                     'type': 'radio',
                                     'name': 'tooltip-action',
-                                    // 'checked': @todo
+                                    'checked': tooltipsHover,
                                     'value': 'hover'
                                 })
                             ),
@@ -213,7 +213,7 @@
                                 $('<input>', {
                                     'type': 'radio',
                                     'name': 'tooltip-action',
-                                    // 'checked': @todo
+                                    'checked': tooltipsClick,
                                     'value': 'click'
                                 })
                             )
