@@ -3,15 +3,24 @@
 /**
  * Reference tooltips
  *
- * Description:
+ * @description
  * Adds a tooltip to references when hovering over or clicking them
- *
  * Based on [[mw:Reference tooltips]]
- */
-
-/**
- * Notes:
+ *
+ * @notes
  * To access mw.log messages append ?debug=true to the url
+ *
+ * vars stored in cookie:
+ * tooltipsOn: 'on', 'off'
+ *     sets whether tooltips appear. allows config for anons
+ * tooltipsDelay: '1' - '1000' (in milliseconds)
+ *     delay before tooltips appear after trigger event
+ * tooltipsAction: 'click' or 'hover'
+ *     event that triggers tooltips appearing
+ *
+ * @todo
+ * implement settings.delay with setTimeout()
+ * merge vars into object?
  */
 
 /*jshint
@@ -24,19 +33,15 @@
     strict:true, sub:false, trailing:true, white:false
 */
 
-;(function (window, document, mw, $) {
+(function (window, document, $) {
 
     'use strict';
 
     function tooltips() {
 
         var i,
-            cookie,
-            tooltipsOn,
-            tooltipsDelay,
-            tooltipsAction,
-            tooltipsHover,
-            tooltipsClick;
+            settings,
+            timer;
 
         /**
          * Cookie functions
@@ -48,13 +53,14 @@
                 expires: 90
             });
 
-            cookie = $.cookie('ref-tooltips');
+            return 'on-200-hover';
 
         }
 
         function getCookie() {
 
-            var settings;
+            var cookie,
+                storedVars;
 
             cookie = $.cookie('ref-tooltips');
 
@@ -62,20 +68,22 @@
                 cookie = createCookie();
             }
 
-            settings = cookie.split('-');
+            storedVars = cookie.split('-');
 
-            tooltipsOn = settings[0]; // 'on' or 'off'
-            tooltipsDelay = settings[1]; // 0 - 1000 (in milliseconds)
-            tooltipsAction = settings[2]; // 'hover' or 'click'
+            settings = {
+                on: storedVars[0],
+                delay: storedVars[1],
+                action: storedVars[2]
+            };
 
-            if (tooltipsAction === 'hover') {
-                tooltipsHover = true;
-                tooltipsClick = false;
+            if (settings.action === 'hover') {
+                settings.hover = true;
+                settings.click = false;
             }
 
-            if (tooltipsAction === 'click') {
-                tooltipsHover = false;
-                tooltipsClick = true;
+            if (settings.action === 'click') {
+                settings.hover = false;
+                settings.click = true;
             }
 
         }
@@ -88,13 +96,13 @@
 
             for (i = 0; i < inputs.length; i += 1) {
                 if (inputs[i].checked) {
-                    tooltipsAction = inputs[i].value;
+                    settings.action = inputs[i].value;
                 }
             }
 
-            tooltipsDelay = document.getElementById('rsw-config-delay').getElementsByTagName('input')[0].value;
+            settings.delay = document.getElementById('rsw-config-delay').getElementsByTagName('input')[0].value;
 
-            $.cookie('ref-tooltips', 'on' + '-' + tooltipsDelay + '-' + tooltipsAction, {
+            $.cookie('ref-tooltips', 'on' + '-' + settings.delay + '-' + settings.action, {
                 path: '/',
                 expires: 90
             });
@@ -105,7 +113,7 @@
 
         function disableTooltips() {
 
-            // recreate with near defaults
+            // just use defaults for delay and action as no one really cares
             $.cookie('ref-tooltips', 'off-200-hover', {
                 path: '/',
                 expires: 90
@@ -192,7 +200,7 @@
                                 'step': '50',
                                 'min': '0',
                                 'max': '1000',
-                                'value': tooltipsDelay
+                                'value': settings.delay
                             })
                         ),
 
@@ -208,7 +216,7 @@
                                 $('<input>', {
                                     'type': 'radio',
                                     'name': 'tooltip-action',
-                                    'checked': tooltipsHover,
+                                    'checked': settings.hover,
                                     'value': 'hover'
                                 })
                             ),
@@ -219,7 +227,7 @@
                                 $('<input>', {
                                     'type': 'radio',
                                     'name': 'tooltip-action',
-                                    'checked': tooltipsClick,
+                                    'checked': settings.click,
                                     'value': 'click'
                                 })
                             )
@@ -263,15 +271,48 @@
 
         }
 
-        function createTooltip() {
+        function createTooltip(event) {
 
-            var tooltip;
+            var offset,
+                refId,
+                ref,
+                openSettings,
+                tooltip,
+                tooltipHeight;
 
             if ($('.rsw-tooltip').length) {
                 removeTooltip();
             }
 
-            // make tooltip here
+            offset = $(event.target).offset();
+
+            // use native js for most of this as it's easier to debug
+            refId = event.target.href.split('#')[1];
+
+            ref = document.getElementById(refId).cloneNode(true);
+            ref.removeChild(ref.firstChild);
+            ref.removeAttribute('id');
+
+            openSettings = document.createElement('span');
+            openSettings.id = 'rsw-tooltip-settings';
+            openSettings.onclick = function () {
+                createConfig();
+            };
+
+            ref.insertBefore(openSettings, ref.firstChild);
+
+            tooltip = $('<ul/>', {
+                'class': 'rsw-tooltip'
+            }).append(ref);
+
+            $('body').append(tooltip);
+
+            tooltipHeight = $('.rsw-tooltip').height();
+
+            $('.rsw-tooltip').css({
+                'top': (offset.top - tooltipHeight) + 'px',
+                'left': (offset.left - 7) + 'px'
+            });
 
         }
 
@@ -279,11 +320,41 @@
          * Functions for each tooltip activation action
          */
         function tooltipHover() {
-            mw.log('hover activation detected');
+
+            function hide() {
+
+                timer = window.setTimeout(function () {
+                    removeTooltip();
+                }, 500);
+
+            }
+
+            $('.reference').mouseover(function (e) {
+                window.clearTimeout(timer);
+                createTooltip(e);
+            }).mouseout(hide);
+
+            // if you can get this to fire, this /should/ work
+            $('.rsw-tooltip').mouseover(function () {
+                // currently not firing...
+                window.console.log('tooltip found');
+                window.clearTimeout(timer);
+            }).mouseout(hide);
+
         }
 
         function tooltipClick() {
-            mw.log('click activation detected');
+
+            $('.reference').on('click', function (event) {
+                event.preventDefault();
+                createTooltip(event);
+            });
+
+            // figure what event to attach removeTooltip(); to
+            $('.reference').off('click', function () {
+                removeTooltip();
+            });
+
         }
 
         /**
@@ -313,15 +384,15 @@
 
             getCookie();
 
-            if (tooltipsOn === 'off') {
+            if (settings.on === 'off') {
                 return;
             }
 
-            if (tooltipsAction === 'click') {
+            if (settings.action === 'click') {
                 tooltipClick();
             }
 
-            if (tooltipsAction === 'hover') {
+            if (settings.action === 'hover') {
                 tooltipHover();
             }
 
@@ -344,6 +415,6 @@
 
     });
 
-}(this, this.document, this.mediaWiki, this.jQuery));
+}(this, this.document, this.jQuery));
 
 // </syntaxhighlight>
