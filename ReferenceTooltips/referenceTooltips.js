@@ -370,7 +370,7 @@
 
                     hoverTarget = $(event.target);
 
-                    if (hoverTarget.is('.rsw-tooltip') || hoverTarget.is('#rsw-tooltip-config') || hoverTarget.is('.reference-text') || hoverTarget.is('.reference-text a')) {
+                    if (hoverTarget.is('.rsw-tooltip') || hoverTarget.is('#rsw-tooltip-settings') || hoverTarget.is('.reference-text') || hoverTarget.is('.reference-text a')) {
                         window.clearTimeout(timer);
                     } else {
                         hide();
