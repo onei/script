@@ -98,7 +98,6 @@
                 settings.click = true;
             }
 
-            mw.log(cookie);
             mw.log(settings);
 
         }
@@ -367,11 +366,28 @@
                     hoverTarget = $(event.target);
 
                     // there's a bug here somewhere...
-                    if (hoverTarget.is('.rsw-tooltip') || hoverTarget.is('.reference-text') || hoverTarget.is('.reference-text a') || hoverTarget.is('#rsw-tooltip-settings')) {
+                    if (hoverTarget.is('.rsw-tooltip')) {
                         window.clearTimeout(timer);
-                    } else {
-                        hide();
+                        return;
                     }
+
+                    if (hoverTarget.is('.reference-text')) {
+                        window.clearTimeout(timer);
+                        return;
+                    }
+
+                    if (hoverTarget.is('.reference-text a')) {
+                        window.clearTimeout(timer);
+                        return;
+                    }
+
+                    if (hoverTarget.is('#rsw-tooltip-settings')) {
+                        window.clearTimeout(timer);
+                        return;
+                    }
+
+                    hide();
+
                 }
             });
 
@@ -433,17 +449,14 @@
             getCookie();
 
             if (settings.on === 'off') {
-                mw.log('no tooltips');
                 return;
             }
 
             if (settings.action === 'click') {
-                mw.log('click');
                 tooltipClick();
             }
 
             if (settings.action === 'hover') {
-                mw.log('hover');
                 tooltipHover();
             }
 
