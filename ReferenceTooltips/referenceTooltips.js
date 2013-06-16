@@ -20,9 +20,6 @@
  *
  * @todo
  * add fade in/fade out animations for config form and tooltip
- *
- * @bugs
- * hovering over tooltip does not trigger relevant mouseover event
  */
 
 /*jshint
@@ -368,9 +365,10 @@
 
                 if ($('.rsw-tooltip').length) {
 
+                    window.console.log(event.target);
                     hoverTarget = $(event.target);
 
-                    if (hoverTarget.is('.rsw-tooltip') || hoverTarget.is('#rsw-tooltip-settings') || hoverTarget.is('.reference-text') || hoverTarget.is('.reference-text a')) {
+                    if (hoverTarget.is('.rsw-tooltip') || hoverTarget.is('.rsw-tooltip-settings') || hoverTarget.is('.reference-text') || hoverTarget.is('.reference-text a')) {
                         window.clearTimeout(timer);
                     } else {
                         hide();
