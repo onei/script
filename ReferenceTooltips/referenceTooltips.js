@@ -362,17 +362,16 @@
                 }, settings.delayNo);
             }).mouseout(hide);
 
-            
             $('body').mouseover(function (event) {
-                
+
                 var hoverTarget;
-                
+
                 if ($('.rsw-tooltip').length) {
 
                     hoverTarget = $(event.target);
-                
-                    if (hoverTarget.is('.rsw-tooltip') || hoverTarget.is('.rsw-tooltip-config') || hoverTarget.is('.reference-text') || hoverTarget.is('.reference-text a')) {
-                        clearTimeout(timer);
+
+                    if (hoverTarget.is('.rsw-tooltip') || hoverTarget.is('#rsw-tooltip-config') || hoverTarget.is('.reference-text') || hoverTarget.is('.reference-text a')) {
+                        window.clearTimeout(timer);
                     } else {
                         hide();
                     }
@@ -385,7 +384,7 @@
 
             $('body').on('click', function (event) {
 
-                var target;
+                var clickTarget;
 
                 clickTarget = $(event.target);
 
@@ -396,13 +395,15 @@
                     }, settings.delayNo);
                 }
 
-                if (clickTarget.is('.reference-text') || clickTarget.is('.rsw-tooltip') || clickTarget.is('.reference-text a')) {
-                    return;
+                if ($('.rsw-tooltip').length) {
+                    if (clickTarget.is('.reference-text') || clickTarget.is('.rsw-tooltip') || clickTarget.is('.reference-text a')) {
+                        return;
+                    }
+
+                    removeTooltip();
+
                 }
 
-                if ($('.rsw-tooltip').length) {
-                        removeTooltip();
-                }
             });
 
         }
