@@ -334,7 +334,7 @@
             tooltipHeight = $('.rsw-tooltip').height();
 
             $('.rsw-tooltip').css({
-                'top': (offset.top - tooltipHeight) + 'px',
+                'top': (offset.top - tooltipHeight- 25) + 'px',
                 'left': (offset.left - 7) + 'px'
             });
 
