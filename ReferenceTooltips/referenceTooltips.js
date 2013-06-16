@@ -459,11 +459,9 @@
 
     $(function () {
 
-        var namespace = mw.config.get('wgNameSpaceNumber');
+        var namespace = mw.config.get('wgNamespaceNumber');
         
-        if (namespace === 0 ||     // main
-            namespace === 2 ||     // user, in case someone makes articles there
-                namespace === 4) { // project
+        if (namespace === 0 || namespace === 4) {
         
             if ($('.references').length === 0) {
                 mw.log('no references');
