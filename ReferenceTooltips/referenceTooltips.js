@@ -311,23 +311,23 @@
             // use native js for most of this as it's easier to debug
             refId = event.target.href.split('#')[1];
 
-            ref = document.getElementById(refId).cloneNode(true);
-            ref.removeChild(ref.firstChild);
-            ref.removeAttribute('id');
+            ref = $('#' + refId).children('.reference-text').clone();
 
-            openSettings = document.createElement('span');
-            openSettings.id = 'rsw-tooltip-settings';
-            openSettings.onclick = function () {
-                createConfig();
-            };
 
-            ref.insertBefore(openSettings, ref.firstChild);
+            openSettings = $('<span/>', {
+                'id': 'rsw-tooltip-settings',
+                'click': function () {
+                    createConfig();
+                }
+            })
 
-            mw.log(ref);
 
-            tooltip = $('<ul/>', {
+            tooltip = $('<div/>', {
                 'class': 'rsw-tooltip'
-            }).append(ref);
+            }).append(
+                openSettings,
+                ref
+            );
 
             $('body').append(tooltip);
 
@@ -449,8 +449,8 @@
 /*
         var namespace = mw.config.get('wgNameSpaceNumber');
         
-        if (namespace === 0 || // main
-            namespace === 2 || // user, in case someone makes articles there
+        if (namespace === 0 ||     // main
+            namespace === 2 ||     // user, in case someone makes articles there
                 namespace === 4) { // project
         
             if ($('.references').length === 0) {
