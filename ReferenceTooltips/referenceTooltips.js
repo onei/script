@@ -18,6 +18,7 @@
  *
  * @todo
  * add fade in/fade out animations for config form and tooltip
+ * add logic for where tooltip is positioned: above window, against side of screen
  */
 
 /*jshint
@@ -366,22 +367,7 @@
                     hoverTarget = $(event.target);
 
                     // there's a bug here somewhere...
-                    if (hoverTarget.is('.rsw-tooltip')) {
-                        window.clearTimeout(timer);
-                        return;
-                    }
-
-                    if (hoverTarget.is('.reference-text')) {
-                        window.clearTimeout(timer);
-                        return;
-                    }
-
-                    if (hoverTarget.is('.reference-text a')) {
-                        window.clearTimeout(timer);
-                        return;
-                    }
-
-                    if (hoverTarget.is('#rsw-tooltip-settings')) {
+                    if (hoverTarget.is('.rsw-tooltip, .rsw-tooltip *')) {
                         window.clearTimeout(timer);
                         return;
                     }
@@ -409,7 +395,7 @@
                 }
 
                 if ($('.rsw-tooltip').length) {
-                    if (clickTarget.is('.reference-text') || clickTarget.is('.rsw-tooltip') || clickTarget.is('.reference-text a')) {
+                    if (clickTarget.is('.rsw-tooltip, .rsw-tooltip *')) {
                         return;
                     }
 
