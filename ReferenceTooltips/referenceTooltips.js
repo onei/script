@@ -362,12 +362,22 @@
                 }, settings.delayNo);
             }).mouseout(hide);
 
-            // if you can get this to fire, this /should/ work
-            $('.rsw-tooltip').mouseover(function () {
-                // currently not firing...
-                window.console.log('tooltip found');
-                window.clearTimeout(timer);
-            }).mouseout(hide);
+            
+            $('body').mouseover(function (event) {
+                
+                var hoverTarget;
+                
+                if ($('.rsw-tooltip').length) {
+
+                    hoverTarget = $(event.target);
+                
+                    if (hoverTarget.is('.rsw-tooltip') || hoverTarget.is('.rsw-tooltip-config') || hoverTarget.is('.reference-text') || hoverTarget.is('.reference-text a')) {
+                        clearTimeout(timer);
+                    } else {
+                        hide();
+                    }
+                }
+            });
 
         }
 
@@ -377,23 +387,21 @@
 
                 var target;
 
-                target = $(event.target);
+                clickTarget = $(event.target);
 
-                if (target.is('.reference') || target.is('.reference a')) {
+                if (clickTarget.is('.reference') || clickTarget.is('.reference a')) {
                     event.preventDefault();
                     window.setTimeout(function () {
                         createTooltip(event);
                     }, settings.delayNo);
                 }
 
-                if ($(event.target).is('.reference-text') || $(event.target).is('.rsw-tooltip') || $(event.target).is('.reference-text a')) {
+                if (clickTarget.is('.reference-text') || clickTarget.is('.rsw-tooltip') || clickTarget.is('.reference-text a')) {
                     return;
                 }
 
                 if ($('.rsw-tooltip').length) {
-                    if (event.target !== $('.reference-text')) {
                         removeTooltip();
-                    }
                 }
             });
 
