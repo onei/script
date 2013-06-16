@@ -18,9 +18,11 @@
  * tooltipsAction: 'click' or 'hover'
  *     event that triggers tooltips appearing
  *
+ * @todo
+ * add fade in/fade out animations for config form and tooltip
+ *
  * @bugs
  * hovering over tooltip does not trigger relevant mouseover event
- * need click event to remove tooltip as long as click is not within tooltip itself
  */
 
 /*jshint
@@ -319,7 +321,7 @@
                 'click': function () {
                     createConfig();
                 }
-            })
+            });
 
 
             tooltip = $('<div/>', {
@@ -334,7 +336,7 @@
             tooltipHeight = $('.rsw-tooltip').height();
 
             $('.rsw-tooltip').css({
-                'top': (offset.top - tooltipHeight- 25) + 'px',
+                'top': (offset.top - tooltipHeight - 25) + 'px',
                 'left': (offset.left - 7) + 'px'
             });
 
@@ -371,24 +373,27 @@
 
         function tooltipClick() {
 
-            $('.reference').on('click', function (event) {
-                event.preventDefault();
-                window.setTimeout(function () {
-                    createTooltip(event);
-                }, settings.delayNo);
-            });
-
-            // figure what event to attach removeTooltip(); to
             $('body').on('click', function (event) {
 
-                window.console.log(event.target);
+                var target;
 
-                if ($('.reference') === event.target) {
-                    window.console.log('reference');
+                target = $(event.target);
+
+                if (target.is('.reference') || target.is('.reference a')) {
+                    event.preventDefault();
+                    window.setTimeout(function () {
+                        createTooltip(event);
+                    }, settings.delayNo);
+                }
+
+                if ($(event.target).is('.reference-text') || $(event.target).is('.rsw-tooltip') || $(event.target).is('.reference-text a')) {
+                    return;
                 }
 
                 if ($('.rsw-tooltip').length) {
-                    removeTooltip();
+                    if (event.target !== $('.reference-text')) {
+                        removeTooltip();
+                    }
                 }
             });
 
