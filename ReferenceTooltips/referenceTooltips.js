@@ -19,21 +19,24 @@
  *     event that triggers tooltips appearing
  *
  * @todo
- * implement settings.delay with setTimeout()
- * merge vars into object?
+ * only load on certain namespaces?
  */
 
 /*jshint
-    asi:false, bitwise:true, boss:false, camelcase:true, curly:true,
-    eqeqeq:true, es3:false, evil:false, expr:false, forin:true,
-    funcscope:false, globalstrict:false, immed:true, indent:4, lastsemic:false,
-    latedef:true, laxbreak:false, laxcomma:false, loopfunc:false, multistr:false,
-    noarg:true, noempty:true, onevar:true, plusplus:true, quotmark:single,
-    undef:true, unused:true, scripturl:false, smarttabs:false, shadow:false,
-    strict:true, sub:false, trailing:true, white:false
+    asi: false, bitwise: true, boss: false, camelcase: true, curly: true,
+    eqeqeq: true, es3: false, evil: false, expr: false, forin: true,
+    funcscope: false, globalstrict: false, immed: true, lastsemic: false, latedef: true,
+    laxbreak: false, laxcomma: false, loopfunc: false, multistr: false, noarg: true,
+    noempty: true, onevar: true, plusplus: true, quotmark: single, undef: true,
+    unused: true, scripturl: false, smarttabs: false, shadow: false, strict: true,
+    sub: false, trailing: true, white: true
 */
 
-(function (window, document, $) {
+/*jslint
+    indent: 4
+*/
+
+(function (window, document, $, mw) {
 
     'use strict';
 
@@ -60,7 +63,8 @@
         function getCookie() {
 
             var cookie,
-                storedVars;
+                storedVars,
+                touchscreen;
 
             cookie = $.cookie('ref-tooltips');
 
@@ -73,6 +77,7 @@
             settings = {
                 on: storedVars[0],
                 delay: storedVars[1],
+                delayNo: parseInt(storedVars[1], 10),
                 action: storedVars[2]
             };
 
@@ -85,6 +90,18 @@
                 settings.hover = false;
                 settings.click = true;
             }
+
+            // returns boolean
+            touchscreen = 'ontouchstart' in document.documentElement;
+
+            if (touchscreen === true) {
+                settings.action = 'click';
+                settings.hover = false;
+                settings.click = true;
+            }
+
+            mw.log(cookie);
+            mw.log(settings);
 
         }
 
@@ -101,6 +118,11 @@
             }
 
             settings.delay = document.getElementById('rsw-config-delay').getElementsByTagName('input')[0].value;
+
+            // in case someone sets a greater value manually
+            if (parseInt(settings.delay, 10) > 1000) {
+                settings.delay = '1000';
+            }
 
             $.cookie('ref-tooltips', 'on' + '-' + settings.delay + '-' + settings.action, {
                 path: '/',
@@ -152,7 +174,6 @@
             form = $('<div/>', {
                 'id': 'rsw-config'
             }).css({
-                // @todo set these with script
                 'top': formTop,
                 'left': formLeft
             }).append(
@@ -301,6 +322,8 @@
 
             ref.insertBefore(openSettings, ref.firstChild);
 
+            mw.log(ref);
+
             tooltip = $('<ul/>', {
                 'class': 'rsw-tooltip'
             }).append(ref);
@@ -331,7 +354,9 @@
 
             $('.reference').mouseover(function (e) {
                 window.clearTimeout(timer);
-                createTooltip(e);
+                window.setTimeout(function () {
+                    createTooltip(e);
+                }, settings.delayNo);
             }).mouseout(hide);
 
             // if you can get this to fire, this /should/ work
@@ -347,12 +372,23 @@
 
             $('.reference').on('click', function (event) {
                 event.preventDefault();
-                createTooltip(event);
+                window.setTimeout(function () {
+                    createTooltip(event);
+                }, settings.delayNo);
             });
 
             // figure what event to attach removeTooltip(); to
-            $('.reference').off('click', function () {
-                removeTooltip();
+            $('body').on('click', function (event) {
+
+                window.console.log(event.target);
+
+                if ($('.reference') === event.target) {
+                    window.console.log('reference');
+                }
+
+                if ($('.rsw-tooltip').length) {
+                    removeTooltip();
+                }
             });
 
         }
@@ -385,14 +421,17 @@
             getCookie();
 
             if (settings.on === 'off') {
+                mw.log('no tooltips');
                 return;
             }
 
             if (settings.action === 'click') {
+                mw.log('click');
                 tooltipClick();
             }
 
             if (settings.action === 'hover') {
+                mw.log('hover');
                 tooltipHover();
             }
 
@@ -407,14 +446,25 @@
 
         // commented out so it works on all pages for now
 /*
-        if ($('.references').length === 0) {
-            return;
+        var namespace = mw.config.get('wgNameSpaceNumber');
+        
+        if (namespace === 0 || // main
+            namespace === 2 || // user, in case someone makes articles there
+                namespace === 4) { // project
+        
+            if ($('.references').length === 0) {
+                mw.log('no references');
+                return;
+            }
+*/
+
+        tooltips();
+/*
         }
 */
-        tooltips();
 
     });
 
-}(this, this.document, this.jQuery));
+}(this, this.document, this.jQuery, this.mediaWiki));
 
 // </syntaxhighlight>
