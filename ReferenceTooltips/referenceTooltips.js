@@ -18,8 +18,9 @@
  * tooltipsAction: 'click' or 'hover'
  *     event that triggers tooltips appearing
  *
- * @todo
- * only load on certain namespaces?
+ * @bugs
+ * hovering over tooltip does not trigger relevant mouseover event
+ * need click event to remove tooltip as long as click is not within tooltip itself
  */
 
 /*jshint
