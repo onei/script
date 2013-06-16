@@ -1,5 +1,3 @@
-// <syntaxhighlight lang="javascript">
-
 /**
  * Reference tooltips
  *
@@ -451,6 +449,9 @@
 
         }
 
+        /**
+         * Function invocation
+         */
         accessConfig();
         tooltipAction();
 
@@ -458,8 +459,6 @@
 
     $(function () {
 
-        // commented out so it works on all pages for now
-/*
         var namespace = mw.config.get('wgNameSpaceNumber');
         
         if (namespace === 0 ||     // main
@@ -470,15 +469,15 @@
                 mw.log('no references');
                 return;
             }
-*/
+            
+            if (mw.config.get('wgAction') !== 'view') {
+                return;
+            }
 
-        tooltips();
-/*
+            tooltips();
+
         }
-*/
 
     });
 
 }(this, this.document, this.jQuery, this.mediaWiki));
-
-// </syntaxhighlight>
