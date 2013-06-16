@@ -352,10 +352,10 @@
 
             }
 
-            $('.reference').mouseover(function (e) {
+            $('.reference').mouseover(function (event) {
                 window.clearTimeout(timer);
                 window.setTimeout(function () {
-                    createTooltip(e);
+                    createTooltip(event);
                 }, settings.delayNo);
             }).mouseout(hide);
 
@@ -365,10 +365,11 @@
 
                 if ($('.rsw-tooltip').length) {
 
-                    window.console.log(event.target);
+                    mw.log(event.target);
                     hoverTarget = $(event.target);
 
-                    if (hoverTarget.is('.rsw-tooltip') || hoverTarget.is('#rsw-tooltip-settings') || hoverTarget.is('.reference-text') || hoverTarget.is('.reference-text a')) {
+                    // there's a bug here somewhere...
+                    if (hoverTarget.is('.rsw-tooltip') || hoverTarget.is('.reference-text') || hoverTarget.is('.reference-text a') || hoverTarget.is('#rsw-tooltip-settings')) {
                         window.clearTimeout(timer);
                     } else {
                         hide();
