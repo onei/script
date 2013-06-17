@@ -367,7 +367,7 @@
                     hoverTarget = $(event.target);
 
                     // there's a bug here somewhere...
-                    if (hoverTarget.is('.reference, .rsw-tooltip, .rsw-tooltip *')) {
+                    if (hoverTarget.is('.rsw-tooltip, .rsw-tooltip *')) {
                         window.clearTimeout(timer);
                         return;
                     }
