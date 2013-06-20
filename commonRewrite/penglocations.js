@@ -29,6 +29,8 @@
  
         if ($.cookie(pengCookieID) !== null) {
             pengCookie = $.cookie(pengCookieID).split(''); // load the existing cookie, if any
+        } else {
+            pengCookie = ['0'];
         }
 
         // change the row bg color based on mouse events
@@ -63,11 +65,6 @@
 
             pengRows = $('#' + pengTableID + ' tr:has(td)'); // data rows
             pengCookieLen = pengRows.length + 1; // 1 for hidden + 1 for each peng/bear
-
-            // initialize a cookie if one didn't exist on load
-            while (pengCookie.length < pengCookieLen) {
-                pengCookie.push('0');
-            }
 
             pengSelector = ''; // propagate class from header row to data rows
             pengHeaders = $('#' + pengTableID + ' tr > th'); // save the headers to count them later
