@@ -26,8 +26,10 @@
             pengCookieLen,
             pengSelector,
             pengHeaders;
-
-        pengCookie = $.cookie(pengCookieID).split(''); // load the existing cookie, if any
+ 
+        if ($.cookie(pengCookieID) !== null) {
+            pengCookie = $.cookie(pengCookieID).split(''); // load the existing cookie, if any
+        }
 
         // change the row bg color based on mouse events
         function pengHighlight(el, val) {
