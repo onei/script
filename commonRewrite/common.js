@@ -2,8 +2,8 @@
  * MediaWiki:Common.js
  * JavaScript here will load on both skins for every user
  */
-/*global mw:true, $:true, importArticles:true, importScript:true, importStylesheet:true, importScriptURI:true */
-/*jshint strict:false, devel:true */
+
+/*global importArticles:true, importScript:true, importStylesheet:true, importScriptURI:true */
 
 /**
  * @todo
@@ -15,6 +15,7 @@
 
 /**
  * General reusable functions
+ * Cookie functions should use $.cookie maybe?
  */
 
 /**
@@ -141,7 +142,7 @@ var autoCollapse = 2,
 
     var scripts = [],
         styles = [],
-        // cache mw.config variables to make conditionals a little bit faster
+        // cache mw.config variables to make conditionals a bit faster
         skin = mw.config.get('skin'),
         wgPageName = mw.config.get('wgPageName'),
         wgAction = mw.config.get('wgAction'),
@@ -164,12 +165,16 @@ var autoCollapse = 2,
      * Konami code
      */
     scripts.push('MediaWiki:Common.js/Konami.js');
-    
+
     /**
      * UTC clock with purge link
      */
     scripts.push('MediaWiki:Common.js/displayTimer.js');
 
+    /**
+     * Histats
+     */
+    script.push('MediaWiki:Common.js/histats.js');
 
     if (wgAction === 'edit') {
 
@@ -268,7 +273,29 @@ var autoCollapse = 2,
         if ($.inArray(wgPageName), ajPages) > -1) {
             scripts.push('u:dev:AjaxRC/code.js');
         }
+        
+        /**
+         * Peng hunting highlight table
+         */
+        if (wgPageName === 'Distractions_and_Diversions_Locations' || wgPageName === 'Distractions_and_Diversions_Locations/Penguin_Hide_and_Seek') {
+            scripts.push('MediaWiki:Common.js/pengLocations.js');
+        }
 
+        /**
+         * Some survey thing on [[RuneScape:Survey]]
+         * Doesn't seem to work anymore
+         */
+        if (wgPageName === 'RuneScape:Survey') {
+            scripts.push('User:Quarenon/survey.js');
+        }        
+
+    }
+    
+    /**
+     * Hide Auto-uploads
+     */
+    if (wgPageName === 'Special:Log') {
+        scripts.push('User:AzBot/HideBotUploads.js');
     }
 
     /**
@@ -321,9 +348,81 @@ var autoCollapse = 2,
     if ($('.jcInput').length || $('[class*="jcPane"]').length) {
         scripts.push('User:Stewbasic/calc.js');
     }
- 
+
+    /**
+     * GE Charts
+     */
+    if ($('.GEdatachart').length) {
+        // replace these with mw.loader things
+        importScriptURI('http://code.highcharts.com/stock/highstock.js').onload = function() {
+            scripts.push('MediaWiki:Common.js/GECharts.js');
+        };
+
+        if ($.browser.msie && parseFloat($.browser.version) < 9) {
+            scripts.push('MediaWiki:Common.js/GECharts.js');
+        }
+    }
+
+    /**
+     * Item Compare Overlays
+     */
+    if ($('#mw-content-text .cioCompareLink').length) {
+        scripts.push('MediaWiki:Common.js/compare.js');
+        styles.push('MediaWiki:Common.css/compare.css');
+    }
+
+    /**
+     * Dynamic Templates
+     */
+    if ($('#mw-content-text .jcConfig').length) {
+        scripts.push('MediaWiki:Common.js/calc.js');
+        styles.push('MediaWiki:Common.css/calc.css');
+    }
+
+    /**
+     * Special page report
+     */
+    if ($('.specialMaintenance').length) || wgCanonicalSpecialPageName === 'Specialpages') {
+        scripts.push('MediaWiki:Common.js/spreport.js');
+    }
+
+    /**
+     * Autosort tables
+     * tag: small script
+     */
+    if ($('.sortable').length) {
+        scripts.push('User:Tyilo/autosort.js');
+    }
+
+    /**
+     * Add to charm logs
+     * @todo get conditional for this off joey
+     */
+    if () {
+    scripts.push('User:Joeytje50/Dropadd.js')
+    }
+
+    /**
+     * Switch infobox
+     */
+    if ($('.switch-infobox').length) {
+        scripts.push('User:Matthew2602/SwitchInfobox.js');
+    }
+
+    /**
+     * Adds calcs to infoboxes
+     * @todo get conditional for this off joey
+     */
+    if () {
+    scripts.push('User:Joeytje50/monstercalc.js');
+    }
 
     if (skin === 'monobook') {
+
+        /**
+         * Added sitenotice functionality
+         */
+        scripts.push('MediaWiki:Common.js/sitenotice.js');
 
         /**
          * Template preloads for monobook
@@ -342,86 +441,10 @@ var autoCollapse = 2,
     mw.log(scripts);
     mw.log(styles);
 
-    importArticles({
-        type: 'script',
-        articles: scripts
-    }, {
-        type: 'style',
-        articles: styles
-    });
-
-
-
-
-
-
-        "MediaWiki:Common.js/histats.js",               // HiStats
-
-        // tag: small script, merge with below
+/*      tag: small script, merge with below
         "MediaWiki:Common.js/navigationbars.js",        // Dynamic Nav Bars
         "MediaWiki:Common.js/navigationbars2.js",       // Dynamic Nav (2)
-
-
-        "MediaWiki:Common.js/pengLocations.js",         // Peng. Locations
-        "MediaWiki:Common.js/sitenotice.js",            // SiteNotice Add.
-        "MediaWiki:Common.js/spreport.js",              // Special Page Report
-        "User:Joeytje50/Dropadd.js",                    // DropAdd Script
-        "User:Joeytje50/monstercalc.js",                // Monster Calc
-        "User:Matthew2602/SwitchInfobox.js",            // Switch infobox
-        "User:Quarenon/survey.js",                      // RuneScape:Survey
-        "User:Tyilo/autosort.js",                       // Autosort Code
-        "User:Tyilo/ggpcatering.js",                    // GGP catering
-
-
-
-
-
-
-
-
-
-
-
-/**
- * GE Charts Script
- */
-if ($('.GEdatachart').length) {
-    importScriptURI('http://code.highcharts.com/stock/highstock.js').onload = function() {
-        scripts.push('MediaWiki:Common.js/GECharts.js');
-    };
-
-    if ($.browser.msie && parseFloat($.browser.version) < 9) {
-        scripts.push('MediaWiki:Common.js/GECharts.js');
-    }
-}
-
-/**
- * Item Compare Overlays
- * Original by Quarenon
- */
-if ($('#mw-content-text .cioCompareLink').length) {
-    scripts.push('MediaWiki:Common.js/compare.js');
-    styles.push('MediaWiki:Common.css/compare.css');
-}
-
-/**
- * Dynamic Templates
- */
-if ($('#mw-content-text .jcConfig').length) {
-    scripts.push('MediaWiki:Common.js/calc.js');
-    styles.push('MediaWiki:Common.css/calc.css');
-}
-
-
-
-/**
- * Hide Auto-uploads
- */
-if (wgPageName === 'Special:Log') {
-    scripts.push('User:AzBot/HideBotUploads.js');
-}
-
-/* ----------------------------------------------------------------------- */
+*/
 
     /**
      * Custom edit buttons
@@ -466,19 +489,6 @@ if (wgPageName === 'Special:Log') {
  
 	}
 
-    if (wgAction === 'submit' || wgAction === 'edit') {
-        if (mwCustomEditButtons.length) {
-            customEditButtons();
-        }
-    }
-
-    /**
-     * Insert username
-     */
-    if (wgUserName !== null) {
-        $("span.insertusername").text(wgUserName);
-    }
-
     /**
      * Redirects from /User:UserName/skin.js or .css to the user's actual skin page
      */
@@ -497,28 +507,58 @@ if (wgPageName === 'Special:Log') {
             window.location.href = window.location.href.replace(/\/skin.js/i, '/' + replaceSkin + '.js');
         }
     }
-    
-    if (wgUserName !== null && wgCanonicalNamespace === 'User') {
-        skinRedirect();
-    }
 
-    /**
-     * Hide edit button on Exchange pages for anons
-     */
-    if (wgUserName === null) {
-        $('.anonmessage').css('display', 'inline');
-    }
+    $(function () {
 
-    /**
-     * Podomatic, hosts of Jagex podcasts, is blocked by Wikia spam filters
-     * This adds some text below the spam block notice directing them to the template to be used instead
-     */
-    if ($('#spamprotected').text().search('podomatic') > -1) {
-        $('#spamprotected').append('<hr><p>To add links to Jagex podcasts please use <a href="/wiki/Template:Atl_podcast">Template:Atl podcast</a>. If the podcast you would like to link to is not found in the template, please leave a message <a href="/wiki/RuneScape:Administrator_requests">here</a>.</p>');
-    }
+        /**
+         * Large script imports
+         */
+        importArticles({
+            type: 'script',
+            articles: scripts
+        }, {
+            type: 'style',
+            articles: styles
+        });
+        
+        /**
+         * Function invocations
+         */
+        
+        // redirects skin.js to monobook/wikia.js
+        if (wgUserName !== null && wgCanonicalNamespace === 'User') {
+            skinRedirect();
+        }
 
+        // custom edit buttons
+        if (wgAction === 'submit' || wgAction === 'edit') {
+            if (mwCustomEditButtons.length) {
+                customEditButtons();
+            }
+        }
 
+        
+        /**
+         * Code snippets
+         */         
+        // Hide edit button on exchange pages for anons
+        if (wgUserName === null) {
+            $('.anonmessage').css('display', 'inline');
+        }
 
+        // Podomatic, hosts of Jagex podcasts, is blocked by Wikia spam filters
+        // This adds some text below the spam block notice directing them to the template to be used instead
+        if ($('#spamprotected').text().search('podomatic') > -1) {
+            $('#spamprotected').append('<hr><p>To add links to Jagex podcasts please use <a href="/wiki/Template:Atl_podcast">Template:Atl podcast</a>. If the podcast you would like to link to is not found in the template, please leave a message <a href="/wiki/RuneScape:Administrator_requests">here</a>.</p>');
+        }
+
+        /**
+         * Insert username
+         */
+        if (wgAction === 'view' && wgUserName !== null) {
+            $('.insertusername').text(wgUserName);
+        }
+        
     });
 
 }(this, this.jQuery, this.mediaWiki));
