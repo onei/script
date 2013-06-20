@@ -27,8 +27,9 @@
             pengSelector,
             pengHeaders;
  
+        // load the existing cookie, if any
         if ($.cookie(pengCookieID) !== null) {
-            pengCookie = $.cookie(pengCookieID).split(''); // load the existing cookie, if any
+            pengCookie = $.cookie(pengCookieID).split('');
         } else {
             pengCookie = ['0'];
         }
