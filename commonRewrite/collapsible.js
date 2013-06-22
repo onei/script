@@ -36,7 +36,7 @@
             // make sure we aren't selecting any nested navboxes
             rows = $(elem).children('tbody').children('tr');
 
-            // first tr is header
+            // rows[0] is the header
             for (j = 1; j < rows.length; j += 1) {
                 $(rows[j]).css({
                     'display': 'none'

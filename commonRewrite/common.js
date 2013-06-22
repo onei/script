@@ -4,12 +4,12 @@
  */
 
 /*global importArticles:true, jQuery:true, mediaWiki:true */
+/*jshint curly: true, devel: false */
 
 /**
  * @todo
  *  Remove deprecated addonloadhook
  *  Move wgVariable to mw.config.get('wgVariable')
- *  Remove deprecated importScriptURI
  */
 
 /**
@@ -114,19 +114,10 @@ if (mw.loader.getModuleNames().indexOf("tundra") < 0) {
 /* ----------------------------------------------------------------------- */
 
 /**
- * Variables for imported scripts
- * and importArticles()
- * These need to be global variables for the scripts to work
+ * Vars for AjaxRC
+ * Need to be global for the script to work
  */
-
-// Variables for Dynamic Navigation Bars
-var autoCollapse = 2,
-    collapseCaption = "hide",
-    expandCaption = "show",
-    maxHeight = 300,
- 
-    // Variables for Ajax Auto-Refresh
-    ajaxPages = [
+var ajaxPages = [
         'Special:RecentChanges',
         'Special:Watchlist',
         'Special:Log',
@@ -156,12 +147,11 @@ var autoCollapse = 2,
         wgAction = mw.config.get('wgAction'),
         wgUserName = mw.config.get('wgUserName'),
         wgUserGroups = mw.config.get('wgUserGroups'),
-        wgCanonicalNamespace = mw.config.get('wgCanonicalNamespace'),
         wgCanonicalSpecialPageName = mw.config.get('wgCanonicalSpecialPageName'),
-        wgNamespaceNumber = mw.config.get('wgNamespaceNumber'),
+        wgNamespaceNumber = mw.config.get('wgNamespaceNumber'), // use this for namespace checks
         // for use with GED errors
         manualExchange;
-     
+
     /**
      * Change <youtube>video</youtube> to {{youtube|video}}
      * Runs when save button is clicked
@@ -240,7 +230,94 @@ var autoCollapse = 2,
             window.location.href = window.location.href.replace(/\/skin.js/i, '/' + replaceSkin + '.js');
         }
     }
+
+    /**
+     * Collapses navboxes under certain conditions
+     */
+    function navbox() {
+
+        var expand = 'Expand', // defined by [[MediaWiki:Collapsible-expand]]
+            navboxes = $('.navbox'),
+            maxShow = 2,     // maximum number of navboxes before they all get collapsed
+            maxHeight = 300, // maximum allowable height of navbox before it gets collapsed
+            i;
+
+        // @param elem - navbox to be collapsed
+        function collapseNavbox(elem) {
+
+            var rows,
+                j,
+                toggle;
+
+            // temp check until cache is updated
+            if ($(elem).hasClass('mw-collapsible') === false) {
+                return;
+            }
+
+            if ($(elem).hasClass('mw-collapsed')) {
+                return;
+            }
+
+            // add the collapsed class
+            $(elem).addClass('mw-collapsed');
+
+            // make sure we aren't selecting any nested navboxes
+            rows = $(elem).children('tbody').children('tr');
+
+            // rows[0] is the header
+            for (j = 1; j < rows.length; j += 1) {
+                $(rows[j]).css({
+                    'display': 'none'
+                });
+            }
+
+            // toggle is always in header
+            toggle = $(rows[0]).find('.mw-collapsible-toggle');
+
+            // this class is required to make expand work properly
+            $(toggle).addClass('mw-collapsible-toggle-collapsed');
+            $(toggle).children('a').text(expand);
+
+        }
+
+        // collapse if more than maxShow
+        if (navboxes.length > (maxShow - 1)) {
+            for (i = 0; i < navboxes.length; i += 1) {
+                collapseNavbox(navboxes[i]);
+            }
+        }
+
+        // collapse if taller than maxHeight
+        for (i = 0; i < navboxes.length; i += 1) {
+            if ($(navboxes[i]).height() > maxHeight) {
+                collapseNavbox(navboxes[i]);
+            }
+        }
+
+    }
+
+    /**
+     * Signature reminder on forum namespace and talk pages
+     */
+    sigReminder function (event) {
+        if (typeof enforceSign === 'undefined') {
+            enforceSign = true;
+        }
     
+        var text = $('#cke_wpTextbox1 iframe').contents().find('#bodyContent').text() || $('#wpTextbox1').val();
+    
+        if (
+            enforceSign &&
+            !$('#wpMinoredit').is(':checked') &&
+            !text.replace(/(<nowiki>.*?<\/nowiki>)/g, '').match('~~~') &&
+            !window.location.search.match(/(?:\?|&)undo=/)
+        ) {
+            if (!confirm('It looks like you forgot to sign your comment. You can sign by placing 4 tildes (~~~~) to the end of your message. \nAre you sure you want to post it?')) {
+                event.preventDefault();
+            }
+        }
+    });
+
     $(function () {
     
         /**
@@ -250,168 +327,113 @@ var autoCollapse = 2,
          * Stylesheets to be imported using importArticles() added to styles array
          */
 
-        // Konami code
-        scripts.push('MediaWiki:Common.js/Konami.js');
-
-        // UTC clock with purge link
-        scripts.push('MediaWiki:Common.js/displayTimer.js');
-
-        // Histats
-        script.push('MediaWiki:Common.js/histats.js');
+        scripts.push('MediaWiki:Common.js/Konami.js');       // Konami code
+        scripts.push('MediaWiki:Common.js/displayTimer.js'); // UTC clock with purge link
+        script.push('MediaWiki:Common.js/histats.js');       // Histats
 
         if (wgAction === 'edit') {
 
-            // Standard edit summaries
-            scripts.push('MediaWiki:Common.js/standardeditsummaries.js');
+            scripts.push('MediaWiki:Common.js/standardeditsummaries.js'); // Standard edit summaries
 
-            // Notice when editing update pages
-            if (wgCanonicalNamespace === 'Update') {
-                scripts.push('MediaWiki:Common.js/updateintro.js');
+            if (wgNamespaceNumber === 100) {
+                scripts.push('MediaWiki:Common.js/updateintro.js'); // Notice when editing update pages
             }
-
-            // Notice when editing Exchange /Data subpages        
-            if (wgCanonicalNamespace === 'Exchange' && wgPageName.split('/')[1] === 'Data') {
-                scripts.push('MediaWiki:Common.js/exchangeintro.js');
-            }
-        }
-    
-        // merge into main js
-        if (wgAction === 'edit' || wgAction === 'submit') {
-            if (wgNamespaceNumber % 2 === 1 || wgNamespaceNumber === 110) {
-                // tag: small script
-                scripts.push('User:Tyilo/signature.js'); // sig reminder
+            if (wgNamespaceNumber === 112 && wgPageName.split('/')[1] === 'Data') {
+                scripts.push('MediaWiki:Common.js/exchangeintro.js'); // Notice when editing Exchange /Data subpages        
             }
         }
 
         if (wgAction === 'view') {
 
-            // Embed IRC
             if (wgPageName === 'RuneScape:Off-site/IRC') {
-                scripts.push('MediaWiki:Common.js/embedirc.js'); // embed irc
+                scripts.push('MediaWiki:Common.js/embedirc.js'); // Embed IRC
             }
-
-            // Check old page revisions for vandalism
             if (wgPageName === 'RuneScape:RC_Patrol') {
-                scripts.push('User:Suppa_chuppa/rcpatrol.js');
+                scripts.push('User:Suppa_chuppa/rcpatrol.js'); // Check old page revisions for vandalism
                 styles.push('User:Suppa_chuppa/rcp.css');
             }
-    
-            // <description>
             if (wgPageName === 'MediaWiki:Namespace_numbers') {
-                scripts.push('MediaWiki:Common.js/namespaceNumbersList.js');
+                scripts.push('MediaWiki:Common.js/namespaceNumbersList.js'); // Lists namespace number for easy reference
             }
-        
-            // Form for reporting users on [[RS:CVU]]
             if (wgPageName === 'RuneScape:Counter-Vandalism_Unit') {
-                scripts.push('User:Suppa_chuppa/cvu.js');
+                scripts.push('User:Suppa_chuppa/cvu.js'); // Form for reporting users on [[RS:CVU]]
             }
-    
-            // Add edit links to [[Special:WhatLinksHere]]
             if (wgCanonicalSpecialPageName === 'Whatlinkshere') {
-                scripts.push('MediaWiki:Common.js/WLH_edit.js');
+                scripts.push('MediaWiki:Common.js/WLH_edit.js'); // Add edit links to [[Special:WhatLinksHere]]
             }
 
-
-            // Add custom price input for Exchange pages
             // See [[RuneScape:Exchange namespace]] for usage
             manualExchange = [
                 // add pages here
             ];
-        
             if ($.inArray(wgPageName), manualExchange) > -1) {
-                scripts.push('User:Quarenon/gemwupdate.js');
+                scripts.push('User:Quarenon/gemwupdate.js'); // Add custom price input for exchange pages
+            } else {
+                if ($(.inArray('autoconfirmed'), wgUserGroups > -1) {
+                    scripts.push('MediaWiki:Common.js/gemwupdate.js'); // Semi-automated price updates for exchange pages
+                }
             }
-
-        
-            // Ajax refresh for various pages
             if ($.inArray(wgPageName), ajPages) > -1) {
-                scripts.push('u:dev:AjaxRC/code.js');
+                scripts.push('u:dev:AjaxRC/code.js'); // Ajax refresh for various pages
             }
-        
-            // Peng hunting highlight table
             if (wgPageName === 'Distractions_and_Diversions_Locations' || wgPageName === 'Distractions_and_Diversions_Locations/Penguin_Hide_and_Seek') {
-                scripts.push('MediaWiki:Common.js/pengLocations.js');
-            }
-
-            // Some survey thing on [[RuneScape:Survey]]
-            // Doesn't seem to work anymore
-            if (wgPageName === 'RuneScape:Survey') {
-                scripts.push('User:Quarenon/survey.js');
+                scripts.push('MediaWiki:Common.js/pengLocations.js'); // Peng hunting highlight table
             }
 
         }
     
-        // Hide Auto-uploads
         if (wgPageName === 'Special:Log') {
-            scripts.push('User:AzBot/HideBotUploads.js');
+            scripts.push('User:AzBot/HideBotUploads.js'); // Hide Auto-uploads
         }
 
-        // Countdown timer
         if ($('.countdown').length) {
-            scripts.push('MediaWiki:Common.js/countdowntimer.js');
+            scripts.push('MediaWiki:Common.js/countdowntimer.js'); // Countdown timer
         }
 
 
-        // Youtube embedding
         if ($('.youtube').length) {
-            scripts.push('MediaWiki:Common.js/youtube.js');
+            scripts.push('MediaWiki:Common.js/youtube.js'); // Youtube embedding
         }
 
-        // Collapsible tables
-        // Should really be replaced by native mw- class
-        if ($('.collapsible').length) {
-            scripts.push('MediaWiki:Common.js/collapsibletables.js');
-        }
-
-        // Embed audio
         if ($('.embedMe').length) {
-            scripts.push('MediaWiki:Common.js/embedding.js');
+            scripts.push('MediaWiki:Common.js/embedding.js'); // Embed audio
         }
 
-        // Highlight tables
         if ($('.lighttable').length) {
-            scripts.push('MediaWiki:Common.js/highlightTable.js');
+            scripts.push('MediaWiki:Common.js/highlightTable.js'); // Highlight tables
         }
 
-        // Rewrite page titles
         if ($('#title-meta').length) {
-            scripts.push('MediaWiki:Common.js/pagetitle.js');
+            scripts.push('MediaWiki:Common.js/pagetitle.js'); // Rewrite page titles
         }
 
-        // Calculator script
-        // per [[Forum:New javascript calculators]]
         if ($('.jcInput').length || $('[class*="jcPane"]').length) {
-            scripts.push('User:Stewbasic/calc.js');
+            scripts.push('User:Stewbasic/calc.js'); // Calculators
         }
 
-        // GE Charts
+
         if ($('.GEdatachart').length) {
-            // replace these with mw.loader things
-            importScriptURI('http://code.highcharts.com/stock/highstock.js').onload = function() {
-                scripts.push('MediaWiki:Common.js/GECharts.js');
-            };
-
-            if ($.browser.msie && parseFloat($.browser.version) < 9) {
-                scripts.push('MediaWiki:Common.js/GECharts.js');
+            if (mw.loader.getModuleNames().indexOf('highcharts') < 0) {
+                mw.loader.implement('highcharts', ['http://code.highcharts.com/stock/highstock.js'], {}, {});
             }
+            
+            mw.loader.using('highcharts', function () {
+                scripts.push('MediaWiki:Common.js/GECharts.js'); // GE Charts
+            });
         }
 
-        // Item Compare Overlays
         if ($('#mw-content-text .cioCompareLink').length) {
-            scripts.push('MediaWiki:Common.js/compare.js');
+            scripts.push('MediaWiki:Common.js/compare.js'); // Item Compare Overlays
             styles.push('MediaWiki:Common.css/compare.css');
         }
 
-        // Dynamic Templates
         if ($('#mw-content-text .jcConfig').length) {
-            scripts.push('MediaWiki:Common.js/calc.js');
+            scripts.push('MediaWiki:Common.js/calc.js'); // Dynamic Templates
             styles.push('MediaWiki:Common.css/calc.css');
         }
 
-        // Special page report
-        // Used on [[RS:MAINTENANCE]]
         if ($('.specialMaintenance').length) || wgCanonicalSpecialPageName === 'Specialpages') {
-            scripts.push('MediaWiki:Common.js/spreport.js');
+            scripts.push('MediaWiki:Common.js/spreport.js'); // Special page report on [[RS:MAINTENANCE]] and [[Special:SpecialPages]]
         }
 
         // Autosort tables
@@ -420,32 +442,27 @@ var autoCollapse = 2,
             scripts.push('User:Tyilo/autosort.js');
         }
 
-        // Add to charm logs
         // @todo get conditional for this off joey
         if () {
-            scripts.push('User:Joeytje50/Dropadd.js')
+            scripts.push('User:Joeytje50/Dropadd.js'); // Add to charm logs
         }
 
-        // Switch infobox
         if ($('.switch-infobox').length) {
-            scripts.push('User:Matthew2602/SwitchInfobox.js');
+            scripts.push('User:Matthew2602/SwitchInfobox.js'); // Switch infobox
         }
 
 
-        // Adds calcs to infoboxes
         // @todo get conditional for this off joey
         if () {
-            scripts.push('User:Joeytje50/monstercalc.js');
+            scripts.push('User:Joeytje50/monstercalc.js'); // Adds calcs to infoboxes
         }
 
         if (skin === 'monobook') {
 
-            // Extra sitenotice functionality
-            scripts.push('MediaWiki:Common.js/sitenotice.js');
+            scripts.push('MediaWiki:Common.js/sitenotice.js'); // Extra sitenotice functionality
 
-            // Template preloads for monobook
             if (wgAction === 'edit') {
-                scripts.push('MediaWiki:Common.js/preload.js');
+                scripts.push('MediaWiki:Common.js/preload.js'); // Template preloads for monobook
             }
 
         }
@@ -457,11 +474,6 @@ var autoCollapse = 2,
         // ?debug=true to see these
         mw.log(scripts);
         mw.log(styles);
-
-/*      tag: small script, merge with below
-        "MediaWiki:Common.js/navigationbars.js",        // Dynamic Nav Bars
-        "MediaWiki:Common.js/navigationbars2.js",       // Dynamic Nav (2)
-*/
 
         // Large script imports
         importArticles({
@@ -475,24 +487,30 @@ var autoCollapse = 2,
         /**
          * Function invocations
          */
-        // redirects skin.js to monobook/wikia.js
-        if (wgUserName !== null && wgCanonicalNamespace === 'User') {
-            skinRedirect();
+        if (wgUserName !== null && wgNamespaceNumber === 2) {
+            skinRedirect(); // redirects skin.js to monobook/wikia.js
         }
 
-        // custom edit buttons
         if (wgAction === 'submit' || wgAction === 'edit') {
             if (mwCustomEditButtons.length) {
-                customEditButtons();
+                customEditButtons(); // custom edit buttons
+            }
+            
+            if (wgNamespaceNumber % 2 === 1 || wgNamespaceNumber === 110) {
+                $('#wpSave').click(function (e) {
+                    sigReminder(e); // sig reminder
+                }
             }
         }
 
-        // swaps youtube tags to {{youtube}}
-        if (mw.config.get('wgAction') === 'edit') {
-            $('#wpSave').click(tagSwitch);
+        if (wgAction === 'edit') {
+            $('#wpSave').click(tagSwitch); // swaps youtube tags to {{youtube}}
         }
 
-        
+        if (wgNamespaceNumber === 0 && $('.navbox').length) {
+            navbox(); // collapses navboxes under certain conditions
+        }
+
         /**
          * Code snippets
          */         
