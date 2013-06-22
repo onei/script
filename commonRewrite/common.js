@@ -3,8 +3,9 @@
  * JavaScript here will load on both skins for every user
  */
 
-/*global importArticles:true, jQuery:true, mediaWiki:true */
+/*global importArticles: true, jQuery: true, mediaWiki: true, mwCustomEditButtons: true */
 /*jshint curly: true, devel: false */
+/*jslint regexp: true, todo: true, indent: 4 */
 
 /**
  * @todo
@@ -67,11 +68,11 @@ function callAPI(data, method, callback, addurl) {
 
     'use strict';
 
-    data['format'] = 'json';
+    data.format = 'json';
     jQuery.ajax({
         data: data,
         dataType: 'json',
-        url: '/api.php' + (addurl ? addurl : ''),
+        url: '/api.php' + (addurl || ''),
         type: method,
         cache: false,
         success: function (response) {
@@ -82,13 +83,15 @@ function callAPI(data, method, callback, addurl) {
             }
         },
         error: function (xhr, error) {
+            mediaWiki.log('AJAX response: ' + xhr.responseText);
             mediaWiki.log('AJAX error: ' + error);
         }
     });
 }
- 
+
 // http://www.mredkj.com/javascript/numberFormat.html#addcommas
 function addCommas(nStr) {
+    'use strict';
     nStr += '';
     var x = nStr.split('.'),
         x1 = x[0],
@@ -107,8 +110,8 @@ function addCommas(nStr) {
  * For documentation see https://github.com/Matthew2602/tundra/wiki
  */
 // ResourceLoader throws an exception if you try and registered a module that is already registered
-if (mw.loader.getModuleNames().indexOf("tundra") < 0) {
-    mw.loader.implement("tundra", ["http://matthew2602.github.io/tundra/tundra.min.js"], {}, {});
+if (mediaWiki.loader.getModuleNames().indexOf("tundra") < 0) {
+    mediaWiki.loader.implement("tundra", ["http://matthew2602.github.io/tundra/tundra.min.js"], {}, {});
 }
 
 /* ----------------------------------------------------------------------- */
@@ -155,62 +158,61 @@ var ajaxPages = [
     /**
      * Change <youtube>video</youtube> to {{youtube|video}}
      * Runs when save button is clicked
-     */     
+     */
     function tagSwitch() {
 
-        'use strict';
- 
         var wikitext = $('#wpTextbox1').html();
- 
+
         wikitext = wikitext.replace(/&lt;youtube&gt;/g, '{{youtube|');
         wikitext = wikitext.replace(/&lt;\/youtube&gt;/g, '}}');
- 
+
         $('#wpTextbox1').html(wikitext);
- 
+
     }
 
     /**
      * Custom edit buttons
+     * Deprecated - http://www.mediawiki.org/wiki/ResourceLoader/JavaScript_Deprecations#edit.js
      */
     function customEditButtons() {
 
-		// Redirect
-		mwCustomEditButtons[mwCustomEditButtons.length] = {
-			"imageFile": "http://images.wikia.com/central/images/c/c8/Button_redirect.png",
-			"speedTip": "Redirect",
-			"tagOpen": "#REDIRECT [[",
-			"tagClose": "]]",
-			"sampleText": "Insert text"
-		};
- 
-		// Wikitable
-		mwCustomEditButtons[mwCustomEditButtons.length] = {
-			"imageFile": "http://images3.wikia.nocookie.net/central/images/4/4a/Button_table.png",
-			"speedTip": "Insert a table",
-			"tagOpen": '{| class="wikitable"\n|-\n',
-			"tagClose": "\n|}",
-			"sampleText": "! header 1\n! header 2\n! header 3\n|-\n| row 1, cell 1\n| row 1, cell 2\n| row 1, cell 3\n|-\n| row 2, cell 1\n| row 2, cell 2\n| row 2, cell 3"
-		};
- 
-		// Line break
-		mwCustomEditButtons[mwCustomEditButtons.length] = {
-			"imageFile": "http://images2.wikia.nocookie.net/central/images/1/13/Button_enter.png",
-			"speedTip": "Line break",
-			"tagOpen": "<br>",
-			"tagClose": "",
-			"sampleText": ""
-		};
- 
-		// Gallery
-		mwCustomEditButtons[mwCustomEditButtons.length] = {
-			"imageFile": "http://images2.wikia.nocookie.net/central/images/1/12/Button_gallery.png",
-			"speedTip": "Insert a picture gallery",
-			"tagOpen": '\n<div style="text-align:center"><gallery>\n',
-			"tagClose": "\n</gallery></div>",
-			"sampleText": "File:Example.jpg|Caption1\nFile:Example.jpg|Caption2"
-		};
- 
-	}
+        // Redirect
+        mwCustomEditButtons[mwCustomEditButtons.length] = {
+            "imageFile": "http://images.wikia.com/central/images/c/c8/Button_redirect.png",
+            "speedTip": "Redirect",
+            "tagOpen": "#REDIRECT [[",
+            "tagClose": "]]",
+            "sampleText": "Insert text"
+        };
+
+        // Wikitable
+        mwCustomEditButtons[mwCustomEditButtons.length] = {
+            "imageFile": "http://images3.wikia.nocookie.net/central/images/4/4a/Button_table.png",
+            "speedTip": "Insert a table",
+            "tagOpen": '{| class="wikitable"\n|-\n',
+            "tagClose": "\n|}",
+            "sampleText": "! header 1\n! header 2\n! header 3\n|-\n| row 1, cell 1\n| row 1, cell 2\n| row 1, cell 3\n|-\n| row 2, cell 1\n| row 2, cell 2\n| row 2, cell 3"
+        };
+
+        // Line break
+        mwCustomEditButtons[mwCustomEditButtons.length] = {
+            "imageFile": "http://images2.wikia.nocookie.net/central/images/1/13/Button_enter.png",
+            "speedTip": "Line break",
+            "tagOpen": "<br>",
+            "tagClose": "",
+            "sampleText": ""
+        };
+
+        // Gallery
+        mwCustomEditButtons[mwCustomEditButtons.length] = {
+            "imageFile": "http://images2.wikia.nocookie.net/central/images/1/12/Button_gallery.png",
+            "speedTip": "Insert a picture gallery",
+            "tagOpen": '\n<div style="text-align:center"><gallery>\n',
+            "tagClose": "\n</gallery></div>",
+            "sampleText": "File:Example.jpg|Caption1\nFile:Example.jpg|Caption2"
+        };
+
+    }
 
     /**
      * Redirects from /User:UserName/skin.js or .css to the user's actual skin page
@@ -222,12 +224,12 @@ var ajaxPages = [
 
         // skin.css
         if (wgPageName === 'User:' + urlUsername + '/skin.css') {
-            window.location.href = window.location.href.replace(/\/skin.css/i, '/' + replaceSkin + '.css');
+            window.location.href = window.location.href.replace(/\/skin\.css/i, '/' + replaceSkin + '.css');
         }
 
         // skin.js
         if (wgPageName === 'User:' + urlUsername + '/skin.js') {
-            window.location.href = window.location.href.replace(/\/skin.js/i, '/' + replaceSkin + '.js');
+            window.location.href = window.location.href.replace(/\/skin\.js/i, '/' + replaceSkin + '.js');
         }
     }
 
@@ -299,27 +301,26 @@ var ajaxPages = [
     /**
      * Signature reminder on forum namespace and talk pages
      */
-    sigReminder function (event) {
-        if (typeof enforceSign === 'undefined') {
+    function sigReminder(event) {
+
+        var enforceSign,
+            text;
+
+        if (enforceSign === undefined) {
             enforceSign = true;
         }
-    
-        var text = $('#cke_wpTextbox1 iframe').contents().find('#bodyContent').text() || $('#wpTextbox1').val();
-    
-        if (
-            enforceSign &&
-            !$('#wpMinoredit').is(':checked') &&
-            !text.replace(/(<nowiki>.*?<\/nowiki>)/g, '').match('~~~') &&
-            !window.location.search.match(/(?:\?|&)undo=/)
-        ) {
+
+        text = $('#cke_wpTextbox1 iframe').contents().find('#bodyContent').text() || $('#wpTextbox1').val();
+
+        if (enforceSign && !$('#wpMinoredit').is(':checked') && !text.replace(/(<nowiki>.*?<\/nowiki>)/g, '').match('~~~') && !window.location.search.match(/(?:\?|&)undo=/)) {
             if (!confirm('It looks like you forgot to sign your comment. You can sign by placing 4 tildes (~~~~) to the end of your message. \nAre you sure you want to post it?')) {
                 event.preventDefault();
             }
         }
-    });
+    }
 
     $(function () {
-    
+
         /**
          * Imports
          * 
@@ -329,7 +330,7 @@ var ajaxPages = [
 
         scripts.push('MediaWiki:Common.js/Konami.js');       // Konami code
         scripts.push('MediaWiki:Common.js/displayTimer.js'); // UTC clock with purge link
-        script.push('MediaWiki:Common.js/histats.js');       // Histats
+        scripts.push('MediaWiki:Common.js/histats.js');       // Histats
 
         if (wgAction === 'edit') {
 
@@ -366,14 +367,14 @@ var ajaxPages = [
             manualExchange = [
                 // add pages here
             ];
-            if ($.inArray(wgPageName), manualExchange) > -1) {
+            if ($.inArray(wgPageName, manualExchange) > -1) {
                 scripts.push('User:Quarenon/gemwupdate.js'); // Add custom price input for exchange pages
             } else {
-                if ($(.inArray('autoconfirmed'), wgUserGroups > -1) {
+                if ($.inArray('autoconfirmed', wgUserGroups) > -1) {
                     scripts.push('MediaWiki:Common.js/gemwupdate.js'); // Semi-automated price updates for exchange pages
                 }
             }
-            if ($.inArray(wgPageName), ajPages) > -1) {
+            if ($.inArray(wgPageName, ajaxPages) > -1) {
                 scripts.push('u:dev:AjaxRC/code.js'); // Ajax refresh for various pages
             }
             if (wgPageName === 'Distractions_and_Diversions_Locations' || wgPageName === 'Distractions_and_Diversions_Locations/Penguin_Hide_and_Seek') {
@@ -381,7 +382,7 @@ var ajaxPages = [
             }
 
         }
-    
+
         if (wgPageName === 'Special:Log') {
             scripts.push('User:AzBot/HideBotUploads.js'); // Hide Auto-uploads
         }
@@ -416,7 +417,7 @@ var ajaxPages = [
             if (mw.loader.getModuleNames().indexOf('highcharts') < 0) {
                 mw.loader.implement('highcharts', ['http://code.highcharts.com/stock/highstock.js'], {}, {});
             }
-            
+
             mw.loader.using('highcharts', function () {
                 scripts.push('MediaWiki:Common.js/GECharts.js'); // GE Charts
             });
@@ -432,7 +433,7 @@ var ajaxPages = [
             styles.push('MediaWiki:Common.css/calc.css');
         }
 
-        if ($('.specialMaintenance').length) || wgCanonicalSpecialPageName === 'Specialpages') {
+        if ($('.specialMaintenance').length || wgCanonicalSpecialPageName === 'Specialpages') {
             scripts.push('MediaWiki:Common.js/spreport.js'); // Special page report on [[RS:MAINTENANCE]] and [[Special:SpecialPages]]
         }
 
@@ -443,9 +444,9 @@ var ajaxPages = [
         }
 
         // @todo get conditional for this off joey
-        if () {
-            scripts.push('User:Joeytje50/Dropadd.js'); // Add to charm logs
-        }
+        // if () {
+        scripts.push('User:Joeytje50/Dropadd.js'); // Add to charm logs
+        // }
 
         if ($('.switch-infobox').length) {
             scripts.push('User:Matthew2602/SwitchInfobox.js'); // Switch infobox
@@ -453,9 +454,9 @@ var ajaxPages = [
 
 
         // @todo get conditional for this off joey
-        if () {
-            scripts.push('User:Joeytje50/monstercalc.js'); // Adds calcs to infoboxes
-        }
+        // if () {
+        scripts.push('User:Joeytje50/monstercalc.js'); // Adds calcs to infoboxes
+        // }
 
         if (skin === 'monobook') {
 
@@ -466,11 +467,11 @@ var ajaxPages = [
             }
 
         }
-
+/*
         if (skin === 'oasis') {
             // oasis specific js here
         }
-  
+*/
         // ?debug=true to see these
         mw.log(scripts);
         mw.log(styles);
@@ -483,7 +484,7 @@ var ajaxPages = [
             type: 'style',
             articles: styles
         });
-        
+
         /**
          * Function invocations
          */
@@ -495,11 +496,11 @@ var ajaxPages = [
             if (mwCustomEditButtons.length) {
                 customEditButtons(); // custom edit buttons
             }
-            
+
             if (wgNamespaceNumber % 2 === 1 || wgNamespaceNumber === 110) {
                 $('#wpSave').click(function (e) {
                     sigReminder(e); // sig reminder
-                }
+                });
             }
         }
 
@@ -513,7 +514,7 @@ var ajaxPages = [
 
         /**
          * Code snippets
-         */         
+         */
         // Hide edit button on exchange pages for anons
         if (wgUserName === null) {
             $('.anonmessage').css('display', 'inline');
@@ -529,7 +530,7 @@ var ajaxPages = [
         if (wgAction === 'view' && wgUserName !== null) {
             $('.insertusername').text(wgUserName);
         }
-        
+
     });
 
 }(this, this.jQuery, this.mediaWiki));
