@@ -303,19 +303,29 @@ var ajaxPages = [
      */
     function sigReminder(event) {
 
-        var enforceSign,
-            text;
+        var text,
+            reminder;
 
-        if (enforceSign === undefined) {
-            enforceSign = true;
-        }
-
+        // fairly sure #wpTextbox1 exists in both skins
         text = $('#cke_wpTextbox1 iframe').contents().find('#bodyContent').text() || $('#wpTextbox1').val();
 
-        if (enforceSign && !$('#wpMinoredit').is(':checked') && !text.replace(/(<nowiki>.*?<\/nowiki>)/g, '').match('~~~') && !window.location.search.match(/(?:\?|&)undo=/)) {
-            if (!confirm('It looks like you forgot to sign your comment. You can sign by placing 4 tildes (~~~~) to the end of your message. \nAre you sure you want to post it?')) {
-                event.preventDefault();
-            }
+        // don;t trigger on minor edits
+        if ($('#wpMinoredit').is(':checked')) {
+            return;
+        }
+        // check for sig
+        if (text.replace(/(<nowiki>.*?<\/nowiki>)/g, '').match('~~~')) {
+            return;
+        }
+        // check for undo summary?
+        if (window.location.search.match(/(?:\?|&)undo=/)) {
+            return;
+        }
+
+        reminder = confirm('It looks like you forgot to sign your comment. You can sign by placing 4 tildes (~~~~) to the end of your message. \nAre you sure you want to post it?');
+
+        if (reminder === false) {
+            event.preventDefault();
         }
     }
 
@@ -323,14 +333,21 @@ var ajaxPages = [
 
         /**
          * Imports
+         *
+         * Description:
+         * Add scripts to an array if it passes a conditional, and then use importArticles() on that array
+         * This is hopefully faster than loading every script and then using a conditional
+         * 
+         * Instructions:
          * 
          * Scripts to be imported using importArticles() added to scripts array
          * Stylesheets to be imported using importArticles() added to styles array
+         * Only load stylesheets if they
          */
 
         scripts.push('MediaWiki:Common.js/Konami.js');       // Konami code
         scripts.push('MediaWiki:Common.js/displayTimer.js'); // UTC clock with purge link
-        scripts.push('MediaWiki:Common.js/histats.js');       // Histats
+        scripts.push('MediaWiki:Common.js/histats.js');      // Histats
 
         if (wgAction === 'edit') {
 
@@ -443,20 +460,17 @@ var ajaxPages = [
             scripts.push('User:Tyilo/autosort.js');
         }
 
-        // @todo get conditional for this off joey
-        // if () {
-        scripts.push('User:Joeytje50/Dropadd.js'); // Add to charm logs
-        // }
+        if ((wgPageName.match('/Charm_log') && $('#charmguide').length) || (!wgPageName.match('/Charm_log') && $('.charmtable').length)) {
+            scripts.push('User:Joeytje50/Dropadd.js'); // Add to charm logs
+        }
 
         if ($('.switch-infobox').length) {
             scripts.push('User:Matthew2602/SwitchInfobox.js'); // Switch infobox
         }
 
-
-        // @todo get conditional for this off joey
-        // if () {
-        scripts.push('User:Joeytje50/monstercalc.js'); // Adds calcs to infoboxes
-        // }
+        if ($('#XPEach').length || $('#GEPrice').length || $('#killXP').length) {
+            scripts.push('User:Joeytje50/monstercalc.js'); // Adds calcs to infoboxes
+        }
 
         if (skin === 'monobook') {
 
