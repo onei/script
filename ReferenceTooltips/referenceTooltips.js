@@ -329,6 +329,7 @@
             $('body').append(tooltip);
 
             tooltipHeight = $('.rsw-tooltip').height();
+            tooltipWidth = $('.rsw-tooltip').width();
             
             top = offset.top - tooltipHeight - 25;
             left = offset.left - 7;
@@ -337,11 +338,11 @@
             if (top < window.pageYOffset) {
                 top = window.pageYOffset;
             }
-            
+
             // if too far right
             // only an issue in monobook
-            if (left > windpow.pageXOffset) {
-                left = window.pageXOffset;
+            if ((tooltipWidth + left) > body.clientWidth) {
+                left = body.ClientWidth - tooltipWidth;
             }
 
             $('.rsw-tooltip').css({
