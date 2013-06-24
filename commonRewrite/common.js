@@ -3,7 +3,6 @@
  * JavaScript here will load on both skins for every user
  */
 
-/*global importArticles: true, jQuery: true, mediaWiki: true, mwCustomEditButtons: true */
 /*jshint curly: true, devel: false */
 /*jslint regexp: true, todo: true, indent: 4 */
 
@@ -12,131 +11,6 @@
  *  Remove deprecated addonloadhook
  *  Move wgVariable to mw.config.get('wgVariable')
  */
-
-/**
- * Sets the cookie
- * @param c_name string Name of the cookie
- * @param value string 'on' or 'off'
- * @param expiredays integer Expiry time of the cookie in days
- * @param path
- */
-function setCookie(c_name, value, expiredays, path) {
-
-    'use strict';
-
-    var options = {};
-
-    if (expiredays) {
-        options.expires = expiredays;
-    }
-
-    if (path) {
-        options.path = path;
-    }
-
-    jQuery.cookie(c_name, value, options);
-
-}
-
-/**
- * Gets the cookie
- * @param c_name string Cookie name
- * @return The cookie name or empty string
- */
-function getCookie(c_name) {
-
-    'use strict';
-
-    var cookie = jQuery.cookie(c_name);
-
-    if (cookie === null) {
-        cookie = '';
-    }
-
-    return cookie;
-
-}
-
-/**
- * Calls wiki API and returns the response in the callback
- * @param data named array List of parameters to send along with the request. {'format':'json'} is set automatically.
- * @param method string Either POST or GET.
- * @param callback function Thing to run when request is complete
- * @param addurl string (optional) Anything you may want to add to the request url, in case you need it.
- */
-function callAPI(data, method, callback, addurl) {
-
-    'use strict';
-
-    data.format = 'json';
-    jQuery.ajax({
-        data: data,
-        dataType: 'json',
-        url: '/api.php' + (addurl || ''),
-        type: method,
-        cache: false,
-        success: function (response) {
-            if (response.error) {
-                mediaWiki.log('API error: ' + response.error.info);
-            } else {
-                callback(response);
-            }
-        },
-        error: function (xhr, error) {
-            mediaWiki.log('AJAX response: ' + xhr.responseText);
-            mediaWiki.log('AJAX error: ' + error);
-        }
-    });
-}
-
-// http://www.mredkj.com/javascript/numberFormat.html#addcommas
-function addCommas(nStr) {
-    'use strict';
-    nStr += '';
-    var x = nStr.split('.'),
-        x1 = x[0],
-        x2 = x.length > 1 ? '.' + x[1] : '',
-        rgx = /(\d+)(\d{3})/;
-
-    while (rgx.test(x1)) {
-        x1 = x1.replace(rgx, '$1' + ',' + '$2');
-    }
-    return x1 + x2;
-}
-
-/**
- * Matthew's Tundra library
- * Making stuff easier for MediaWiki things like editing pages, etc.
- * For documentation see https://github.com/Matthew2602/tundra/wiki
- */
-// ResourceLoader throws an exception if you try and registered a module that is already registered
-if (mediaWiki.loader.getModuleNames().indexOf("tundra") < 0) {
-    mediaWiki.loader.implement("tundra", ["http://matthew2602.github.io/tundra/tundra.min.js"], {}, {});
-}
-
-/* ----------------------------------------------------------------------- */
-
-/**
- * Vars for AjaxRC
- * Need to be global for the script to work
- */
-var ajaxPages = [
-        'Special:RecentChanges',
-        'Special:Watchlist',
-        'Special:Log',
-        'Special:Contributions',
-        'Forum:Yew_Grove',
-        'RuneScape:Active_discussions',
-        'Special:AbuseLog',
-        'Special:NewFiles',
-        'Category:Speedy_deletion_candidates',
-        'Category:Speedy_move_candidates',
-        'Special:Statistics',
-        'Special:NewPages',
-        'Special:ListFiles',
-        'Special:Log/move'
-    ],
-    AjaxRCRefreshText = 'Auto-refresh';
 
 (function (window, $, mw) {
 
@@ -154,6 +28,124 @@ var ajaxPages = [
         wgNamespaceNumber = mw.config.get('wgNamespaceNumber'), // use this for namespace checks
         // for use with GED errors
         manualExchange;
+
+    /**
+     * Sets the cookie
+     * @param c_name string Name of the cookie
+     * @param value string 'on' or 'off'
+     * @param expiredays integer Expiry time of the cookie in days
+     * @param path
+     */
+    function setCookie(c_name, value, expiredays, path) {
+
+        var options = {};
+
+        if (expiredays) {
+            options.expires = expiredays;
+        }
+
+        if (path) {
+            options.path = path;
+        }
+
+        $.cookie(c_name, value, options);
+
+    }
+
+    /**
+     * Gets the cookie
+     * @param c_name string Cookie name
+     * @return The cookie name or empty string
+     */
+    function getCookie(c_name) {
+
+        var cookie = $.cookie(c_name);
+
+        if (cookie === null) {
+            cookie = '';
+        }
+
+        return cookie;
+
+    }
+
+    /**
+     * Calls wiki API and returns the response in the callback
+     * @param data named array List of parameters to send along with the request. {'format':'json'} is set automatically.
+     * @param method string Either POST or GET.
+     * @param callback function Thing to run when request is complete
+     * @param addurl string (optional) Anything you may want to add to the request url, in case you need it.
+     */
+    function callAPI(data, method, callback, addurl) {
+
+        data.format = 'json';
+        $.ajax({
+            data: data,
+            dataType: 'json',
+            url: '/api.php' + (addurl || ''),
+            type: method,
+            cache: false,
+            success: function (response) {
+                if (response.error) {
+                    mw.log('API error: ' + response.error.info);
+                } else {
+                    callback(response);
+                }
+            },
+            error: function (xhr, error) {
+                mw.log('AJAX response: ' + xhr.responseText);
+                mw.log('AJAX error: ' + error);
+            }
+        });
+    }
+
+    // http://www.mredkj.com/javascript/numberFormat.html#addcommas
+    function addCommas(nStr) {
+        nStr += '';
+        var x = nStr.split('.'),
+            x1 = x[0],
+            x2 = x.length > 1 ? '.' + x[1] : '',
+            rgx = /(\d+)(\d{3})/;
+
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
+    }
+
+    /**
+     * Matthew's Tundra library
+     * Making stuff easier for MediaWiki things like editing pages, etc.
+     * For documentation see https://github.com/Matthew2602/tundra/wiki
+     */
+    // ResourceLoader throws an exception if you try and registered a module that is already registered
+    if (mw.loader.getModuleNames().indexOf("tundra") < 0) {
+        mw.loader.implement("tundra", ["http://matthew2602.github.io/tundra/tundra.min.js"], {}, {});
+    }
+
+    /* ----------------------------------------------------------------------- */
+
+    /**
+     * Vars for AjaxRC
+     * Need to be global for the script to work
+     */
+    window.ajaxPages = [
+        'Special:RecentChanges',
+        'Special:Watchlist',
+        'Special:Log',
+        'Special:Contributions',
+        'Forum:Yew_Grove',
+        'RuneScape:Active_discussions',
+        'Special:AbuseLog',
+        'Special:NewFiles',
+        'Category:Speedy_deletion_candidates',
+        'Category:Speedy_move_candidates',
+        'Special:Statistics',
+        'Special:NewPages',
+        'Special:ListFiles',
+        'Special:Log/move'
+    ];
+    window.AjaxRCRefreshText = 'Auto-refresh';
 
     /**
      * Change <youtube>video</youtube> to {{youtube|video}}
@@ -175,6 +167,8 @@ var ajaxPages = [
      * Deprecated - http://www.mediawiki.org/wiki/ResourceLoader/JavaScript_Deprecations#edit.js
      */
     function customEditButtons() {
+
+        var mwCustomEditButtons = window.mwCustomEditButtons;
 
         // Redirect
         mwCustomEditButtons[mwCustomEditButtons.length] = {
@@ -491,7 +485,7 @@ var ajaxPages = [
         mw.log(styles);
 
         // Large script imports
-        importArticles({
+        window.importArticles({
             type: 'script',
             articles: scripts
         }, {
@@ -507,7 +501,7 @@ var ajaxPages = [
         }
 
         if (wgAction === 'submit' || wgAction === 'edit') {
-            if (mwCustomEditButtons.length) {
+            if (window.mwCustomEditButtons.length) {
                 customEditButtons(); // custom edit buttons
             }
 
