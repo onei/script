@@ -297,7 +297,9 @@
                 openSettings,
                 tooltip,
                 tooltipHeight,
-                top;
+                tooltipWidth,
+                top,
+                left;
 
             if ($('.rsw-tooltip').length) {
                 removeTooltip();
@@ -330,10 +332,10 @@
 
             tooltipHeight = $('.rsw-tooltip').height();
             tooltipWidth = $('.rsw-tooltip').width();
-            
+
             top = offset.top - tooltipHeight - 25;
             left = offset.left - 7;
-            
+
             // if above the top of the page
             if (top < window.pageYOffset) {
                 top = window.pageYOffset;
@@ -341,8 +343,8 @@
 
             // if too far right
             // only an issue in monobook
-            if ((tooltipWidth + left) > body.clientWidth) {
-                left = body.ClientWidth - tooltipWidth;
+            if ((tooltipWidth + left) > $('body').width()) {
+                left = $('body').width() - tooltipWidth;
             }
 
             $('.rsw-tooltip').css({
@@ -474,14 +476,14 @@
     $(function () {
 
         var namespace = mw.config.get('wgNamespaceNumber');
-        
+
         if (namespace === 0 || namespace === 4) {
-        
+
             if ($('.references').length === 0) {
                 mw.log('no references');
                 return;
             }
-            
+
             if (mw.config.get('wgAction') !== 'view') {
                 return;
             }
