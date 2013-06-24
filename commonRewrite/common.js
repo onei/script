@@ -18,14 +18,9 @@
 
     var scripts = [],
         styles = [],
-        // cache mw.config variables to make conditionals a bit faster
-        skin = mw.config.get('skin'),
-        wgPageName = mw.config.get('wgPageName'),
-        wgAction = mw.config.get('wgAction'),
-        wgUserName = mw.config.get('wgUserName'),
-        wgUserGroups = mw.config.get('wgUserGroups'),
-        wgCanonicalSpecialPageName = mw.config.get('wgCanonicalSpecialPageName'),
-        wgNamespaceNumber = mw.config.get('wgNamespaceNumber'), // use this for namespace checks
+        // Shortcut to accessing configuration properties eg. mwConfig.wgPageName
+        // verses mw.config.get("wgPageName")
+        mwConfig = mw.config.values,
         // for use with GED errors
         manualExchange;
 
@@ -213,16 +208,16 @@
      */
     function skinRedirect() {
 
-        var urlUsername = wgUserName.replace(/ /g, '_'),
-            replaceSkin = skin.replace('oasis', 'wikia');
+        var urlUsername = mwConfig.wgUserName.replace(/ /g, '_'),
+            replaceSkin = mwConfig.skin.replace('oasis', 'wikia');
 
         // skin.css
-        if (wgPageName === 'User:' + urlUsername + '/skin.css') {
+        if (mwConfig.wgPageName === 'User:' + urlUsername + '/skin.css') {
             window.location.href = window.location.href.replace(/\/skin\.css/i, '/' + replaceSkin + '.css');
         }
 
         // skin.js
-        if (wgPageName === 'User:' + urlUsername + '/skin.js') {
+        if (mwConfig.wgPageName === 'User:' + urlUsername + '/skin.js') {
             window.location.href = window.location.href.replace(/\/skin\.js/i, '/' + replaceSkin + '.js');
         }
     }
@@ -343,34 +338,34 @@
         scripts.push('MediaWiki:Common.js/displayTimer.js'); // UTC clock with purge link
         scripts.push('MediaWiki:Common.js/histats.js');      // Histats
 
-        if (wgAction === 'edit') {
+        if (mwConfig.wgAction === 'edit') {
 
             scripts.push('MediaWiki:Common.js/standardeditsummaries.js'); // Standard edit summaries
 
-            if (wgNamespaceNumber === 100) {
+            if (mwConfig.wgNamespaceNumber === 100) {
                 scripts.push('MediaWiki:Common.js/updateintro.js'); // Notice when editing update pages
             }
-            if (wgNamespaceNumber === 112 && wgPageName.split('/')[1] === 'Data') {
+            if (mwConfig.wgNamespaceNumber === 112 && mwConfig.wgPageName.split('/')[1] === 'Data') {
                 scripts.push('MediaWiki:Common.js/exchangeintro.js'); // Notice when editing Exchange /Data subpages        
             }
         }
 
-        if (wgAction === 'view') {
+        if (mwConfig.wgAction === 'view') {
 
-            if (wgPageName === 'RuneScape:Off-site/IRC') {
+            if (mwConfig.wgPageName === 'RuneScape:Off-site/IRC') {
                 scripts.push('MediaWiki:Common.js/embedirc.js'); // Embed IRC
             }
-            if (wgPageName === 'RuneScape:RC_Patrol') {
+            if (mwConfig.wgPageName === 'RuneScape:RC_Patrol') {
                 scripts.push('User:Suppa_chuppa/rcpatrol.js'); // Check old page revisions for vandalism
                 styles.push('User:Suppa_chuppa/rcp.css');
             }
-            if (wgPageName === 'MediaWiki:Namespace_numbers') {
+            if (mwConfig.wgPageName === 'MediaWiki:Namespace_numbers') {
                 scripts.push('MediaWiki:Common.js/namespaceNumbersList.js'); // Lists namespace number for easy reference
             }
-            if (wgPageName === 'RuneScape:Counter-Vandalism_Unit') {
+            if (mwConfig.wgPageName === 'RuneScape:Counter-Vandalism_Unit') {
                 scripts.push('User:Suppa_chuppa/cvu.js'); // Form for reporting users on [[RS:CVU]]
             }
-            if (wgCanonicalSpecialPageName === 'Whatlinkshere') {
+            if (mwConfig.wgCanonicalSpecialPageName === 'Whatlinkshere') {
                 scripts.push('MediaWiki:Common.js/WLH_edit.js'); // Add edit links to [[Special:WhatLinksHere]]
             }
 
@@ -378,23 +373,23 @@
             manualExchange = [
                 // add pages here
             ];
-            if ($.inArray(wgPageName, manualExchange) > -1) {
+            if ($.inArray(mwConfig.wgPageName, manualExchange) > -1) {
                 scripts.push('User:Quarenon/gemwupdate.js'); // Add custom price input for exchange pages
             } else {
-                if ($.inArray('autoconfirmed', wgUserGroups) > -1) {
+                if ($.inArray('autoconfirmed', mwConfig.wgUserGroups) > -1) {
                     scripts.push('MediaWiki:Common.js/gemwupdate.js'); // Semi-automated price updates for exchange pages
                 }
             }
-            if ($.inArray(wgPageName, ajaxPages) > -1) {
+            if ($.inArray(mwConfig.wgPageName, ajaxPages) > -1) {
                 scripts.push('u:dev:AjaxRC/code.js'); // Ajax refresh for various pages
             }
-            if (wgPageName === 'Distractions_and_Diversions_Locations' || wgPageName === 'Distractions_and_Diversions_Locations/Penguin_Hide_and_Seek') {
+            if (mwConfig.wgPageName === 'Distractions_and_Diversions_Locations' || mwConfig.wgPageName === 'Distractions_and_Diversions_Locations/Penguin_Hide_and_Seek') {
                 scripts.push('MediaWiki:Common.js/pengLocations.js'); // Peng hunting highlight table
             }
 
         }
 
-        if (wgPageName === 'Special:Log') {
+        if (mwConfig.wgPageName === 'Special:Log') {
             scripts.push('User:AzBot/HideBotUploads.js'); // Hide Auto-uploads
         }
 
@@ -444,7 +439,7 @@
             styles.push('MediaWiki:Common.css/calc.css');
         }
 
-        if ($('.specialMaintenance').length || wgCanonicalSpecialPageName === 'Specialpages') {
+        if ($('.specialMaintenance').length || mwConfig.wgCanonicalSpecialPageName === 'Specialpages') {
             scripts.push('MediaWiki:Common.js/spreport.js'); // Special page report on [[RS:MAINTENANCE]] and [[Special:SpecialPages]]
         }
 
@@ -454,7 +449,7 @@
             scripts.push('User:Tyilo/autosort.js');
         }
 
-        if ((wgPageName.match('/Charm_log') && $('#charmguide').length) || (!wgPageName.match('/Charm_log') && $('.charmtable').length)) {
+        if ((mwConfig.wgPageName.match('/Charm_log') && $('#charmguide').length) || (!mwConfig.wgPageName.match('/Charm_log') && $('.charmtable').length)) {
             scripts.push('User:Joeytje50/Dropadd.js'); // Add to charm logs
         }
 
@@ -466,11 +461,11 @@
             scripts.push('User:Joeytje50/monstercalc.js'); // Adds calcs to infoboxes
         }
 
-        if (skin === 'monobook') {
+        if (mwConfig.skin === 'monobook') {
 
             scripts.push('MediaWiki:Common.js/sitenotice.js'); // Extra sitenotice functionality
 
-            if (wgAction === 'edit') {
+            if (mwConfig.wgAction === 'edit') {
                 scripts.push('MediaWiki:Common.js/preload.js'); // Template preloads for monobook
             }
 
@@ -496,27 +491,27 @@
         /**
          * Function invocations
          */
-        if (wgUserName !== null && wgNamespaceNumber === 2) {
+        if (mwConfig.wgUserName !== null && mwConfig.wgNamespaceNumber === 2) {
             skinRedirect(); // redirects skin.js to monobook/wikia.js
         }
 
-        if (wgAction === 'submit' || wgAction === 'edit') {
+        if (mwConfig.wgAction === 'submit' || mwConfig.wgAction === 'edit') {
             if (window.mwCustomEditButtons.length) {
                 customEditButtons(); // custom edit buttons
             }
 
-            if (wgNamespaceNumber % 2 === 1 || wgNamespaceNumber === 110) {
+            if (mwConfig.wgNamespaceNumber % 2 === 1 || mwConfig.wgNamespaceNumber === 110) {
                 $('#wpSave').click(function (e) {
                     sigReminder(e); // sig reminder
                 });
             }
         }
 
-        if (wgAction === 'edit') {
+        if (mwConfig.wgAction === 'edit') {
             $('#wpSave').click(tagSwitch); // swaps youtube tags to {{youtube}}
         }
 
-        if (wgNamespaceNumber === 0 && $('.navbox').length) {
+        if (mwConfig.wgNamespaceNumber === 0 && $('.navbox').length) {
             navbox(); // collapses navboxes under certain conditions
         }
 
@@ -524,7 +519,7 @@
          * Code snippets
          */
         // Hide edit button on exchange pages for anons
-        if (wgUserName === null) {
+        if (mwConfig.wgUserName === null) {
             $('.anonmessage').css('display', 'inline');
         }
 
@@ -535,8 +530,8 @@
         }
 
         // Insert username
-        if (wgAction === 'view' && wgUserName !== null) {
-            $('.insertusername').text(wgUserName);
+        if (mwConfig.wgAction === 'view' && mwConfig.wgUserName !== null) {
+            $('.insertusername').text(mwConfig.wgUserName);
         }
 
     });
