@@ -39,7 +39,11 @@
             'Special:NewPages',
             'Special:ListFiles',
             'Special:Log/move'
-        ];
+        ],
+        setCookie,
+        getCookie,
+        callAPI,
+        addCommas;
 
     // Text to display next to checkmark that enables/disables AJAX refresh script
     window.AjaxRCRefreshText = 'Auto-refresh';
@@ -51,7 +55,7 @@
      * @param expiredays integer Expiry time of the cookie in days
      * @param path
      */
-    function setCookie(c_name, value, expiredays, path) {
+    setCookie = window.setCookie = function(c_name, value, expiredays, path) {
 
         var options = {};
 
@@ -65,14 +69,14 @@
 
         $.cookie(c_name, value, options);
 
-    }
+    };
 
     /**
      * Gets the cookie
      * @param c_name string Cookie name
      * @return The cookie name or empty string
      */
-    function getCookie(c_name) {
+    getCookie = window.getCookie = function(c_name) {
 
         var cookie = $.cookie(c_name);
 
@@ -82,7 +86,7 @@
 
         return cookie;
 
-    }
+    };
 
     /**
      * Calls wiki API and returns the response in the callback
@@ -91,7 +95,7 @@
      * @param callback function Thing to run when request is complete
      * @param addurl string (optional) Anything you may want to add to the request url, in case you need it.
      */
-    function callAPI(data, method, callback, addurl) {
+    callAPI = window.callAPI = function(data, method, callback, addurl) {
 
         data.format = 'json';
 
@@ -114,11 +118,13 @@
             }
         });
 
-    }
+    };
 
     // http://www.mredkj.com/javascript/numberFormat.html#addcommas
-    function addCommas(nStr) {
+    addCommas = window.addCommas = function(nStr) {
+
         nStr += '';
+        
         var x = nStr.split('.'),
             x1 = x[0],
             x2 = x.length > 1 ? '.' + x[1] : '',
@@ -127,8 +133,10 @@
         while (rgx.test(x1)) {
             x1 = x1.replace(rgx, '$1' + ',' + '$2');
         }
+
         return x1 + x2;
-    }
+
+    };
 
     /**
      * Matthew's Tundra library
