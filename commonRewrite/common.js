@@ -302,10 +302,10 @@
     function sigReminder(event) {
 
         // fairly sure #wpTextbox1 exists in both skins
-        var text = $('#cke_wpTextbox1 iframe').contents().find('#bodyContent').text() || $('#wpTextbox1').val(),
+        var text = $('#wpTextbox1').val(),
             reminderPromptMessage = 'It looks like you forgot to sign your comment. You can sign by placing 4 tildes (~~~~) to the end of your message. \nAre you sure you want to post it?';
 
-        // don;t trigger on minor edits
+        // don't trigger on minor edits
         if ($('#wpMinoredit').is(':checked')) {
             return;
         }
@@ -315,7 +315,7 @@
             return;
         }
 
-        // check for undo summary?
+        // check for &undo= or ?undo= in url as summary can be altered
         if (window.location.search.match(/(?:\?|&)undo=/)) {
             return;
         }
