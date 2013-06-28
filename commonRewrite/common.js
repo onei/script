@@ -3,7 +3,6 @@
  * JavaScript here will load on both skins for every user
  */
 
-/*global importArticles: true, jQuery: true, mediaWiki: true, mwCustomEditButtons: true */
 /*jshint curly: true, devel: false */
 /*jslint regexp: true, todo: true, indent: 4 */
 
@@ -13,147 +12,143 @@
  *  Move wgVariable to mw.config.get('wgVariable')
  */
 
-/**
- * Sets the cookie
- * @param c_name string Name of the cookie
- * @param value string 'on' or 'off'
- * @param expiredays integer Expiry time of the cookie in days
- * @param path
- */
-function setCookie(c_name, value, expiredays, path) {
-
-    'use strict';
-
-    var options = {};
-
-    if (expiredays) {
-        options.expires = expiredays;
-    }
-
-    if (path) {
-        options.path = path;
-    }
-
-    jQuery.cookie(c_name, value, options);
-
-}
-
-/**
- * Gets the cookie
- * @param c_name string Cookie name
- * @return The cookie name or empty string
- */
-function getCookie(c_name) {
-
-    'use strict';
-
-    var cookie = jQuery.cookie(c_name);
-
-    if (cookie === null) {
-        cookie = '';
-    }
-
-    return cookie;
-
-}
-
-/**
- * Calls wiki API and returns the response in the callback
- * @param data named array List of parameters to send along with the request. {'format':'json'} is set automatically.
- * @param method string Either POST or GET.
- * @param callback function Thing to run when request is complete
- * @param addurl string (optional) Anything you may want to add to the request url, in case you need it.
- */
-function callAPI(data, method, callback, addurl) {
-
-    'use strict';
-
-    data.format = 'json';
-    jQuery.ajax({
-        data: data,
-        dataType: 'json',
-        url: '/api.php' + (addurl || ''),
-        type: method,
-        cache: false,
-        success: function (response) {
-            if (response.error) {
-                mediaWiki.log('API error: ' + response.error.info);
-            } else {
-                callback(response);
-            }
-        },
-        error: function (xhr, error) {
-            mediaWiki.log('AJAX response: ' + xhr.responseText);
-            mediaWiki.log('AJAX error: ' + error);
-        }
-    });
-}
-
-// http://www.mredkj.com/javascript/numberFormat.html#addcommas
-function addCommas(nStr) {
-    'use strict';
-    nStr += '';
-    var x = nStr.split('.'),
-        x1 = x[0],
-        x2 = x.length > 1 ? '.' + x[1] : '',
-        rgx = /(\d+)(\d{3})/;
-
-    while (rgx.test(x1)) {
-        x1 = x1.replace(rgx, '$1' + ',' + '$2');
-    }
-    return x1 + x2;
-}
-
-/**
- * Matthew's Tundra library
- * Making stuff easier for MediaWiki things like editing pages, etc.
- * For documentation see https://github.com/Matthew2602/tundra/wiki
- */
-// ResourceLoader throws an exception if you try and registered a module that is already registered
-if (mediaWiki.loader.getModuleNames().indexOf("tundra") < 0) {
-    mediaWiki.loader.implement("tundra", ["http://matthew2602.github.io/tundra/tundra.min.js"], {}, {});
-}
-
-/* ----------------------------------------------------------------------- */
-
-/**
- * Vars for AjaxRC
- * Need to be global for the script to work
- */
-var ajaxPages = [
-        'Special:RecentChanges',
-        'Special:Watchlist',
-        'Special:Log',
-        'Special:Contributions',
-        'Forum:Yew_Grove',
-        'RuneScape:Active_discussions',
-        'Special:AbuseLog',
-        'Special:NewFiles',
-        'Category:Speedy_deletion_candidates',
-        'Category:Speedy_move_candidates',
-        'Special:Statistics',
-        'Special:NewPages',
-        'Special:ListFiles',
-        'Special:Log/move'
-    ],
-    AjaxRCRefreshText = 'Auto-refresh';
-
 (function (window, $, mw) {
 
     'use strict';
 
     var scripts = [],
         styles = [],
-        // cache mw.config variables to make conditionals a bit faster
-        skin = mw.config.get('skin'),
-        wgPageName = mw.config.get('wgPageName'),
-        wgAction = mw.config.get('wgAction'),
-        wgUserName = mw.config.get('wgUserName'),
-        wgUserGroups = mw.config.get('wgUserGroups'),
-        wgCanonicalSpecialPageName = mw.config.get('wgCanonicalSpecialPageName'),
-        wgNamespaceNumber = mw.config.get('wgNamespaceNumber'), // use this for namespace checks
-        // for use with GED errors
-        manualExchange;
+        // Shortcut to accessing configuration properties eg. mwConfig.wgPageName
+        // verses mw.config.get("wgPageName")
+        mwConfig = mw.config.values,
+        // for use with GED errors - See [[RuneScape:Exchange namespace]] for usage
+        manualExchange = [],
+        // Pages to run AJAX refresh script on
+        ajaxPages = window.ajaxPages = [
+            'Special:RecentChanges',
+            'Special:Watchlist',
+            'Special:Log',
+            'Special:Contributions',
+            'Forum:Yew_Grove',
+            'RuneScape:Active_discussions',
+            'Special:AbuseLog',
+            'Special:NewFiles',
+            'Category:Speedy_deletion_candidates',
+            'Category:Speedy_move_candidates',
+            'Special:Statistics',
+            'Special:NewPages',
+            'Special:ListFiles',
+            'Special:Log/move'
+        ],
+        setCookie,
+        getCookie,
+        callAPI,
+        addCommas;
+
+    // Text to display next to checkmark that enables/disables AJAX refresh script
+    window.AjaxRCRefreshText = 'Auto-refresh';
+
+    /**
+     * Sets the cookie
+     * @param c_name string Name of the cookie
+     * @param value string 'on' or 'off'
+     * @param expiredays integer Expiry time of the cookie in days
+     * @param path
+     */
+    setCookie = window.setCookie = function(c_name, value, expiredays, path) {
+
+        var options = {};
+
+        if (expiredays) {
+            options.expires = expiredays;
+        }
+
+        if (path) {
+            options.path = path;
+        }
+
+        $.cookie(c_name, value, options);
+
+    };
+
+    /**
+     * Gets the cookie
+     * @param c_name string Cookie name
+     * @return The cookie name or empty string
+     */
+    getCookie = window.getCookie = function(c_name) {
+
+        var cookie = $.cookie(c_name);
+
+        if (cookie === null) {
+            cookie = '';
+        }
+
+        return cookie;
+
+    };
+
+    /**
+     * Calls wiki API and returns the response in the callback
+     * @param data named array List of parameters to send along with the request. {'format':'json'} is set automatically.
+     * @param method string Either POST or GET.
+     * @param callback function Thing to run when request is complete
+     * @param addurl string (optional) Anything you may want to add to the request url, in case you need it.
+     */
+    callAPI = window.callAPI = function(data, method, callback, addurl) {
+
+        data.format = 'json';
+
+        $.ajax({
+            data: data,
+            dataType: 'json',
+            url: '/api.php' + (addurl || ''),
+            type: method,
+            cache: false,
+            success: function (response) {
+                if (response.error) {
+                    mw.log('API error: ' + response.error.info);
+                } else {
+                    callback(response);
+                }
+            },
+            error: function (xhr, error) {
+                mw.log('AJAX response: ' + xhr.responseText);
+                mw.log('AJAX error: ' + error);
+            }
+        });
+
+    };
+
+    // http://www.mredkj.com/javascript/numberFormat.html#addcommas
+    addCommas = window.addCommas = function(nStr) {
+
+        nStr += '';
+        
+        var x = nStr.split('.'),
+            x1 = x[0],
+            x2 = x.length > 1 ? '.' + x[1] : '',
+            rgx = /(\d+)(\d{3})/;
+
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+
+        return x1 + x2;
+
+    };
+
+    /**
+     * Matthew's Tundra library
+     * Making stuff easier for MediaWiki things like editing pages, etc.
+     * For documentation see https://github.com/Matthew2602/tundra/wiki
+     */
+    // ResourceLoader throws an exception if you try and registered a module that is already registered
+    if (mw.loader.getModuleNames().indexOf("tundra") < 0) {
+        mw.loader.implement("tundra", ["http://matthew2602.github.io/tundra/tundra.min.js"], {}, {});
+    }
+
+    /* ----------------------------------------------------------------------- */    
 
     /**
      * Change <youtube>video</youtube> to {{youtube|video}}
@@ -161,12 +156,11 @@ var ajaxPages = [
      */
     function tagSwitch() {
 
-        var wikitext = $('#wpTextbox1').html();
+        var wikitext = $('#wpTextbox1').html(),
+            modifiedWikitext = wikitext.replace(/&lt;youtube&gt;/g, '{{youtube|')
+                                       .replace(/&lt;\/youtube&gt;/g, '}}');
 
-        wikitext = wikitext.replace(/&lt;youtube&gt;/g, '{{youtube|');
-        wikitext = wikitext.replace(/&lt;\/youtube&gt;/g, '}}');
-
-        $('#wpTextbox1').html(wikitext);
+        $('#wpTextbox1').html(modifiedWikitext);
 
     }
 
@@ -176,41 +170,40 @@ var ajaxPages = [
      */
     function customEditButtons() {
 
-        // Redirect
-        mwCustomEditButtons[mwCustomEditButtons.length] = {
-            "imageFile": "http://images.wikia.com/central/images/c/c8/Button_redirect.png",
-            "speedTip": "Redirect",
-            "tagOpen": "#REDIRECT [[",
-            "tagClose": "]]",
-            "sampleText": "Insert text"
-        };
-
-        // Wikitable
-        mwCustomEditButtons[mwCustomEditButtons.length] = {
-            "imageFile": "http://images3.wikia.nocookie.net/central/images/4/4a/Button_table.png",
-            "speedTip": "Insert a table",
-            "tagOpen": '{| class="wikitable"\n|-\n',
-            "tagClose": "\n|}",
-            "sampleText": "! header 1\n! header 2\n! header 3\n|-\n| row 1, cell 1\n| row 1, cell 2\n| row 1, cell 3\n|-\n| row 2, cell 1\n| row 2, cell 2\n| row 2, cell 3"
-        };
-
-        // Line break
-        mwCustomEditButtons[mwCustomEditButtons.length] = {
-            "imageFile": "http://images2.wikia.nocookie.net/central/images/1/13/Button_enter.png",
-            "speedTip": "Line break",
-            "tagOpen": "<br>",
-            "tagClose": "",
-            "sampleText": ""
-        };
-
-        // Gallery
-        mwCustomEditButtons[mwCustomEditButtons.length] = {
-            "imageFile": "http://images2.wikia.nocookie.net/central/images/1/12/Button_gallery.png",
-            "speedTip": "Insert a picture gallery",
-            "tagOpen": '\n<div style="text-align:center"><gallery>\n',
-            "tagClose": "\n</gallery></div>",
-            "sampleText": "File:Example.jpg|Caption1\nFile:Example.jpg|Caption2"
-        };
+        window.mwCustomEditButtons.push(
+            // Redirect
+            {
+                imageFile: "http://images.wikia.com/central/images/c/c8/Button_redirect.png",
+                speedTip: "Redirect",
+                tagOpen: "#REDIRECT [[",
+                tagClose: "]]",
+                sampleText: "Insert text"
+            },
+            // Wikitable
+            {
+                imageFile: "http://images3.wikia.nocookie.net/central/images/4/4a/Button_table.png",
+                speedTip: "Insert a table",
+                tagOpen: '{| class="wikitable"\n|-\n',
+                tagClose: "\n|}",
+                sampleText: "! header 1\n! header 2\n! header 3\n|-\n| row 1, cell 1\n| row 1, cell 2\n| row 1, cell 3\n|-\n| row 2, cell 1\n| row 2, cell 2\n| row 2, cell 3"
+            },
+            // Line break
+            {
+                imageFile: "http://images2.wikia.nocookie.net/central/images/1/13/Button_enter.png",
+                speedTip: "Line break",
+                tagOpen: "<br>",
+                tagClose: "",
+                sampleText: ""
+            },
+            // Galllery
+            {
+                imageFile: "http://images2.wikia.nocookie.net/central/images/1/12/Button_gallery.png",
+                speedTip: "Insert a picture gallery",
+                tagOpen: '\n<div style="text-align:center"><gallery>\n',
+                tagClose: "\n</gallery></div>",
+                sampleText: "File:Example.jpg|Caption1\nFile:Example.jpg|Caption2"
+            }
+        );
 
     }
 
@@ -219,18 +212,23 @@ var ajaxPages = [
      */
     function skinRedirect() {
 
-        var urlUsername = wgUserName.replace(/ /g, '_'),
-            replaceSkin = skin.replace('oasis', 'wikia');
+        var urlUsername = mwConfig.wgUserName.replace(/ /g, '_'),
+            replaceSkin = mwConfig.skin.replace('oasis', 'wikia'),
+            baseSkinFilePageName = 'User:' + urlUsername + '/skin';
 
-        // skin.css
-        if (wgPageName === 'User:' + urlUsername + '/skin.css') {
-            window.location.href = window.location.href.replace(/\/skin\.css/i, '/' + replaceSkin + '.css');
+        // Using location.replace doesn't add the skin.js/skin.css page to the
+        // user's history. See <http://stackoverflow.com/q/1865837/2017220>
+        if (mwConfig.wgPageName === baseSkinFilePageName + '.js') {
+            // skin.js
+            window.location.replace(window.location.href.replace(/\/skin\.js/i, '/' + replaceSkin + '.js'));
+            return;
         }
 
-        // skin.js
-        if (wgPageName === 'User:' + urlUsername + '/skin.js') {
-            window.location.href = window.location.href.replace(/\/skin\.js/i, '/' + replaceSkin + '.js');
+        if (mwConfig.wgPageName === baseSkinFilePageName + '.css') {
+            // skin.css
+            window.location.replace(window.location.href.replace(/\/skin\.css/i, '/' + replaceSkin + '.css'));
         }
+        
     }
 
     /**
@@ -252,7 +250,7 @@ var ajaxPages = [
                 toggle;
 
             // temp check until cache is updated
-            if ($(elem).hasClass('mw-collapsible') === false) {
+            if (!$(elem).hasClass('mw-collapsible')) {
                 return;
             }
 
@@ -303,33 +301,33 @@ var ajaxPages = [
      */
     function sigReminder(event) {
 
-        var text,
-            reminder;
-
         // fairly sure #wpTextbox1 exists in both skins
-        text = $('#cke_wpTextbox1 iframe').contents().find('#bodyContent').text() || $('#wpTextbox1').val();
+        var text = $('#cke_wpTextbox1 iframe').contents().find('#bodyContent').text() || $('#wpTextbox1').val(),
+            reminderPromptMessage = 'It looks like you forgot to sign your comment. You can sign by placing 4 tildes (~~~~) to the end of your message. \nAre you sure you want to post it?';
 
         // don;t trigger on minor edits
         if ($('#wpMinoredit').is(':checked')) {
             return;
         }
+
         // check for sig
         if (text.replace(/(<nowiki>.*?<\/nowiki>)/g, '').match('~~~')) {
             return;
         }
+
         // check for undo summary?
         if (window.location.search.match(/(?:\?|&)undo=/)) {
             return;
         }
 
-        reminder = confirm('It looks like you forgot to sign your comment. You can sign by placing 4 tildes (~~~~) to the end of your message. \nAre you sure you want to post it?');
-
-        if (reminder === false) {
+        if (!confirm(reminderPromptMessage)) {
             event.preventDefault();
         }
     }
 
     $(function () {
+
+        var editingPage = mwConfig.wgAction === ('edit' || 'submit');
 
         /**
          * Imports
@@ -349,65 +347,50 @@ var ajaxPages = [
         scripts.push('MediaWiki:Common.js/displayTimer.js'); // UTC clock with purge link
         scripts.push('MediaWiki:Common.js/histats.js');      // Histats
 
-        if (wgAction === 'edit') {
-
+        if (editingPage) {
             scripts.push('MediaWiki:Common.js/standardeditsummaries.js'); // Standard edit summaries
 
-            if (wgNamespaceNumber === 100) {
+            if (mwConfig.wgNamespaceNumber === 100) {
                 scripts.push('MediaWiki:Common.js/updateintro.js'); // Notice when editing update pages
-            }
-            if (wgNamespaceNumber === 112 && wgPageName.split('/')[1] === 'Data') {
+            } else if (mwConfig.wgNamespaceNumber === 112 && mwConfig.wgPageName.split('/')[1] === 'Data') {
                 scripts.push('MediaWiki:Common.js/exchangeintro.js'); // Notice when editing Exchange /Data subpages        
             }
         }
 
-        if (wgAction === 'view') {
+        if (mwConfig.wgAction === 'view') {
 
-            if (wgPageName === 'RuneScape:Off-site/IRC') {
+            if (mwConfig.wgPageName === 'RuneScape:Off-site/IRC') {
                 scripts.push('MediaWiki:Common.js/embedirc.js'); // Embed IRC
-            }
-            if (wgPageName === 'RuneScape:RC_Patrol') {
+            } else if (mwConfig.wgPageName === 'RuneScape:RC_Patrol') {
                 scripts.push('User:Suppa_chuppa/rcpatrol.js'); // Check old page revisions for vandalism
                 styles.push('User:Suppa_chuppa/rcp.css');
-            }
-            if (wgPageName === 'MediaWiki:Namespace_numbers') {
+            } else if (mwConfig.wgPageName === 'MediaWiki:Namespace_numbers') {
                 scripts.push('MediaWiki:Common.js/namespaceNumbersList.js'); // Lists namespace number for easy reference
-            }
-            if (wgPageName === 'RuneScape:Counter-Vandalism_Unit') {
+            } else if (mwConfig.wgPageName === 'RuneScape:Counter-Vandalism_Unit') {
                 scripts.push('User:Suppa_chuppa/cvu.js'); // Form for reporting users on [[RS:CVU]]
-            }
-            if (wgCanonicalSpecialPageName === 'Whatlinkshere') {
+            } else if (mwConfig.wgCanonicalSpecialPageName === 'Whatlinkshere') {
                 scripts.push('MediaWiki:Common.js/WLH_edit.js'); // Add edit links to [[Special:WhatLinksHere]]
-            }
-
-            // See [[RuneScape:Exchange namespace]] for usage
-            manualExchange = [
-                // add pages here
-            ];
-            if ($.inArray(wgPageName, manualExchange) > -1) {
-                scripts.push('User:Quarenon/gemwupdate.js'); // Add custom price input for exchange pages
-            } else {
-                if ($.inArray('autoconfirmed', wgUserGroups) > -1) {
-                    scripts.push('MediaWiki:Common.js/gemwupdate.js'); // Semi-automated price updates for exchange pages
-                }
-            }
-            if ($.inArray(wgPageName, ajaxPages) > -1) {
-                scripts.push('u:dev:AjaxRC/code.js'); // Ajax refresh for various pages
-            }
-            if (wgPageName === 'Distractions_and_Diversions_Locations' || wgPageName === 'Distractions_and_Diversions_Locations/Penguin_Hide_and_Seek') {
+            } else if (mwConfig.wgCanonicalSpecialPageName === 'Log') {
+                scripts.push('User:AzBot/HideBotUploads.js'); // Hide Auto-uploads
+            } else if (mwConfig.wgPageName === 'Distractions_and_Diversions_Locations' || mwConfig.wgPageName === 'Distractions_and_Diversions_Locations/Penguin_Hide_and_Seek') {
                 scripts.push('MediaWiki:Common.js/pengLocations.js'); // Peng hunting highlight table
             }
 
-        }
+            if (manualExchange.indexOf(mwConfig.wgPageName) > -1) {
+                scripts.push('User:Quarenon/gemwupdate.js'); // Add custom price input for exchange pages
+            } else if (mwConfig.wgUserGroups.indexOf('autoconfirmed') > -1) {
+                scripts.push('MediaWiki:Common.js/gemwupdate.js'); // Semi-automated price updates for exchange pages
+            }
 
-        if (wgPageName === 'Special:Log') {
-            scripts.push('User:AzBot/HideBotUploads.js'); // Hide Auto-uploads
+            if (ajaxPages.indexOf(mwConfig.wgPageName) > -1) {
+                scripts.push('u:dev:AjaxRC/code.js'); // Ajax refresh for various pages
+            }
+
         }
 
         if ($('.countdown').length) {
             scripts.push('MediaWiki:Common.js/countdowntimer.js'); // Countdown timer
         }
-
 
         if ($('.youtube').length) {
             scripts.push('MediaWiki:Common.js/youtube.js'); // Youtube embedding
@@ -429,7 +412,6 @@ var ajaxPages = [
             scripts.push('User:Stewbasic/calc.js'); // Calculators
         }
 
-
         if ($('.GEdatachart').length) {
             if (mw.loader.getModuleNames().indexOf('highcharts') < 0) {
                 mw.loader.implement('highcharts', ['http://code.highcharts.com/stock/highstock.js'], {}, {});
@@ -450,7 +432,7 @@ var ajaxPages = [
             styles.push('MediaWiki:Common.css/calc.css');
         }
 
-        if ($('.specialMaintenance').length || wgCanonicalSpecialPageName === 'Specialpages') {
+        if ($('.specialMaintenance').length || mwConfig.wgCanonicalSpecialPageName === 'Specialpages') {
             scripts.push('MediaWiki:Common.js/spreport.js'); // Special page report on [[RS:MAINTENANCE]] and [[Special:SpecialPages]]
         }
 
@@ -460,7 +442,7 @@ var ajaxPages = [
             scripts.push('User:Tyilo/autosort.js');
         }
 
-        if ((wgPageName.match('/Charm_log') && $('#charmguide').length) || (!wgPageName.match('/Charm_log') && $('.charmtable').length)) {
+        if ((mwConfig.wgPageName.match('/Charm_log') && $('#charmguide').length) || (!mwConfig.wgPageName.match('/Charm_log') && $('.charmtable').length)) {
             scripts.push('User:Joeytje50/Dropadd.js'); // Add to charm logs
         }
 
@@ -472,14 +454,12 @@ var ajaxPages = [
             scripts.push('User:Joeytje50/monstercalc.js'); // Adds calcs to infoboxes
         }
 
-        if (skin === 'monobook') {
-
+        if (mwConfig.skin === 'monobook') {
             scripts.push('MediaWiki:Common.js/sitenotice.js'); // Extra sitenotice functionality
 
-            if (wgAction === 'edit') {
+            if (editingPage) {
                 scripts.push('MediaWiki:Common.js/preload.js'); // Template preloads for monobook
             }
-
         }
 /*
         if (skin === 'oasis') {
@@ -487,11 +467,10 @@ var ajaxPages = [
         }
 */
         // ?debug=true to see these
-        mw.log(scripts);
-        mw.log(styles);
+        mw.log(scripts, styles);
 
         // Large script imports
-        importArticles({
+        window.importArticles({
             type: 'script',
             articles: scripts
         }, {
@@ -502,35 +481,32 @@ var ajaxPages = [
         /**
          * Function invocations
          */
-        if (wgUserName !== null && wgNamespaceNumber === 2) {
+        if (mwConfig.wgUserName !== null && mwConfig.wgNamespaceNumber === 2) {
             skinRedirect(); // redirects skin.js to monobook/wikia.js
         }
 
-        if (wgAction === 'submit' || wgAction === 'edit') {
-            if (mwCustomEditButtons.length) {
+        if (editingPage) {
+            $('#wpSave').click(tagSwitch); // swaps youtube tags to {{youtube}}
+
+            if (window.mwCustomEditButtons.length) {
                 customEditButtons(); // custom edit buttons
             }
 
-            if (wgNamespaceNumber % 2 === 1 || wgNamespaceNumber === 110) {
-                $('#wpSave').click(function (e) {
-                    sigReminder(e); // sig reminder
-                });
+            if (mwConfig.wgNamespaceNumber % 2 === 1 || mwConfig.wgNamespaceNumber === 110) {
+                $('#wpSave').click(sigReminder);
             }
         }
 
-        if (wgAction === 'edit') {
-            $('#wpSave').click(tagSwitch); // swaps youtube tags to {{youtube}}
-        }
-
-        if (wgNamespaceNumber === 0 && $('.navbox').length) {
+        if (mwConfig.wgNamespaceNumber === 0 && $('.navbox').length) {
             navbox(); // collapses navboxes under certain conditions
         }
 
         /**
          * Code snippets
          */
+
         // Hide edit button on exchange pages for anons
-        if (wgUserName === null) {
+        if (mwConfig.wgUserName === null) {
             $('.anonmessage').css('display', 'inline');
         }
 
@@ -541,8 +517,8 @@ var ajaxPages = [
         }
 
         // Insert username
-        if (wgAction === 'view' && wgUserName !== null) {
-            $('.insertusername').text(wgUserName);
+        if (mwConfig.wgAction === 'view' && mwConfig.wgUserName !== null) {
+            $('.insertusername').text(mwConfig.wgUserName);
         }
 
     });
