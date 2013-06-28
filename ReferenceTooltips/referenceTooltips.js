@@ -18,7 +18,6 @@
  *
  * @todo
  * add fade in/fade out animations for config form and tooltip
- * add logic for where tooltip is positioned: above window, against side of screen
  */
 
 /*jshint
@@ -297,7 +296,10 @@
                 ref,
                 openSettings,
                 tooltip,
-                tooltipHeight;
+                tooltipHeight,
+                tooltipWidth,
+                top,
+                left;
 
             if ($('.rsw-tooltip').length) {
                 removeTooltip();
@@ -329,10 +331,25 @@
             $('body').append(tooltip);
 
             tooltipHeight = $('.rsw-tooltip').height();
+            tooltipWidth = $('.rsw-tooltip').width();
+
+            top = offset.top - tooltipHeight - 25;
+            left = offset.left - 7;
+
+            // if above the top of the page
+            if (top < window.pageYOffset) {
+                top = window.pageYOffset;
+            }
+
+            // if too far right
+            // only an issue in monobook
+            if ((tooltipWidth + left) > $('body').width()) {
+                left = $('body').width() - tooltipWidth;
+            }
 
             $('.rsw-tooltip').css({
-                'top': (offset.top - tooltipHeight - 25) + 'px',
-                'left': (offset.left - 7) + 'px'
+                'top': top + 'px',
+                'left': left + 'px'
             });
 
         }
@@ -459,14 +476,14 @@
     $(function () {
 
         var namespace = mw.config.get('wgNamespaceNumber');
-        
+
         if (namespace === 0 || namespace === 4) {
-        
+
             if ($('.references').length === 0) {
                 mw.log('no references');
                 return;
             }
-            
+
             if (mw.config.get('wgAction') !== 'view') {
                 return;
             }
