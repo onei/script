@@ -1,6 +1,16 @@
 /** <pre>
- * MediaWiki:Common.js
  * JavaScript here will load on both skins for every user
+ *
+ * MediaWiki:Common.js
+ *
+ * Instructions:
+ * Large or complex scripts should be on a subpage and imported
+ * These scripts should be conditionally added to the scripts array to make sure we only load what's required
+ 
+ * Smaller, less complex scripts should be defined as a function and invoked after the document is ready
+ * The function invocations should be within conditionals not within the function itself
+ *
+ * Functions that take a few lines should be written within $(function () {...});
  */
 
 /*jshint
@@ -12,8 +22,9 @@
 
 /**
  * @todo
- *  Remove deprecated addonloadhook
- *  Move wgVariable to mw.config.get('wgVariable')
+ * Remove deprecated addonloadhook
+ * Move wgVariable to mw.config.get('wgVariable')
+ * Try moving non-essential script to gadgets?
  */
 
 (function (window, $, mw) {
@@ -22,7 +33,7 @@
 
     var scripts = [],
         styles = [],
-        // Shortcut to accessing configuration properties eg. mwConfig.wgPageName
+        // Shortcut to accessing configuration properties e.g. mwConfig.wgPageName
         // verses mw.config.get("wgPageName")
         mwConfig = mw.config.values,
         // for use with GED errors - See [[RuneScape:Exchange namespace]] for usage
@@ -49,7 +60,7 @@
         callAPI,
         addCommas;
 
-    // Text to display next to checkmark that enables/disables AJAX refresh script
+    // Text to display next to checkbox that enables/disables AJAX refresh script
     window.AjaxRCRefreshText = 'Auto-refresh';
 
     /**
@@ -478,7 +489,7 @@
         if (mwConfig.skin === 'oasis') {
 
             if (editingPage) {
-                scripts.push('MediaWiki:Wikia.js/preload.js'); // Template preloads for Oasis
+                scripts.push('MediaWiki:Wikia.js/preload.js'); // Template preloads for oasis
             }
         }
 
