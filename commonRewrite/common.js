@@ -4,7 +4,7 @@
  */
 
 /*jshint curly: true, devel: false */
-/*jslint regexp: true, todo: true, indent: 4 */
+/*jslint todo: true, indent: 4 */
 
 /**
  * @todo
@@ -12,7 +12,7 @@
  *  Move wgVariable to mw.config.get('wgVariable')
  */
 
-(function (window, $, mw) {
+;(function (window, $, mw) {
 
     'use strict';
 
@@ -113,6 +113,7 @@
                 }
             },
             error: function (xhr, error) {
+                // ?debug=true to see these
                 mw.log('AJAX response: ' + xhr.responseText);
                 mw.log('AJAX error: ' + error);
             }
@@ -124,7 +125,7 @@
     addCommas = window.addCommas = function(nStr) {
 
         nStr += '';
-        
+
         var x = nStr.split('.'),
             x1 = x[0],
             x2 = x.length > 1 ? '.' + x[1] : '',
@@ -147,8 +148,6 @@
     if (mw.loader.getModuleNames().indexOf("tundra") < 0) {
         mw.loader.implement("tundra", ["http://matthew2602.github.io/tundra/tundra.min.js"], {}, {});
     }
-
-    /* ----------------------------------------------------------------------- */    
 
     /**
      * Change <youtube>video</youtube> to {{youtube|video}}
@@ -228,7 +227,7 @@
             // skin.css
             window.location.replace(window.location.href.replace(/\/skin\.css/i, '/' + replaceSkin + '.css'));
         }
-        
+
     }
 
     /**
@@ -293,7 +292,6 @@
                 collapseNavbox(navboxes[i]);
             }
         }
-
     }
 
     /**
@@ -301,7 +299,6 @@
      */
     function sigReminder(event) {
 
-        // fairly sure #wpTextbox1 exists in both skins
         var text = $('#wpTextbox1').val(),
             reminderPromptMessage = 'It looks like you forgot to sign your comment. You can sign by placing 4 tildes (~~~~) to the end of your message. \nAre you sure you want to post it?';
 
@@ -325,9 +322,26 @@
         }
     }
 
+    /**
+     * Autosort sortable tables
+     * default plugin: https://github.com/Wikia/app/blob/dev/resources/jquery/jquery.tablesorter.js
+     * Next to no docs on this on mediawiki.org
+     * @todo usage instructions
+     */
+    function autosort() {
+        $('table.sortable[class*="autosort="]').each(function() {
+            var $this = $(this),
+                matched = /(?:^| )autosort=([0-9]+),(a|d)(?: |$)/.exec($this.attr('class'));
+
+            $this.tablesorter({
+                sortList: [[matched[1] - 1, ((matched[2] === 'd')? 1: 0)]],
+            });
+        });
+    }
+
     $(function () {
 
-        var editingPage = mwConfig.wgAction === ('edit' || 'submit');
+        var editingPage = mwConfig.wgAction === 'edit' || mwConfig.wgAction === 'submit';
 
         /**
          * Imports
@@ -337,10 +351,11 @@
          * This is hopefully faster than loading every script and then using a conditional
          * 
          * Instructions:
-         * 
          * Scripts to be imported using importArticles() added to scripts array
          * Stylesheets to be imported using importArticles() added to styles array
-         * Only load stylesheets if they
+         *
+         * Stylesheets should be imported with js if they're specific to certain pages
+         * and would bloat Common.css if included by default
          */
 
         scripts.push('MediaWiki:Common.js/Konami.js');       // Konami code
@@ -436,12 +451,6 @@
             scripts.push('MediaWiki:Common.js/spreport.js'); // Special page report on [[RS:MAINTENANCE]] and [[Special:SpecialPages]]
         }
 
-        // Autosort tables
-        // tag: small script
-        if ($('.sortable').length) {
-            scripts.push('User:Tyilo/autosort.js');
-        }
-
         if ((mwConfig.wgPageName.match('/Charm_log') && $('#charmguide').length) || (!mwConfig.wgPageName.match('/Charm_log') && $('.charmtable').length)) {
             scripts.push('User:Joeytje50/Dropadd.js'); // Add to charm logs
         }
@@ -464,6 +473,9 @@
 /*
         if (skin === 'oasis') {
             // oasis specific js here
+            if (editingPage) {
+                // oasis template preloads
+            }
         }
 */
         // ?debug=true to see these
@@ -480,11 +492,13 @@
 
         /**
          * Function invocations
+         * Run conditionals before invoking functions to improve pageload
          */
         if (mwConfig.wgUserName !== null && mwConfig.wgNamespaceNumber === 2) {
             skinRedirect(); // redirects skin.js to monobook/wikia.js
         }
 
+        // @todo see if tagSwitch and sigReminder work together
         if (editingPage) {
             $('#wpSave').click(tagSwitch); // swaps youtube tags to {{youtube}}
 
@@ -493,7 +507,7 @@
             }
 
             if (mwConfig.wgNamespaceNumber % 2 === 1 || mwConfig.wgNamespaceNumber === 110) {
-                $('#wpSave').click(sigReminder);
+                $('#wpSave').click(sigReminder); // sig reminder
             }
         }
 
@@ -501,19 +515,40 @@
             navbox(); // collapses navboxes under certain conditions
         }
 
+        if ($('.sortable').length) {
+            autosort(); // autosort tables
+        }
+        
         /**
          * Code snippets
          */
 
         // Hide edit button on exchange pages for anons
         if (mwConfig.wgUserName === null) {
-            $('.anonmessage').css('display', 'inline');
+            $('.anonmessage').css({
+                'display': 'inline'
+            });
         }
 
         // Podomatic, hosts of Jagex podcasts, is blocked by Wikia spam filters
         // This adds some text below the spam block notice directing them to the template to be used instead
         if ($('#spamprotected').text().search('podomatic') > -1) {
-            $('#spamprotected').append('<hr><p>To add links to Jagex podcasts please use <a href="/wiki/Template:Atl_podcast">Template:Atl podcast</a>. If the podcast you would like to link to is not found in the template, please leave a message <a href="/wiki/RuneScape:Administrator_requests">here</a>.</p>');
+            $('#spamprotected').append(
+                $('<hr />'),
+                $('<p/>').append(
+                    'To add links to Jagex podcasts please use ',
+                    $('<a/>', {
+                        'href': '/wiki/Template:Atl_podcast',
+                        'html': 'Template:Atl podcast'
+                    }),
+                    '. If the podcast you would like to link to is not found in the template, please leave a message ',
+                    $('<a/>', {
+                        'href': '/wiki/RuneScape:Administrator_requests',
+                        'html': 'here'
+                    }),
+                    '.'
+                )
+            );
         }
 
         // Insert username
