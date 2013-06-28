@@ -8,7 +8,7 @@
  * http://www.yourinspirationweb.com/en/fun-with-javascript-jquery-and-konami-code/
  */
 
-(function ($) {
+(function (window, document, $) {
     'use strict';
 
     $(function () {
@@ -28,4 +28,4 @@
             }
         });
     });
-}(this.jQuery));
+}(this, this.document, this.jQuery));
