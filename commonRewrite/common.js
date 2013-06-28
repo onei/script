@@ -316,7 +316,7 @@
         }
 
         // check for &undo= or ?undo= in url as summary can be altered
-        if (window.location.search.match(/(?:\?|&)undo=/)) {
+        if (window.location.search.match(/[\?&]undo=/)) {
             return;
         }
 
