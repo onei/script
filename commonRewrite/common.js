@@ -6,7 +6,7 @@
 /*jshint
     bitwise: true, curly: true, devel: false, eqeqeq: true, es3: false,  forin: true,
     immed: true, indent: 4, latedef: true, newcap: true, noarg: true, noempty: false,
-    quotmark: true, undef: true, unused: true, strict: true, trailing: true
+    quotmark: single, undef: true, unused: true, strict: true, trailing: true
  */
 /*jslint todo: true, indent: 4 */
 
