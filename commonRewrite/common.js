@@ -191,11 +191,11 @@
             {
                 imageFile: "http://images2.wikia.nocookie.net/central/images/1/13/Button_enter.png",
                 speedTip: "Line break",
-                tagOpen: "<br>",
+                tagOpen: "<br />",
                 tagClose: "",
                 sampleText: ""
             },
-            // Galllery
+            // Gallery
             {
                 imageFile: "http://images2.wikia.nocookie.net/central/images/1/12/Button_gallery.png",
                 speedTip: "Insert a picture gallery",
