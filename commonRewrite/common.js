@@ -3,7 +3,11 @@
  * JavaScript here will load on both skins for every user
  */
 
-/*jshint curly: true, devel: false */
+/*jshint
+    bitwise: true, curly: true, devel: false, eqeqeq: true, es3: false,  forin: true,
+    immed: true, indent: 4, latedef: true, newcap: true, noarg: true, noempty: false,
+    quotmark: true, undef: true, unused: true, strict: true, trailing: true
+ */
 /*jslint todo: true, indent: 4 */
 
 /**
@@ -12,7 +16,7 @@
  *  Move wgVariable to mw.config.get('wgVariable')
  */
 
-;(function (window, $, mw) {
+(function (window, $, mw) {
 
     'use strict';
 
@@ -145,8 +149,8 @@
      * For documentation see https://github.com/Matthew2602/tundra/wiki
      */
     // ResourceLoader throws an exception if you try and registered a module that is already registered
-    if (mw.loader.getModuleNames().indexOf("tundra") < 0) {
-        mw.loader.implement("tundra", ["http://matthew2602.github.io/tundra/tundra.min.js"], {}, {});
+    if (mw.loader.getModuleNames().indexOf('tundra') < 0) {
+        mw.loader.implement('tundra', ['http://matthew2602.github.io/tundra/tundra.min.js'], {}, {});
     }
 
     /**
@@ -172,35 +176,35 @@
         window.mwCustomEditButtons.push(
             // Redirect
             {
-                imageFile: "http://images.wikia.com/central/images/c/c8/Button_redirect.png",
-                speedTip: "Redirect",
-                tagOpen: "#REDIRECT [[",
-                tagClose: "]]",
-                sampleText: "Insert text"
+                imageFile: 'http://images.wikia.com/central/images/c/c8/Button_redirect.png',
+                speedTip: 'Redirect',
+                tagOpen: '#REDIRECT [[',
+                tagClose: ']]',
+                sampleText: 'Insert text'
             },
             // Wikitable
             {
-                imageFile: "http://images3.wikia.nocookie.net/central/images/4/4a/Button_table.png",
-                speedTip: "Insert a table",
+                imageFile: 'http://images3.wikia.nocookie.net/central/images/4/4a/Button_table.png',
+                speedTip: 'Insert a table',
                 tagOpen: '{| class="wikitable"\n|-\n',
-                tagClose: "\n|}",
-                sampleText: "! header 1\n! header 2\n! header 3\n|-\n| row 1, cell 1\n| row 1, cell 2\n| row 1, cell 3\n|-\n| row 2, cell 1\n| row 2, cell 2\n| row 2, cell 3"
+                tagClose: '\n|}',
+                sampleText: '! header 1\n! header 2\n! header 3\n|-\n| row 1, cell 1\n| row 1, cell 2\n| row 1, cell 3\n|-\n| row 2, cell 1\n| row 2, cell 2\n| row 2, cell 3'
             },
             // Line break
             {
-                imageFile: "http://images2.wikia.nocookie.net/central/images/1/13/Button_enter.png",
-                speedTip: "Line break",
-                tagOpen: "<br />",
-                tagClose: "",
-                sampleText: ""
+                imageFile: 'http://images2.wikia.nocookie.net/central/images/1/13/Button_enter.png',
+                speedTip: 'Line break',
+                tagOpen: '<br />',
+                tagClose: '',
+                sampleText: ''
             },
             // Gallery
             {
-                imageFile: "http://images2.wikia.nocookie.net/central/images/1/12/Button_gallery.png",
-                speedTip: "Insert a picture gallery",
+                imageFile: 'http://images2.wikia.nocookie.net/central/images/1/12/Button_gallery.png',
+                speedTip: 'Insert a picture gallery',
                 tagOpen: '\n<div style="text-align:center"><gallery>\n',
-                tagClose: "\n</gallery></div>",
-                sampleText: "File:Example.jpg|Caption1\nFile:Example.jpg|Caption2"
+                tagClose: '\n</gallery></div>',
+                sampleText: 'File:Example.jpg|Caption1\nFile:Example.jpg|Caption2'
             }
         );
 
@@ -334,7 +338,7 @@
                 matched = /(?:^| )autosort=([0-9]+),(a|d)(?: |$)/.exec($this.attr('class'));
 
             $this.tablesorter({
-                sortList: [[matched[1] - 1, ((matched[2] === 'd')? 1: 0)]],
+                sortList: [[matched[1] - 1, ((matched[2] === 'd') ? 1 : 0)]]
             });
         });
     }
@@ -470,14 +474,14 @@
                 scripts.push('MediaWiki:Common.js/preload.js'); // Template preloads for monobook
             }
         }
-/*
-        if (skin === 'oasis') {
-            // oasis specific js here
+
+        if (mwConfig.skin === 'oasis') {
+
             if (editingPage) {
-                // oasis template preloads
+                scripts.push('MediaWiki:Wikia.js/preload.js'); // Template preloads for Oasis
             }
         }
-*/
+
         // ?debug=true to see these
         mw.log(scripts, styles);
 
@@ -518,12 +522,12 @@
         if ($('.sortable').length) {
             autosort(); // autosort tables
         }
-        
+
         /**
          * Code snippets
          */
 
-        // Hide edit button on exchange pages for anons
+        // Hide semi automatic exchange update button for anons
         if (mwConfig.wgUserName === null) {
             $('.anonmessage').css({
                 'display': 'inline'
