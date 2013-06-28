@@ -530,27 +530,6 @@
             });
         }
 
-        // Podomatic, hosts of Jagex podcasts, is blocked by Wikia spam filters
-        // This adds some text below the spam block notice directing them to the template to be used instead
-        if ($('#spamprotected').text().search('podomatic') > -1) {
-            $('#spamprotected').append(
-                $('<hr />'),
-                $('<p/>').append(
-                    'To add links to Jagex podcasts please use ',
-                    $('<a/>', {
-                        'href': '/wiki/Template:Atl_podcast',
-                        'html': 'Template:Atl podcast'
-                    }),
-                    '. If the podcast you would like to link to is not found in the template, please leave a message ',
-                    $('<a/>', {
-                        'href': '/wiki/RuneScape:Administrator_requests',
-                        'html': 'here'
-                    }),
-                    '.'
-                )
-            );
-        }
-
         // Insert username
         if (mwConfig.wgAction === 'view' && mwConfig.wgUserName !== null) {
             $('.insertusername').text(mwConfig.wgUserName);
