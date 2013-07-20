@@ -19,30 +19,19 @@
 
         var pengTableID = 'pengLocations',
             pengCookieID = 'pengLocations',
-            pengToggleClass = 'pengToggle',
+            pengToggleClass = 'selected',
             wgPageName = mw.config.get('wgPageName'),
             pengCookie,
             pengRows,
             pengCookieLen,
             pengSelector,
             pengHeaders;
- 
+
         // load the existing cookie, if any
         if ($.cookie(pengCookieID) !== null) {
             pengCookie = $.cookie(pengCookieID).split('');
         } else {
             pengCookie = ['0'];
-        }
-
-        // change the row bg color based on mouse events
-        function pengHighlight(el, val) {
-            var pengCSS = '';
-            if (val === '2') {
-                pengCSS = 'background-color: #ccc !important';
-            } else if (val === '1') {
-                pengCSS = 'background-color: #cfc !important';
-            }
-            $(el).css('cssText', pengCSS);
         }
 
         // show or hide columns
@@ -62,7 +51,7 @@
             });
         }
 
-        if (wgPageName === 'Distractions_and_Diversions_Locations' || wgPageName === 'Distractions_and_Diversions_Locations/Penguin_Hide_and_Seek') {
+        if ($('#' + pengTableID).length) {
 
             pengRows = $('#' + pengTableID + ' tr:has(td)'); // data rows
             pengCookieLen = pengRows.length + 1; // 1 for hidden + 1 for each peng/bear
@@ -70,7 +59,7 @@
             pengSelector = ''; // propagate class from header row to data rows
             pengHeaders = $('#' + pengTableID + ' tr > th'); // save the headers to count them later
 
-            pengHeaders.filter('.' + pengToggleClass).each(function() {
+            pengHeaders.filter('.' + pengToggleClass).each(function () {
 
                 // build a selector that mirrors the header row
                 if (pengSelector.length > 0) {
@@ -87,17 +76,15 @@
             }
 
             // initialize highlighting based on the cookie
-            pengRows.each(function (iLoc) {
+            pengRows.each(function (index) {
 
                 // pengCookie[0] is the hidden state
-                pengHighlight(this, pengCookie[iLoc + 1]);
+                if (pengCookie[index + 1] === 1) {
+                    $(this).addClass('selected');
+                }
 
                 // set mouse events
-                $(this).mouseover(function () {
-                    pengHighlight(this, 2);
-                }).mouseout(function () {
-                    pengHighlight(this, pengCookie[iLoc + 1]);
-                }).click(function(e) {
+                $(this).click(function (e) {
 
                     // don't highlight when clicking links
                     if (e.target.tagName === 'A') {
@@ -105,8 +92,12 @@
                     }
 
                     // toggle highlight
-                    pengCookie[iLoc + 1] = 1 - pengCookie[iLoc + 1];
-                    pengHighlight(this, pengCookie[iLoc + 1]);
+                    pengCookie[index + 1] = 1 - pengCookie[index + 1];
+                    if (pengCookie[iLoc + 1] === 1) {
+                        $(this).addClass('selected');
+                    } else {
+                        $(this).removeClass('selected');
+                    }
                     pengSave();
                 });
             });
@@ -151,6 +142,7 @@
     }
 
     $(function () {
+        mw.util.addCSS('#pengLocations tr:hover{background-color:#ccc;}#pengLocations .selected{background-color: #cfc;}');
         pengLocations();
     });
 

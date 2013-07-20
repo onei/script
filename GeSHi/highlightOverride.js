@@ -20,6 +20,30 @@
      * More can be added in required (tundra?)
      * Find a way to automate this?
      */
+/*
+(function () {
+
+
+
+
+*/
+
+    var source,
+        regex,
+        matches,
+        globals;
+
+    source = $('.javascript.source-javascript').text();
+    startRegex = /\(function(?: |)\(([\w, \$]+)\)(?: |){/g;
+    endRegex = /}(\)\(([\w\.,\(\)'=\|\{\}\$ ]+)\)(|;)|\(([\w\.,\(\)'=\|\{\}\$ ]+)\)\)(|;))/g;
+    startMatches = source.match(startRegex);
+    endMatches = source.match(endRegex);
+    console.log(startMatches, startMatches.length, endMatches, endMatches.length);
+    //matches.replace(/ /g, '');
+    //globals = matches.split(',');
+    
+// ---------------------------------------------
+
     function findGlobals() {
 
         var textSplit;

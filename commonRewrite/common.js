@@ -11,6 +11,9 @@
  * The function invocations should be within conditionals not within the function itself
  *
  * Functions that take a few lines should be written within $(function () {...});
+ *
+ * Use mw.log over console.log as it handles browsers without consoles
+ * Append ?debug=true (or &debug=true) to your url to see log output
  */
 
 /*jshint
@@ -105,7 +108,7 @@
 
     /**
      * Calls wiki API and returns the response in the callback
-     * @param data named array List of parameters to send along with the request. {'format':'json'} is set automatically.
+     * @param data named object list of parameters to send along with the request. {'format':'json'} is set automatically.
      * @param method string Either POST or GET.
      * @param callback function Thing to run when request is complete
      * @param addurl string (optional) Anything you may want to add to the request url, in case you need it.
@@ -263,11 +266,6 @@
                 j,
                 toggle;
 
-            // temp check until cache is updated
-            if (!$(elem).hasClass('mw-collapsible')) {
-                return;
-            }
-
             if ($(elem).hasClass('mw-collapsed')) {
                 return;
             }
@@ -373,127 +371,196 @@
          * and would bloat Common.css if included by default
          */
 
-        scripts.push('MediaWiki:Common.js/Konami.js');       // Konami code
-        scripts.push('MediaWiki:Common.js/displayTimer.js'); // UTC clock with purge link
-        scripts.push('MediaWiki:Common.js/histats.js');      // Histats
+        scripts.push(
+            // Konami code
+            'MediaWiki:Common.js/Konami.js',
+            // UTC clock with purge link
+            'MediaWiki:Common.js/displayTimer.js',
+            // Histats
+            'MediaWiki:Common.js/histats.js'
+        );
 
-        if (editingPage) {
-            scripts.push('MediaWiki:Common.js/standardeditsummaries.js'); // Standard edit summaries
+        switch (mwConfig.wgAction) {
 
-            if (mwConfig.wgNamespaceNumber === 100) {
-                scripts.push('MediaWiki:Common.js/updateintro.js'); // Notice when editing update pages
-            } else if (mwConfig.wgNamespaceNumber === 112 && mwConfig.wgPageName.split('/')[1] === 'Data') {
-                scripts.push('MediaWiki:Common.js/exchangeintro.js'); // Notice when editing Exchange /Data subpages        
+        case 'edit':
+        case 'submit':
+
+            // Standard edit summaries
+            scripts.push('MediaWiki:Common.js/standardeditsummaries.js');
+            
+            if (mwConfig.skin === 'oasis') {
+                // template preloads for oasis
+                scripts.push('MediaWiki:Wikia.js/preload.js');
+            } else {
+                // template preloads for monobook
+                scripts.push('MediaWiki:Common.js/preload.js');
             }
-        }
 
-        if (mwConfig.wgAction === 'view') {
+            break;
+                
+        case 'view':
 
-            if (mwConfig.wgPageName === 'RuneScape:Off-site/IRC') {
-                scripts.push('MediaWiki:Common.js/embedirc.js'); // Embed IRC
-            } else if (mwConfig.wgPageName === 'RuneScape:RC_Patrol') {
-                scripts.push('User:Suppa_chuppa/rcpatrol.js'); // Check old page revisions for vandalism
+            switch (true) {
+                
+            case mwConfig.wgPageName === 'RuneScape:Off-site/IRC':
+                // Embed IRC
+                scripts.push('MediaWiki:Common.js/embedirc.js');
+                break;
+
+            case mwConfig.wgPageName === 'RuneScape:RC_Patrol':
+                // Check old page revisions for vandalism
+                scripts.push('User:Suppa_chuppa/rcpatrol.js');
                 styles.push('User:Suppa_chuppa/rcp.css');
-            } else if (mwConfig.wgPageName === 'MediaWiki:Namespace_numbers') {
-                scripts.push('MediaWiki:Common.js/namespaceNumbersList.js'); // Lists namespace number for easy reference
-            } else if (mwConfig.wgPageName === 'RuneScape:Counter-Vandalism_Unit') {
-                scripts.push('User:Suppa_chuppa/cvu.js'); // Form for reporting users on [[RS:CVU]]
-            } else if (mwConfig.wgCanonicalSpecialPageName === 'Whatlinkshere') {
-                scripts.push('MediaWiki:Common.js/WLH_edit.js'); // Add edit links to [[Special:WhatLinksHere]]
-            } else if (mwConfig.wgCanonicalSpecialPageName === 'Log') {
-                scripts.push('User:AzBot/HideBotUploads.js'); // Hide Auto-uploads
-            } else if (mwConfig.wgPageName === 'Distractions_and_Diversions_Locations' || mwConfig.wgPageName === 'Distractions_and_Diversions_Locations/Penguin_Hide_and_Seek') {
-                scripts.push('MediaWiki:Common.js/pengLocations.js'); // Peng hunting highlight table
-            }
+                break;
 
-            if (manualExchange.indexOf(mwConfig.wgPageName) > -1) {
-                scripts.push('User:Quarenon/gemwupdate.js'); // Add custom price input for exchange pages
-            } else if (mwConfig.wgUserGroups.indexOf('autoconfirmed') > -1) {
-                scripts.push('MediaWiki:Common.js/gemwupdate.js'); // Semi-automated price updates for exchange pages
+            case mwConfig.wgPageName === 'MediaWiki:Namespace_numbers':
+                // Lists namespace number for easy reference
+                scripts.push('MediaWiki:Common.js/namespaceNumbersList.js');
+                break;
+
+            case mwConfig.wgPageName === 'RuneScape:Counter-Vandalism_Unit':
+                // Form for reporting users on [[RS:CVU]]
+                scripts.push('User:Suppa_chuppa/cvu.js');
+                break;
+
+            case mwConfig.wgPageName === 'Distractions_and_Diversions_Locations':
+            case mwConfig.wgPageName === 'Distractions_and_Diversions_Locations/Penguin_Hide_and_Seek':
+                // Peng hunting highlight table
+                scripts.push('MediaWiki:Common.js/pengLocations.js');
+                break;
+
+            case mwConfig.wgCanonicalSpecialPageName === 'Whatlinkshere':
+                // Add edit links to [[Special:WhatLinksHere]]
+                scripts.push('MediaWiki:Common.js/WLH_edit.js');
+                break;
+
+            case mwConfig.wgCanonicalSpecialPageName === 'Log':
+                // Hide Auto-uploads
+                // @todo check azbot's upload activity
+                scripts.push('User:AzBot/HideBotUploads.js');
+                break;
+
+            case mwConfig.wgNamespaceNumber === 100:
+                // Notice when editing update pages
+                scripts.push('MediaWiki:Common.js/updateintro.js');
+                break;
+
+            case mwConfig.wgNamespaceNumber === 112:
+                // Notice when editing exchange pages
+                scripts.push('MediaWiki:Common.js/exchangeintro.js');
+                
+                // @todo make this into switch with default?
+                if (manualExchange.indexOf(mwConfig.wgPageName) > -1) {
+                    // Add custom price input for exchange pages
+                    scripts.push('User:Quarenon/gemwupdate.js');
+                } else if (mwConfig.wgUserGroups.indexOf('autoconfirmed') > -1) {
+                    // Semi-automated price updates for exchange pages
+                    scripts.push('MediaWiki:Common.js/gemwupdate.js');
+                }
+                
+                break;
+
             }
 
             if (ajaxPages.indexOf(mwConfig.wgPageName) > -1) {
-                scripts.push('u:dev:AjaxRC/code.js'); // Ajax refresh for various pages
+                // Ajax refresh for various pages
+                scripts.push('u:dev:AjaxRC/code.js');
             }
-
+                
+            break;
         }
 
-        if ($('.countdown').length) {
-            scripts.push('MediaWiki:Common.js/countdowntimer.js'); // Countdown timer
-        }
+        /**
+         * Element checks
+         *
+         * This is intentionally a fall through, do not add break statements
+         *
+         * falls through comment disables warining about lack of break on jshint
+         * falls through comment must be on line directly above a case
+         */
+        switch (true) {
+        
+        case $('.countdown').length:
+            // Countdown timer
+            // @todo import directly from dev where it's maintained
+            scripts.push('MediaWiki:Common.js/countdowntimer.js');
 
-        if ($('.youtube').length) {
-            scripts.push('MediaWiki:Common.js/youtube.js'); // Youtube embedding
-        }
+            /* falls through */
+        case $('.youtube').length:
+            // Youtube embedding
+            scripts.push('MediaWiki:Common.js/youtube.js');
 
-        if ($('.embedMe').length) {
-            scripts.push('MediaWiki:Common.js/embedding.js'); // Embed audio
-        }
+            /* falls through */
+        case $('.embedMe').length:
+            // Embed audio
+            scripts.push('MediaWiki:Common.js/embedding.js');
 
-        if ($('.lighttable').length) {
-            scripts.push('MediaWiki:Common.js/highlightTable.js'); // Highlight tables
-        }
+            /* falls through */
+        case $('.lighttable').length:
+            // Highlight tables
+            scripts.push('MediaWiki:Common.js/highlightTable.js');
 
-        if ($('#title-meta').length) {
-            scripts.push('MediaWiki:Common.js/pagetitle.js'); // Rewrite page titles
-        }
+            /* falls through */
+        case $('#title-meta').length:
+            // Rewrite page titles
+            scripts.push('MediaWiki:Common.js/pagetitle.js');
 
-        if ($('.jcInput').length || $('[class*="jcPane"]').length) {
-            scripts.push('User:Stewbasic/calc.js'); // Calculators
-        }
+            /* falls through */
+        case $('.jcInput').length:
+        case $('[class*="jcPane"]').length:
+            // Calculators
+            scripts.push('User:Stewbasic/calc.js');
 
-        if ($('.GEdatachart').length) {
+            /* falls through */
+        case $('.GEdatachart').length:
             if (mw.loader.getModuleNames().indexOf('highcharts') < 0) {
                 mw.loader.implement('highcharts', ['http://code.highcharts.com/stock/highstock.js'], {}, {});
             }
 
             mw.loader.using('highcharts', function () {
-                scripts.push('MediaWiki:Common.js/GECharts.js'); // GE Charts
+                // GE Charts
+                // @todo add dependency to script
+                importScript('MediaWiki:Common.js/GECharts.js');
             });
-        }
 
-        if ($('#mw-content-text .cioCompareLink').length) {
-            scripts.push('MediaWiki:Common.js/compare.js'); // Item Compare Overlays
+            /* falls through */
+        case $('#mw-content-text .cioCompareLink').length:
+            // Item Compare Overlays
+            scripts.push('MediaWiki:Common.js/compare.js');
             styles.push('MediaWiki:Common.css/compare.css');
-        }
 
-        if ($('#mw-content-text .jcConfig').length) {
-            scripts.push('MediaWiki:Common.js/calc.js'); // Dynamic Templates
+            /* falls through */
+        case $('#mw-content-text .jcConfig').length:
+            // Dynamic Templates
+            scripts.push('MediaWiki:Common.js/calc.js');
             styles.push('MediaWiki:Common.css/calc.css');
+
+            /* falls through */
+        case $('.specialMaintenance').length:
+        case mwConfig.wgCanonicalSpecialPageName === 'Specialpages':
+            // Special page report on [[RS:MAINTENANCE]] and [[Special:SpecialPages]]
+            scripts.push('MediaWiki:Common.js/spreport.js');
+
+            /* falls through */
+        case mwConfig.wgPageName.match('/Charm_log') && $('#charmguide').length:
+        case !mwConfig.wgPageName.match('/Charm_log') && $('.charmtable').length:
+            // Add to charm logs
+            scripts.push('User:Joeytje50/Dropadd.js');
+
+            /* falls through */
+        case $('.switch-infobox').length:
+            // Switch infobox
+            scripts.push('User:Matthew2602/SwitchInfobox.js');
+
+            /* falls through */
+        case $('#XPEach').length:
+        case $('#GEPrice').length:
+        case $('#killXP').length:
+            // Adds calcs to infoboxes
+            scripts.push('User:Joeytje50/monstercalc.js');
+
         }
 
-        if ($('.specialMaintenance').length || mwConfig.wgCanonicalSpecialPageName === 'Specialpages') {
-            scripts.push('MediaWiki:Common.js/spreport.js'); // Special page report on [[RS:MAINTENANCE]] and [[Special:SpecialPages]]
-        }
-
-        if ((mwConfig.wgPageName.match('/Charm_log') && $('#charmguide').length) || (!mwConfig.wgPageName.match('/Charm_log') && $('.charmtable').length)) {
-            scripts.push('User:Joeytje50/Dropadd.js'); // Add to charm logs
-        }
-
-        if ($('.switch-infobox').length) {
-            scripts.push('User:Matthew2602/SwitchInfobox.js'); // Switch infobox
-        }
-
-        if ($('#XPEach').length || $('#GEPrice').length || $('#killXP').length) {
-            scripts.push('User:Joeytje50/monstercalc.js'); // Adds calcs to infoboxes
-        }
-
-        if (mwConfig.skin === 'monobook') {
-            scripts.push('MediaWiki:Common.js/sitenotice.js'); // Extra sitenotice functionality
-
-            if (editingPage) {
-                scripts.push('MediaWiki:Common.js/preload.js'); // Template preloads for monobook
-            }
-        }
-
-        if (mwConfig.skin === 'oasis') {
-
-            if (editingPage) {
-                scripts.push('MediaWiki:Wikia.js/preload.js'); // Template preloads for oasis
-            }
-        }
-
-        // ?debug=true to see these
         mw.log(scripts, styles);
 
         // Large script imports
@@ -527,7 +594,8 @@
         }
 
         if (mwConfig.wgNamespaceNumber === 0 && $('.navbox').length) {
-            navbox(); // collapses navboxes under certain conditions
+            // collapses navboxes under certain conditions
+            navbox();
         }
 
         if ($('.sortable').length) {

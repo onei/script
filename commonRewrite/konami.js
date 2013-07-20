@@ -23,7 +23,7 @@
             if (keys.toString().indexOf(konami) > -1) {
                 // redirect to [[Cabbage]]
                 window.location.assign('http://runescape.wikia/com/wiki/Cabbage');
-                // empty keys array, not sure if this is completey necessary
+                // empty keys array, not sure if this is completely necessary
                 keys.length = 0;
             }
         });
