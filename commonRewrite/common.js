@@ -66,6 +66,10 @@
     // Text to display next to checkbox that enables/disables AJAX refresh script
     window.AjaxRCRefreshText = 'Auto-refresh';
 
+    /* ============================== *
+     *   Begin reusable functions     *
+     * ============================== */
+    
     /**
      * Sets the cookie
      * @param c_name string Name of the cookie
@@ -156,6 +160,10 @@
         return x1 + x2;
 
     };
+
+    /* ============================== *
+     *   End reusable functions       *
+     * ============================== */
 
     /**
      * Matthew's Tundra library
