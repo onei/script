@@ -2,26 +2,13 @@
  * @name        userStats.js
  * @description Collects various data on users for processing somewhere else
  * @author      cqm <mdowdell244@gmail.com>
- * @comment     Due to coppa restrictions we are unable to collect any IP data in case
- *              incase we inadvertently gain the IP address of someone under 13.
- *
- * @license     This program is free software: you can redistribute it and/or modify
- *              it under the terms of the GNU General Public License as published by
- *              the Free Software Foundation, either version 3 of the License, or
- *              (at your option) any later version.
- *
- *              This program is distributed in the hope that it will be useful,
- *              but WITHOUT ANY WARRANTY; without even the implied warranty of
- *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *              GNU General Public License for more details.
- *
- *              You should have received a copy of the GNU General Public License
- *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @comment     Due to coppa restrictions we are unable to indiscriminately gather IP addresses.
+ * @license     GPLv3 <http://www.gnu.org/licenses/gpl.html>
  */
 
- /*jshint
+/*jshint
     asi: false, bitwise: true, boss: false, camelcase: true, curly: true,
-    eqeqeq: true, es3: false, evil: false, expr: false, forin: true,
+    eqeqeq: true, es3: true, evil: false, expr: false, forin: true,
     funcscope: false, globalstrict: false, immed: true, lastsemic: false, latedef: true,
     laxbreak: false, laxcomma: false, loopfunc: false, multistr: false, noarg: true,
     noempty: true, onevar: true, plusplus: true, quotmark: single, undef: true,
@@ -60,7 +47,7 @@
     }
 
     /**
-     * @description toISOString polyfill for older non-ES5, browsers
+     * @description toISOString polyfill for non-ES5 browsers
      * @source      https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString#Description
      */
     if (!Date.prototype.toISOString) {
@@ -143,7 +130,7 @@
             } else {
 
                 cookie.split('|');
-                mw.log(cookie);
+                mw.log(cookie, referrer);
 
                 // check the user hasn't left and come back before the cookie expired
                 if (referrer.indexOf(cookie[1]) === -1) {
@@ -155,7 +142,7 @@
                 } else {
 
                     mw.log('continue session');
-                    data = userStats.gatherData(false, session, time, loggedIn, prevPage, curPage);
+                    data = userStats.gatherData(false, cookie[0], time, loggedIn, prevPage, curPage);
 
                 }
 
