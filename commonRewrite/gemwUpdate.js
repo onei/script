@@ -14,6 +14,7 @@
 
     var button;
 
+    // queries the jagex api for price data
     function crossDomain(u, s) {
 
         var url;
@@ -42,6 +43,7 @@
         return parseFloat(n) * mb;
     }
 
+    // reloads the page is successful, alerts if not
     function geReqsDone(failed) {
         if (!failed) {
             alert('Thank you for your submission! The page will now be reloaded.');
@@ -197,6 +199,7 @@
     }
 
     $(function () {
+
         $('#gemw_guide').html(
 
             $('<b/>').text('Update item price'),
