@@ -32,7 +32,7 @@
 
     /**
      * @description Zero pad numbers for toISOString polyfill
-     * @source      https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString#Description
+     * @source      <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString#Description>
      * @param       number - Number to be padded
      */
     function pad(number) {
@@ -49,7 +49,7 @@
 
     /**
      * @description toISOString polyfill for non-ES5 browsers
-     * @source      https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString#Description
+     * @source      <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString#Description>
      */
     if (!Date.prototype.toISOString) {
 
@@ -347,7 +347,7 @@ Meiko chat:
 <http://www.xlhost.com/hosting/dedicated-servers/?gclid=CPSs8PKz8rgCFU6Z4AodvS8Abw>
 brickimedia use ramnode, may be better alternatives
 OS Linux, Ubuntu w/ Debian
-https://clientarea.ramnode.com/cart.php?gid=15 2048MB CVZ-E5
+<https://clientarea.ramnode.com/cart.php?gid=15 2048MB CVZ-E5>
 
 */
 
