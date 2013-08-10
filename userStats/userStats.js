@@ -2,6 +2,7 @@
  * @name        userStats.js
  * @description Collects various data on users for processing somewhere else
  * @author      cqm <mdowdell244@gmail.com>
+ * @source      <https://github.com/onei/script/blob/master/userStats/userStats.js>
  * @comment     Due to coppa restrictions we are unable to indiscriminately gather IP addresses.
  * @license     GPLv3 <http://www.gnu.org/licenses/gpl.html>
  */
@@ -130,7 +131,7 @@
             } else {
 
                 cookie.split('|');
-                mw.log(cookie, referrer);
+                mw.log(cookie);
 
                 // check the user hasn't left and come back before the cookie expired
                 if (referrer.indexOf(cookie[1]) === -1) {
@@ -142,7 +143,7 @@
                 } else {
 
                     mw.log('continue session');
-                    data = userStats.gatherData(false, cookie[0], time, loggedIn, prevPage, curPage);
+                    data = userStats.gatherData(false, session, time, loggedIn, prevPage, curPage);
 
                 }
 
@@ -158,7 +159,7 @@
         },
 
         /**
-         * @source http://stackoverflow.com/a/10727155/1942596
+         * @source <http://stackoverflow.com/a/10727155/1942596>
          */
         createSession: function () {
 
@@ -228,7 +229,7 @@
         },
 
         /**
-         * @source http://www.javascripter.net/faq/browsern.htm
+         * @source <http://www.javascripter.net/faq/browsern.htm>
          */
         browserDetect: function () {
 
@@ -314,7 +315,7 @@
          */
         sendData: function (data) {
 
-            // http://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
+            // <http://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript>
             window.console.log(data);
 
         }
@@ -328,7 +329,7 @@ from the returned data we can calculate the time spent on the page and the trail
 time returned will be 0 if only one page is visited
 can also detect bounce rate (visit one page and then leave)
 
-time spent on site - http://www.kaushik.net/avinash/standard-metrics-revisited-time-on-page-and-time-on-site/
+time spent on site <http://www.kaushik.net/avinash/standard-metrics-revisited-time-on-page-and-time-on-site/>
 */
 
 }(this, document, jQuery, mediaWiki, mediaWiki.config.values, navigator));
@@ -337,13 +338,13 @@ time spent on site - http://www.kaushik.net/avinash/standard-metrics-revisited-t
 == How to interact with the server ==
 POST the data to a server, which is then transferred to a database (MySQL) via server side scripting (PHP?)
 Immo tells me to store the data in proper tables as it's easier to work from
-http://dev.mysql.com/tech-resources/articles/mysql_intro.html
+<http://dev.mysql.com/tech-resources/articles/mysql_intro.html>
 
 Then when using the site, query the database to build the graphs, possibly going to need some js library for this
 SQL can do this for you according to Immo. It is handy having techs in IRC.
 
 Meiko chat:
-http://www.xlhost.com/hosting/dedicated-servers/?gclid=CPSs8PKz8rgCFU6Z4AodvS8Abw
+<http://www.xlhost.com/hosting/dedicated-servers/?gclid=CPSs8PKz8rgCFU6Z4AodvS8Abw>
 brickimedia use ramnode, may be better alternatives
 OS Linux, Ubuntu w/ Debian
 https://clientarea.ramnode.com/cart.php?gid=15 2048MB CVZ-E5
