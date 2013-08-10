@@ -29,52 +29,22 @@
     sub: false, trailing: true, white: true
 */
 
-(function (window, document, $, mwConfig, navigator) {
+/*jslint
+    ass: true
+*/
+
+/*global
+    Date: true, document: true, jQuery: true, Math: true, mediaWiki: true,
+    navigator: true, String: true, isNaN: true, parseFloat: true, parseInt: true
+*/
+
+(function (window, document, $, mw, mwConfig, navigator) {
 
     'use strict';
 
     /**
-     * @description Retrieve a cookie if it exists, return null if it doesn't
-     * @param       name - Name of cookie to retrieve
-     */
-    function getCookie(name) {
-        var cookies = document.cookie.split(';'),
-            i,
-            cookie;
-
-        for (i = 0; i < cookies.length; i += 1) {
-            cookie = cookies[i].split('=');
-            if (cookie[0].replace(/\s/g, '') === name) {
-                return cookie[1];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @description Create a cookie
-     * @param       name - Name of cookie to set
-     * @param       value - Content of the cookie
-     * @param       expires - How long the cookie lasts
-     * @param       measurement - Time measurement of expiry, days or hours. Default to hours
-     */
-    function setCookie(name, value, expires, measurement) {
-
-        if (measurement === 'days') {
-            expires = expires * 24 * 60 * 60 * 1000;
-        } else {
-            expires = expires * 60 * 60 * 1000;
-        }
-
-        document.cookie =
-            name + '=' + value +
-            '; expires=' + expires +
-            '; path =/';
-    }
-
-    /**
      * @description Zero pad numbers for toISOString polyfill
+     * @source      https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString#Description
      * @param       number - Number to be padded
      */
     function pad(number) {
@@ -108,265 +78,273 @@
 
     }
 
-    /**
-     * @description Retrieves browser and version
-     * @source      http://www.javascripter.net/faq/browsern.htm
-     * @comment     slightly modified from source for our needs
-     */
-    function browserDetect() {
+    var userStats = {
 
-        var nAgt = navigator.userAgent,
-            browserName = navigator.appName,
-            fullVersion = parseFloat(navigator.appVersion),
-            majorVersion = parseInt(navigator.appVersion, 10),
-            nameOffset,
-            verOffset,
-            ix;
+        init: function () {
 
-        // In Opera, the true version is after "Opera" or after "Version"
-        if ((verOffset = nAgt.indexOf('Opera')) > -1) {
-            browserName = 'Opera';
-            fullVersion = nAgt.substring(verOffset + 6);
-            if ((verOffset = nAgt.indexOf('Version')) > -1) {
-                fullVersion = nAgt.substring(verOffset + 8);
-            }
+            var loadCheck,
+                usergroups = mwConfig.wgUserGroups,
+                i,
+                data,
+                cookie,
+                session,
+                time = (new Date()).toISOString(),
+                loggedIn = false,
+                referrer = document.referrer,
+                prevPage = '',
+                curPage = mwConfig.wgPageName,
+                newUser = false;
 
-        // In MSIE, the true version is after "MSIE" in userAgent
-        } else if ((verOffset = nAgt.indexOf('MSIE')) > -1) {
-            browserName = 'Microsoft Internet Explorer';
-            fullVersion = nAgt.substring(verOffset + 5);
-
-        // In Chrome, the true version is after "Chrome" 
-        } else if ((verOffset = nAgt.indexOf('Chrome')) > -1) {
-            browserName = 'Chrome';
-            fullVersion = nAgt.substring(verOffset + 7);
-
-        // In Safari, the true version is after "Safari" or after "Version" 
-        } else if ((verOffset = nAgt.indexOf('Safari')) > -1) {
-            browserName = 'Safari';
-            fullVersion = nAgt.substring(verOffset + 7);
-            if ((verOffset = nAgt.indexOf('Version')) > -1) {
-                fullVersion = nAgt.substring(verOffset + 8);
-            }
-
-        // In Firefox, the true version is after "Firefox" 
-        } else if ((verOffset = nAgt.indexOf('Firefox')) > -1) {
-            browserName = 'Firefox';
-            fullVersion = nAgt.substring(verOffset + 8);
-
-        // In most other browsers, "name/version" is at the end of userAgent 
-        } else if (
-            (nameOffset = nAgt.lastIndexOf(' ') + 1) <
-                (verOffset = nAgt.lastIndexOf('/'))
-        ) {
-            browserName = nAgt.substring(nameOffset, verOffset);
-            fullVersion = nAgt.substring(verOffset + 1);
-            if (browserName.toLowerCase() === browserName.toUpperCase()) {
-                browserName = navigator.appName;
-            }
-        }
-
-        // trim the fullVersion string at semicolon/space if present
-        if ((ix = fullVersion.indexOf(';')) > -1) {
-            fullVersion = fullVersion.substring(0, ix);
-        }
-
-        if ((ix = fullVersion.indexOf(' ')) > -1) {
-            fullVersion = fullVersion.substring(0, ix);
-        }
-
-        majorVersion = parseInt(fullVersion, 10);
-        if (isNaN(majorVersion)) {
-            fullVersion = parseFloat(navigator.appVersion);
-            majorVersion = parseInt(navigator.appVersion, 10);
-        }
-
-        majorVersion = browserName + ' ' + majorVersion;
-        fullVersion = browserName + ' ' + fullVersion;
-
-
-        return [browserName, majorVersion, fullVersion];
-
-    }
-
-    /**
-     * @description Create a session id
-     * @source      http://stackoverflow.com/a/10727155/1942596
-     * @param       timestamp The time the session is created for
-     */
-    function createSession() {
-
-        var result = '',
-            chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-            length = 20,
-            i;
-
-        for (i = 0; i < length; i += 1) {
-            result += chars[Math.round(Math.random() * (chars.length - 1))];
-        }
-
-        return result;
-
-    }
-
-    /**
-     * @description collect a complete set of data
-     * @param       newUser Boolean if the reader has visited the site before
-     * @param       session Session id
-     * @param       timestamp ISO timestamp
-     * @param       referrer Site that linked to the page
-     * @param       user Boolean for whether the reader is logged in or not
-     * @param       page What page is currently being viewed
-     */
-    function collectNewData(newUser, session, timestamp, referrer, user, page) {
-
-        var browser = browserDetect(),
-            data = {
-                newUser: newUser,
-                session: session,
-                time: timestamp,
-                referrer: referrer,
-                user: user,
-                prevPage: '',
-                curPage: page,
-                screenHeight: window.screen.availHeight,
-                screenWidth: window.screen.availWidth,
-                browserName: browser[0],
-                majorBrowserVersion: browser[1],
-                fullBrowserVersion: browser[2]
-            };
-
-        return data;
-
-    }
-
-    /**
-     * @description Collect more data after a session has started
-     * @param       session The session id
-     * @param       timestamp The time of accessing the new page
-     * @param       prevPage The previous page accessed
-     * @param       curPage The current page the user is on
-     * @param       user A boolean for if the user is logged in or not
-     */
-    function collectMoreData(session, timestamp, prevPage, curPage, user) {
-        var data = {
-            session: session,
-            time: timestamp,
-            prevPage: prevPage,
-            curPage: curPage,
-            // check for user again incase they've logged in since we started the session
-            user: user
-        };
-
-        return data;
-    }
-
-    $(function () {
-
-        var usergroups = mwConfig.wgUserGroups,
-            i,
-            newUser,
-            cookie,
-            time = (new Date()).toISOString(),
-            refer = document.referrer,
-            page = encodeURIComponent(mwConfig.wgPageName),
-            user,
-            session,
-            data;
-
-        for (i = 0; i < usergroups.length; i += 1) {
-            // don't collect data on bots
-            if (usergroups.indexOf('bot') > -1) {
+            // don't load twice
+            if (!!loadCheck) {
                 return;
             }
-        }
+            loadCheck = true;
 
-        // stop if the page is refreshed or purged as nothing will have changed
-        // on wikimedia there's seems to be a distinct purge page
-        // will need to account for this if this ever becomes an extension
-        if (refer === '') {
-            return;
-        }
-
-        // possibly check if cookies are enabled? could skew results if lots of people have them disabled
-
-        // check for new user
-        if (getCookie('rswMetricsNew') === null) {
-            newUser = true;
-        } else {
-            newUser = false;
-        }
-        // (re)create cookie
-        // is there a limit to how long a cookie can be set for?
-        setCookie('rswMetricsNew', 'true', 180, 'days');
-
-        // check for logged in users
-        if (mwConfig.wgUserName === null) {
-            user = false;
-        } else {
-            user = true;
-        }
-
-        // 'session-timestamp-curPage-prevPage
-        cookie = getCookie('rswMetricsData');
-
-        if (cookie === null) {
-            session = createSession();
-            // ignore previous page for now
-            setCookie('rswMetricsData', session  + '#' + page + '#', 0.5, 'hours');
-            data = collectNewData(newUser, session, time, refer, user, page);
-            console.log('no cookie');
-        } else {
-            cookie = cookie.split('#');
-            console.log(cookie[1], refer);
-
-            // make sure they haven't navigated away since the cookie was created
-            if (encodeURIComponent(refer).indexOf(cookie[1]) === -1) {
-                console.log('navigated away');
-                session = createSession();
-                setCookie('rswMetricsData', session  + '#' + page + '#' + cookie[2], 0.5, 'hours');
-                data = collectNewData(newUser, session, time, refer, user, page);
-            } else {
-                console.log('continue session');
-                session = cookie[0];
-                setCookie('rswMetricsData', session  + '#' + page + '#' + cookie[2], 0.5, 'hours');
-                data = collectMoreData(session, time, refer, page, user)
+            // don't gather data on bots
+            // only an issue if someone is using a client side script
+            // do I really need this? copied from ga extension
+            for (i = 0; i < usergroups.length; i += 1) {
+                if (usergroups[i].indexOf('bot') > -1) {
+                    return;
+                }
             }
 
+            // if a page is reloaded, referrer will be a blank string
+            // compensate for that here
+            // how to compensate for new tabs being opened and going back to the old tab?
+
+            // do I want to check if cookies are enabled?
+
+            if (!!$.cookie('metricsNew')) {
+                newUser = true;
+            }
+
+            // create the cookie
+            // get overwritten if exists already
+            $.cookie('metricsNew', 'true', {
+                expires: 365,
+                path: '/'
+            });
+
+            // check for logged in users
+            if (!!mwConfig.wgUserName) {
+                loggedIn = true;
+            }
+
+            cookie = $.cookie('metricsData');
+
+            if (!cookie) {
+
+                mw.log('no cookie');
+                session = userStats.createSession();
+                data = userStats.gatherData(true, session, time, loggedIn, referrer, curPage, newUser);
+
+            } else {
+
+                cookie.split('|');
+                mw.log(cookie);
+
+                // check the user hasn't left and come back before the cookie expired
+                if (referrer.indexOf(cookie[1]) === -1) {
+
+                    mw.log('navigated away');
+                    session = userStats.createSession();
+                    data = userStats.gatherData(true, session, time, loggedIn, referrer, curPage, newUser);
+
+                } else {
+
+                    mw.log('continue session');
+                    data = userStats.gatherData(false, session, time, loggedIn, prevPage, curPage);
+
+                }
+
+            }
+
+            $.cookie('metricsData', session + '|' + curPage + '|' + prevPage, {
+                expires: 1, // alter to the session time here
+                path: '/'
+            });
+
+            userStats.sendData(data);
+
+        },
+
+        /**
+         * @source http://stackoverflow.com/a/10727155/1942596
+         */
+        createSession: function () {
+
+            var result = '',
+                chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                i;
+
+            for (i = 0; i < 20; i += 1) {
+                result += chars[Math.round(Math.random() * (chars.length - 1))];
+            }
+
+            return result;
+
+        },
+
+        /**
+         * @param freshData boolean: true if gathering a full set of data
+         * @param session   string: session id
+         * @param timestamp string: ISO timestamp
+         * @param loggedIn  boolean: true if the user is logged in
+         * @param previous  string: referring url or name of the previous page
+         * @param current   string: name of the current page
+         * @param newUser   boolean: optional, true if the user has not visited the site before
+         */
+        gatherData: function (freshData, session, timestamp, loggedIn, previous, current, newUser) {
+
+            var data,
+                browser;
+
+            // check if session exists already
+            mw.log(freshData);
+
+            if (freshData) {
+
+                browser = userStats.browserDetect();
+
+                data = {
+                    newSession: true,              // boolean: for easy checking when processing on server
+                    session: session,
+                    time: timestamp,
+                    li: loggedIn,
+                    refer: previous,               // string: url of the referring site
+                    current: current,
+                    nu: newUser,
+                    sh: window.screen.availHeight, // number: height of the user's screen in pixels
+                    sw: window.screen.availWidth,  // number: width of the user's screen in pixels
+                    bname: browser.name,           // string: name of the browser @example 'Chrome'
+                    bmver: browser.major,          // string: name of the browser with major version @example 'Chrome 28'
+                    bfver: browser.full            // string: name of the browser with full version @example 'Chrome 28.000.23.1'
+                };
+
+            } else {
+
+                data = {
+                    newSession: false,  // boolean: for easy checking when processing on server
+                    session: session,
+                    time: timestamp,
+                    li: loggedIn,
+                    previous: previous, // string: name of the previous visited page
+                    current: current
+                };
+
+            }
+
+            return data;
+
+        },
+
+        /**
+         * @source http://www.javascripter.net/faq/browsern.htm
+         */
+        browserDetect: function () {
+
+            var nAgt = navigator.userAgent,
+                browserName = navigator.appName,
+                fullVersion = parseFloat(navigator.appVersion),
+                majorVersion = parseInt(navigator.appVersion, 10),
+                nameOffset,
+                verOffset,
+                ix;
+
+            // In Opera, the true version is after 'Opera' or after 'Version'
+            if ((verOffset = nAgt.indexOf('Opera')) > -1) {
+                browserName = 'Opera';
+                fullVersion = nAgt.substring(verOffset + 6);
+                if ((verOffset = nAgt.indexOf('Version')) > -1) {
+                    fullVersion = nAgt.substring(verOffset + 8);
+                }
+
+            // In MSIE, the true version is after 'MSIE' in userAgent
+            } else if ((verOffset = nAgt.indexOf('MSIE')) > -1) {
+                browserName = 'Microsoft Internet Explorer';
+                fullVersion = nAgt.substring(verOffset + 5);
+
+            // In Chrome, the true version is after "Chrome" 
+            } else if ((verOffset = nAgt.indexOf('Chrome')) > -1) {
+                browserName = 'Chrome';
+                fullVersion = nAgt.substring(verOffset + 7);
+
+            // In Safari, the true version is after "Safari" or after "Version" 
+            } else if ((verOffset = nAgt.indexOf('Safari')) > -1) {
+                browserName = 'Safari';
+                fullVersion = nAgt.substring(verOffset + 7);
+
+                if ((verOffset = nAgt.indexOf('Version')) > -1) {
+                    fullVersion = nAgt.substring(verOffset + 8);
+                }
+
+            // In Firefox, the true version is after "Firefox" 
+            } else if ((verOffset = nAgt.indexOf('Firefox')) > -1) {
+                browserName = 'Firefox';
+                fullVersion = nAgt.substring(verOffset + 8);
+
+            // In most other browsers, "name/version" is at the end of userAgent 
+            } else if ((nameOffset = nAgt.lastIndexOf(' ') + 1) < (verOffset = nAgt.lastIndexOf('/'))) {
+                browserName = nAgt.substring(nameOffset, verOffset);
+                fullVersion = nAgt.substring(verOffset + 1);
+
+                if (browserName.toLowerCase() === browserName.toUpperCase()) {
+                    browserName = navigator.appName;
+                }
+            }
+
+            // trim the fullVersion string at semicolon/space if present
+            if ((ix = fullVersion.indexOf(';')) > -1) {
+                fullVersion = fullVersion.substring(0, ix);
+            }
+
+            if ((ix = fullVersion.indexOf(' ')) > -1) {
+                fullVersion = fullVersion.substring(0, ix);
+            }
+
+            majorVersion = parseInt(fullVersion, 10);
+
+            if (isNaN(majorVersion)) {
+                fullVersion = parseFloat(navigator.appVersion);
+                majorVersion = parseInt(navigator.appVersion, 10);
+            }
+
+            majorVersion = browserName + ' ' + majorVersion;
+            fullVersion = browserName + ' ' + fullVersion;
+
+            return {
+                name: browserName,
+                major: majorVersion,
+                full: fullVersion
+            };
+
+        },
+        
+        /**
+         *
+         */
+        sendData: function (data) {
+
+            // http://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
+            window.console.log(data);
+
         }
 
-        window.console.log(data);
+    };
+
+    $(userStats.init());
 
 /*
-       // sample data output
-       data = {
-           newUser: true,                         // boolean based on what cookie returns
-           referrer: 'http://google.com',         // always gathered to check if the person leaves and returns within the half hour timeframe of the cookie
-           session: 'jhadjhbvkl',                 // some random string to identify the session, expires after half hour or so. If a new session create a session id, if existing session gather from cookie. Cookie expires after half hour and is refreshed with each new page
-           screenWidth: '1000',                   // screen width in pixels
-           screenHeight: '800',                   // screen height in pixels
-           timestamp: '2013-08-08T09:57:26.492Z', // ISO string of the date (same format as mw returns from api calls
-           prevPage: 'Sandbox',                   // only return this if referrer is null, gathered from cookie. returns null if from another site
-           curPage: 'Main_page',                  // current page
-           browserName: 'Chrome',                 // browser name
-           browserMainVer: 'Chrome 28',           // main browser version
-           browserFullVer: 'Chrome 28.0.1500.72', // full browser version
-           loggedIn: true                         // boolean if a user is logged in or anonymous
-       };
+from the returned data we can calculate the time spent on the page and the trail of pages
+time returned will be 0 if only one page is visited
+can also detect bounce rate (visit one page and then leave)
 
-       // from the returned data we can calculate the time spent on the page and the trail of pages
-       // time returned will be 0 if only one page is visited
-       // can also detect bounce rate (visit one page and then leave)
-
+time spent on site - http://www.kaushik.net/avinash/standard-metrics-revisited-time-on-page-and-time-on-site/
 */
-        // then do something with data
-        // http://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript
 
-        // time spent on site - http://www.kaushik.net/avinash/standard-metrics-revisited-time-on-page-and-time-on-site/
-
-    });
-
-}(this, this.document, this.jQuery, this.mediaWiki.config.values, this.navigator));
+}(this, document, jQuery, mediaWiki, mediaWiki.config.values, navigator));
 
 /*
 == How to interact with the server ==
