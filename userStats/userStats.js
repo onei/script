@@ -1,20 +1,35 @@
 ﻿/** <nowiki>
- * @name        userStats.js
- * @description Collects various data on users for processing somewhere else
+ * Gather site metrics data and send it to a server to be stored in a database.
+ *
+ * Gathers data about how readers use the wiki. This includes:
+ * - Clickstream, which pages are visited and from where
+ * - Browser info, so we know what we need to support and what we can ignore
+ * - Referring sites, to see what searches are being used to get to the wiki
+ * - If the reader is anonymous or logged in
+ * - The number of new users that are coming to the site
+ * - How long a reader is spending on the page to find the information they want,
+ *   which can be compared with search queries extrapolated from the referring url
+ * - Screen size
+ * This data is then sent to another server, and converted into a database.
+ * 
  * @author      cqm <mdowdell244@gmail.com>
+ * @license     GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @source      <https://github.com/onei/script/blob/master/userStats/userStats.js>
  * @comment     Due to coppa restrictions we are unable to indiscriminately gather IP addresses.
- * @license     GPLv3 <http://www.gnu.org/licenses/gpl.html>
+ * @comment     The most up to date version can be found on github, see @source above.
+ *              If this is seen elsewhere, it may be out of date.
+ * @todo        Implement check for mobile browsing
+ * @todo        Improve comments <http://manual.phpdoc.org/HTMLframesConverter/default/>
  */
 
 /*jshint
     asi: false, bitwise: true, boss: false, camelcase: true, curly: true,
     eqeqeq: true, es3: true, evil: false, expr: false, forin: true,
-    funcscope: false, globalstrict: false, immed: true, lastsemic: false, latedef: true,
-    laxbreak: false, laxcomma: false, loopfunc: false, multistr: false, noarg: true,
-    noempty: true, onevar: true, plusplus: true, quotmark: single, undef: true,
-    unused: true, scripturl: false, smarttabs: false, shadow: false, strict: true,
-    sub: false, trailing: true, white: true
+    funcscope: false, globalstrict: false, immed: true, indent: 4, lastsemic: false,
+    latedef: true, laxbreak: false, laxcomma: false, loopfunc: false, multistr: false,
+    noarg: true, noempty: true, onevar: true, plusplus: true, quotmark: single,
+    undef: true, unused: true, scripturl: false, smarttabs: false, shadow: false,
+    strict: true, sub: false, trailing: true, white: true
 */
 
 /*jslint
@@ -22,8 +37,8 @@
 */
 
 /*global
-    Date: true, document: true, jQuery: true, Math: true, mediaWiki: true,
-    navigator: true, String: true, isNaN: true, parseFloat: true, parseInt: true
+    Date: true, Math: true, String: true, isNaN: true, parseFloat: true,
+    parseInt: true
 */
 
 (function (window, document, $, mw, mwConfig, navigator) {
@@ -33,9 +48,9 @@
     /**
      * @description Zero pad numbers for toISOString polyfill
      * @source      <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString#Description>
-     * @param       number - Number to be padded
+     * @param       number - Number to be padded.
      */
-    function pad(number) {
+    function datePad(number) {
 
         var r = String(number);
 
@@ -55,11 +70,11 @@
 
         Date.prototype.toISOString = function () {
             return this.getUTCFullYear() +
-                   '-' + pad(this.getUTCMonth() + 1) +
-                   '-' + pad(this.getUTCDate()) +
-                   'T' + pad(this.getUTCHours()) +
-                   ':' + pad(this.getUTCMinutes()) +
-                   ':' + pad(this.getUTCSeconds()) +
+                   '-' + datePad(this.getUTCMonth() + 1) +
+                   '-' + datePad(this.getUTCDate()) +
+                   'T' + datePad(this.getUTCHours()) +
+                   ':' + datePad(this.getUTCMinutes()) +
+                   ':' + datePad(this.getUTCSeconds()) +
                    '.' + String((this.getUTCMilliseconds() / 1000).toFixed(3)).slice(2, 5) +
                    'Z';
         };
@@ -70,18 +85,18 @@
 
         init: function () {
 
-            var loadCheck,
-                usergroups = mwConfig.wgUserGroups,
-                i,
+            var cookie,
+                curPage = mwConfig.wgPageName,
                 data,
-                cookie,
+                i,
+                loadCheck,
+                loggedIn = false,
+                newUser = false,
+                prevPage = '',
+                referrer = document.referrer,
                 session,
                 time = (new Date()).toISOString(),
-                loggedIn = false,
-                referrer = document.referrer,
-                prevPage = '',
-                curPage = mwConfig.wgPageName,
-                newUser = false;
+                usergroups = mwConfig.wgUserGroups;
 
             // don't load twice
             if (!!loadCheck) {
@@ -163,9 +178,9 @@
          */
         createSession: function () {
 
-            var result = '',
-                chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-                i;
+            var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                i,
+                result = '';
 
             for (i = 0; i < 20; i += 1) {
                 result += chars[Math.round(Math.random() * (chars.length - 1))];
@@ -186,8 +201,8 @@
          */
         gatherData: function (freshData, session, timestamp, loggedIn, previous, current, newUser) {
 
-            var data,
-                browser;
+            var browser,
+                data;
 
             // check if session exists already
             mw.log(freshData);
@@ -233,13 +248,13 @@
          */
         browserDetect: function () {
 
-            var nAgt = navigator.userAgent,
-                browserName = navigator.appName,
+            var browserName = navigator.appName,
                 fullVersion = parseFloat(navigator.appVersion),
+                ix,
                 majorVersion = parseInt(navigator.appVersion, 10),
+                nAgt = navigator.userAgent,
                 nameOffset,
-                verOffset,
-                ix;
+                verOffset;
 
             // In Opera, the true version is after 'Opera' or after 'Version'
             if ((verOffset = nAgt.indexOf('Opera')) > -1) {
@@ -309,14 +324,18 @@
             };
 
         },
-        
+
         /**
          *
          */
         sendData: function (data) {
 
-            // <http://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript>
             window.console.log(data);
+            
+            var sentData
+            // apparently not widely supported on mobile browsers <http://caniuse.com/cors>
+            // <http://stackoverflow.com/questions/298745/how-do-i-send-a-cross-domain-post-request-via-javascript>
+            
 
         }
 
@@ -332,7 +351,7 @@ can also detect bounce rate (visit one page and then leave)
 time spent on site <http://www.kaushik.net/avinash/standard-metrics-revisited-time-on-page-and-time-on-site/>
 */
 
-}(this, document, jQuery, mediaWiki, mediaWiki.config.values, navigator));
+}(this, this.document, this.jQuery, this.mediaWiki, this.mediaWiki.config.values, this.navigator));
 
 /*
 == How to interact with the server ==
