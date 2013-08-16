@@ -30,19 +30,20 @@
  * Try moving non-essential script to gadgets?
  */
 
-(function (window, $, mw) {
+// define globals if not already defined
+this.rswiki = this.rswiki || {};
+this.mwConfig = this.mwConfig || this.mediaWiki.config.values;
+
+(function (window, $, mw, mwConfig, rswiki) {
 
     'use strict';
 
     var scripts = [],
         styles = [],
-        // Shortcut to accessing configuration properties e.g. mwConfig.wgPageName
-        // verses mw.config.get("wgPageName")
-        mwConfig = mw.config.values,
         // for use with GED errors - See [[RuneScape:Exchange namespace]] for usage
         manualExchange = [],
         // Pages to run AJAX refresh script on
-        ajaxPages = window.ajaxPages = [
+        ajaxPages = [
             'Special:RecentChanges',
             'Special:Watchlist',
             'Special:Log',
@@ -65,283 +66,310 @@
 
     // Text to display next to checkbox that enables/disables AJAX refresh script
     window.AjaxRCRefreshText = 'Auto-refresh';
-
-    /* ============================== *
-     *   Begin reusable functions     *
-     * ============================== */
-    
-    /**
-     * Sets the cookie
-     * @param c_name string Name of the cookie
-     * @param value string 'on' or 'off'
-     * @param expiredays integer Expiry time of the cookie in days
-     * @param path
-     */
-    setCookie = window.setCookie = function(c_name, value, expiredays, path) {
-
-        var options = {};
-
-        if (expiredays) {
-            options.expires = expiredays;
-        }
-
-        if (path) {
-            options.path = path;
-        }
-
-        $.cookie(c_name, value, options);
-
-    };
-
-    /**
-     * Gets the cookie
-     * @param c_name string Cookie name
-     * @return The cookie name or empty string
-     */
-    getCookie = window.getCookie = function(c_name) {
-
-        var cookie = $.cookie(c_name);
-
-        if (cookie === null) {
-            cookie = '';
-        }
-
-        return cookie;
-
-    };
-
-    /**
-     * Calls wiki API and returns the response in the callback
-     * @param data named object list of parameters to send along with the request. {'format':'json'} is set automatically.
-     * @param method string Either POST or GET.
-     * @param callback function Thing to run when request is complete
-     * @param addurl string (optional) Anything you may want to add to the request url, in case you need it.
-     */
-    callAPI = window.callAPI = function(data, method, callback, addurl) {
-
-        data.format = 'json';
-
-        $.ajax({
-            data: data,
-            dataType: 'json',
-            url: '/api.php' + (addurl || ''),
-            type: method,
-            cache: false,
-            success: function (response) {
-                if (response.error) {
-                    mw.log('API error: ' + response.error.info);
-                } else {
-                    callback(response);
-                }
-            },
-            error: function (xhr, error) {
-                // ?debug=true to see these
-                mw.log('AJAX response: ' + xhr.responseText);
-                mw.log('AJAX error: ' + error);
-            }
-        });
-
-    };
-
-    // http://www.mredkj.com/javascript/numberFormat.html#addcommas
-    addCommas = window.addCommas = function(nStr) {
-
-        nStr += '';
-
-        var x = nStr.split('.'),
-            x1 = x[0],
-            x2 = x.length > 1 ? '.' + x[1] : '',
-            rgx = /(\d+)(\d{3})/;
-
-        while (rgx.test(x1)) {
-            x1 = x1.replace(rgx, '$1' + ',' + '$2');
-        }
-
-        return x1 + x2;
-
-    };
-
-    /* ============================== *
-     *   End reusable functions       *
-     * ============================== */
+    // expose ajaxPages to global scope
+    window.ajaxPages = ajaxPages;
 
     /**
      * Matthew's Tundra library
      * Making stuff easier for MediaWiki things like editing pages, etc.
      * For documentation see https://github.com/Matthew2602/tundra/wiki
-     */
+     * Commented out until we find a use for it
+     *
     // ResourceLoader throws an exception if you try and registered a module that is already registered
     if (mw.loader.getModuleNames().indexOf('tundra') < 0) {
         mw.loader.implement('tundra', ['http://matthew2602.github.io/tundra/tundra.min.js'], {}, {});
     }
-
-    /**
-     * Change <youtube>video</youtube> to {{youtube|video}}
-     * Runs when save button is clicked
      */
-    function tagSwitch() {
-
-        var wikitext = $('#wpTextbox1').html(),
-            modifiedWikitext = wikitext.replace(/&lt;youtube&gt;/g, '{{youtube|')
-                                       .replace(/&lt;\/youtube&gt;/g, '}}');
-
-        $('#wpTextbox1').html(modifiedWikitext);
-
-    }
-
+    
     /**
-     * Custom edit buttons
-     * Deprecated - http://www.mediawiki.org/wiki/ResourceLoader/JavaScript_Deprecations#edit.js
+     * General, reusable functions
      */
-    function customEditButtons() {
+    rswiki.reusable = {
 
-        window.mwCustomEditButtons.push(
-            // Redirect
-            {
-                imageFile: 'http://images.wikia.com/central/images/c/c8/Button_redirect.png',
-                speedTip: 'Redirect',
-                tagOpen: '#REDIRECT [[',
-                tagClose: ']]',
-                sampleText: 'Insert text'
-            },
-            // Wikitable
-            {
-                imageFile: 'http://images3.wikia.nocookie.net/central/images/4/4a/Button_table.png',
-                speedTip: 'Insert a table',
-                tagOpen: '{| class="wikitable"\n|-\n',
-                tagClose: '\n|}',
-                sampleText: '! header 1\n! header 2\n! header 3\n|-\n| row 1, cell 1\n| row 1, cell 2\n| row 1, cell 3\n|-\n| row 2, cell 1\n| row 2, cell 2\n| row 2, cell 3'
-            },
-            // Line break
-            {
-                imageFile: 'http://images2.wikia.nocookie.net/central/images/1/13/Button_enter.png',
-                speedTip: 'Line break',
-                tagOpen: '<br />',
-                tagClose: '',
-                sampleText: ''
-            },
-            // Gallery
-            {
-                imageFile: 'http://images2.wikia.nocookie.net/central/images/1/12/Button_gallery.png',
-                speedTip: 'Insert a picture gallery',
-                tagOpen: '\n<div style="text-align:center"><gallery>\n',
-                tagClose: '\n</gallery></div>',
-                sampleText: 'File:Example.jpg|Caption1\nFile:Example.jpg|Caption2'
+        /**
+         * Sets the cookie
+         *
+         * @param c_name string Name of the cookie
+         * @param value string 'on' or 'off'
+         * @param expiredays integer Expiry time of the cookie in days
+         * @param path
+         */
+        setCookie: function (c_name, value, expiredays, path) {
+
+            var options = {};
+
+            if (expiredays) {
+                options.expires = expiredays;
             }
-        );
 
-    }
+            if (path) {
+                options.path = path;
+            }
+
+            $.cookie(c_name, value, options);
+
+        },
+
+        /**
+         * Gets the cookie
+         * @param c_name string Cookie name
+         * @return The cookie name or empty string
+         */
+        getCookie: function (c_name) {
+
+            var cookie = $.cookie(c_name);
+
+            if (cookie === null) {
+                cookie = '';
+            }
+
+            return cookie;
+
+        },
+
+        /**
+         * Calls mediawiki API and returns the response in the callback
+         * @param data named object list of parameters to send along with the request. {'format':'json'} is set automatically.
+         * @param method string Either POST or GET.
+         * @param callback function Thing to run when request is complete
+         * @param addurl string (optional) Anything you may want to add to the request url, in case you need it.
+         */
+        callAPI: function (data, method, callback, addurl) {
+
+            data.format = 'json';
+
+            $.ajax({
+                data: data,
+                dataType: 'json',
+                url: '/api.php' + (addurl || ''),
+                type: method,
+                cache: false,
+                success: function (response) {
+                    if (response.error) {
+                        mw.log('API error: ' + response.error.info);
+                    } else {
+                        callback(response);
+                    }
+                },
+                error: function (xhr, error) {
+                    // ?debug=true to see these
+                    mw.log('AJAX response: ' + xhr.responseText);
+                    mw.log('AJAX error: ' + error);
+                }
+            });
+
+        },
+
+        /**
+         * Add commas to numbers
+         *
+         * @example 3000 -> 3,000
+         * @source http://www.mredkj.com/javascript/numberFormat.html#addcommas
+         * @param nStr number to be modified
+         * @return number string with commas
+         */
+        addCommas: function (nStr) {
+
+            nStr += '';
+
+            var x = nStr.split('.'),
+                x1 = x[0],
+                x2 = x.length > 1 ? '.' + x[1] : '',
+                rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1)) {
+                x1 = x1.replace(rgx, '$1' + ',' + '$2');
+            }
+
+            return x1 + x2;
+
+        }
+    };
+
+    // expose reusable functions to global scope for backwards compaitibility
+    window.setCookie = rswiki.reusable.setCookie;
+    window.getCookie = rswiki.reusable.setCookie;
+    window.callAPI = rswiki.reusable.callAPI;
+    window.addCommas = rswiki.reuseable.addCommas;
 
     /**
-     * Redirects from /User:UserName/skin.js or .css to the user's actual skin page
+     * Scripts to load on pageload
      */
-    function skinRedirect() {
+    rswiki.common = {
 
-        var urlUsername = mwConfig.wgUserName.replace(/ /g, '_'),
-            replaceSkin = mwConfig.skin.replace('oasis', 'wikia'),
-            baseSkinFilePageName = 'User:' + urlUsername + '/skin';
+        /**
+         *
+         */
+        init: function () {},
 
-        // Using location.replace doesn't add the skin.js/skin.css page to the
-        // user's history. See <http://stackoverflow.com/q/1865837/2017220>
-        if (mwConfig.wgPageName === baseSkinFilePageName + '.js') {
-            // skin.js
-            window.location.replace(window.location.href.replace(/\/skin\.js/i, '/' + replaceSkin + '.js'));
-            return;
-        }
+        /**
+         * Change <youtube>video</youtube> to {{youtube|video}}
+         * Runs when save button is clicked
+         */
+        tagSwitch: function () {
 
-        if (mwConfig.wgPageName === baseSkinFilePageName + '.css') {
-            // skin.css
-            window.location.replace(window.location.href.replace(/\/skin\.css/i, '/' + replaceSkin + '.css'));
-        }
+            var wikitext = $('#wpTextbox1').html(),
+                modifiedWikitext = wikitext.replace(/&lt;youtube&gt;/g, '{{youtube|')
+                                           .replace(/&lt;\/youtube&gt;/g, '}}');
 
-    }
+            $('#wpTextbox1').html(modifiedWikitext);
 
-    /**
-     * Collapses navboxes under certain conditions
-     */
-    function navbox() {
+        },
 
-        var expand = 'Expand', // defined by [[MediaWiki:Collapsible-expand]]
-            navboxes = $('.navbox'),
-            maxShow = 2,     // maximum number of navboxes before they all get collapsed
-            maxHeight = 300, // maximum allowable height of navbox before it gets collapsed
-            i;
+        /**
+         * Custom edit buttons
+         * Deprecated - http://www.mediawiki.org/wiki/ResourceLoader/JavaScript_Deprecations#edit.js
+         */
+        function customEditButtons() {
 
-        // @param elem - navbox to be collapsed
-        function collapseNavbox(elem) {
+            window.mwCustomEditButtons.push(
+                // Redirect
+                {
+                    imageFile: 'http://images.wikia.com/central/images/c/c8/Button_redirect.png',
+                    speedTip: 'Redirect',
+                    tagOpen: '#REDIRECT [[',
+                    tagClose: ']]',
+                    sampleText: 'Insert text'
+                },
+                // Wikitable
+                {
+                    imageFile: 'http://images3.wikia.nocookie.net/central/images/4/4a/Button_table.png',
+                    speedTip: 'Insert a table',
+                    tagOpen: '{| class="wikitable"\n|-\n',
+                    tagClose: '\n|}',
+                    sampleText: '! header 1\n! header 2\n! header 3\n|-\n| row 1, cell 1\n| row 1, cell 2\n| row 1, cell 3\n|-\n| row 2, cell 1\n| row 2, cell 2\n| row 2, cell 3'
+                },
+                // Line break
+                {
+                    imageFile: 'http://images2.wikia.nocookie.net/central/images/1/13/Button_enter.png',
+                    speedTip: 'Line break',
+                    tagOpen: '<br />',
+                    tagClose: '',
+                    sampleText: ''
+                },
+                // Gallery
+                {
+                    imageFile: 'http://images2.wikia.nocookie.net/central/images/1/12/Button_gallery.png',
+                    speedTip: 'Insert a picture gallery',
+                    tagOpen: '\n<div style="text-align:center"><gallery>\n',
+                    tagClose: '\n</gallery></div>',
+                    sampleText: 'File:Example.jpg|Caption1\nFile:Example.jpg|Caption2'
+                }
+            );
 
-            var rows,
-                j,
-                toggle;
+        },
 
-            if ($(elem).hasClass('mw-collapsed')) {
+        /**
+         * Redirects from /User:UserName/skin.js or .css to the user's actual skin page
+         */
+        skinRedirect: function () {
+
+            var urlUsername = mwConfig.wgUserName.replace(/ /g, '_'),
+                replaceSkin = mwConfig.skin.replace('oasis', 'wikia'),
+                baseSkinFilePageName = 'User:' + urlUsername + '/skin';
+
+            // Using location.replace doesn't add the skin.js/skin.css page to the
+            // user's history. See <http://stackoverflow.com/q/1865837/2017220>
+            if (mwConfig.wgPageName === baseSkinFilePageName + '.js') {
+                // skin.js
+                window.location.replace(window.location.href.replace(/\/skin\.js/i, '/' + replaceSkin + '.js'));
                 return;
             }
 
-            // add the collapsed class
-            $(elem).addClass('mw-collapsed');
-
-            // make sure we aren't selecting any nested navboxes
-            rows = $(elem).children('tbody').children('tr');
-
-            // rows[0] is the header
-            for (j = 1; j < rows.length; j += 1) {
-                $(rows[j]).css({
-                    'display': 'none'
-                });
+            if (mwConfig.wgPageName === baseSkinFilePageName + '.css') {
+                // skin.css
+                window.location.replace(window.location.href.replace(/\/skin\.css/i, '/' + replaceSkin + '.css'));
             }
 
-            // toggle is always in header
-            toggle = $(rows[0]).find('.mw-collapsible-toggle');
+        },
 
-            // this class is required to make expand work properly
-            $(toggle).addClass('mw-collapsible-toggle-collapsed');
-            $(toggle).children('a').text(expand);
+        /**
+         * Collapses navboxes under certain conditions
+         */
+        navbox: function () {
 
-        }
+            var expand = 'Expand', // defined by [[MediaWiki:Collapsible-expand]]
+                navboxes = $('.navbox'),
+                maxShow = 2,     // maximum number of navboxes before they all get collapsed
+                maxHeight = 300, // maximum allowable height of navbox before it gets collapsed
+                i;
 
-        // collapse if more than maxShow
-        if (navboxes.length > (maxShow - 1)) {
+            // @param elem - navbox to be collapsed
+            function collapseNavbox(elem) {
+
+                var rows,
+                    j,
+                    toggle;
+
+                if ($(elem).hasClass('mw-collapsed')) {
+                    return;
+                }
+
+                // add the collapsed class
+                $(elem).addClass('mw-collapsed');
+
+                // make sure we aren't selecting any nested navboxes
+                rows = $(elem).children('tbody').children('tr');
+
+                // rows[0] is the header
+                for (j = 1; j < rows.length; j += 1) {
+                    $(rows[j]).css({
+                        'display': 'none'
+                    });
+                }
+
+                // toggle is always in header
+                toggle = $(rows[0]).find('.mw-collapsible-toggle');
+
+                // this class is required to make expand work properly
+                $(toggle).addClass('mw-collapsible-toggle-collapsed');
+                $(toggle).children('a').text(expand);
+
+            }
+
+            // collapse if more than maxShow
+            if (navboxes.length > (maxShow - 1)) {
+                for (i = 0; i < navboxes.length; i += 1) {
+                    collapseNavbox(navboxes[i]);
+                }
+            }
+
+            // collapse if taller than maxHeight
             for (i = 0; i < navboxes.length; i += 1) {
-                collapseNavbox(navboxes[i]);
+                if ($(navboxes[i]).height() > maxHeight) {
+                    collapseNavbox(navboxes[i]);
+                }
             }
-        }
+        },
 
-        // collapse if taller than maxHeight
-        for (i = 0; i < navboxes.length; i += 1) {
-            if ($(navboxes[i]).height() > maxHeight) {
-                collapseNavbox(navboxes[i]);
+        /**
+         * Signature reminder on forum namespace and talk pages
+         */
+        sigReminder: function (event) {
+
+            var text = $('#wpTextbox1').val(),
+                reminderPromptMessage = 'It looks like you forgot to sign your comment. You can sign by placing 4 tildes (~~~~) to the end of your message. \nAre you sure you want to post it?';
+
+            // don't trigger on minor edits
+            if ($('#wpMinoredit').is(':checked')) {
+                return;
             }
-        }
-    }
 
-    /**
-     * Signature reminder on forum namespace and talk pages
-     */
-    function sigReminder(event) {
+            // check for sig
+            if (text.replace(/(<nowiki>.*?<\/nowiki>)/g, '').match('~~~')) {
+                return;
+            }
 
-        var text = $('#wpTextbox1').val(),
-            reminderPromptMessage = 'It looks like you forgot to sign your comment. You can sign by placing 4 tildes (~~~~) to the end of your message. \nAre you sure you want to post it?';
+            // check for &undo= or ?undo= in url as summary can be altered
+            if (window.location.search.match(/[\?&]undo=/)) {
+                return;
+            }
 
-        // don't trigger on minor edits
-        if ($('#wpMinoredit').is(':checked')) {
-            return;
-        }
+            if (!window.confirm(reminderPromptMessage)) {
+                event.preventDefault();
+            }
 
-        // check for sig
-        if (text.replace(/(<nowiki>.*?<\/nowiki>)/g, '').match('~~~')) {
-            return;
-        }
-
-        // check for &undo= or ?undo= in url as summary can be altered
-        if (window.location.search.match(/[\?&]undo=/)) {
-            return;
-        }
-
-        if (!confirm(reminderPromptMessage)) {
-            event.preventDefault();
-        }
-    }
+        },
 
     /**
      * Autosort sortable tables
@@ -349,16 +377,20 @@
      * Next to no docs on this on mediawiki.org
      * @todo usage instructions
      */
-    function autosort() {
-        $('table.sortable[class*="autosort="]').each(function() {
-            var $this = $(this),
-                matched = /(?:^| )autosort=([0-9]+),(a|d)(?: |$)/.exec($this.attr('class'));
+    autosort: function () {
 
-            $this.tablesorter({
-                sortList: [[matched[1] - 1, ((matched[2] === 'd') ? 1 : 0)]]
+            $('table.sortable[class*="autosort="]').each(function () {
+                var $this = $(this),
+                    matched = /(?:^| )autosort=([0-9]+),(a|d)(?: |$)/.exec($this.attr('class'));
+
+                $this.tablesorter({
+                    sortList: [[matched[1] - 1, ((matched[2] === 'd') ? 1 : 0)]]
+                });
             });
-        });
-    }
+
+        }
+
+    };
 
     $(function () {
 
@@ -395,7 +427,7 @@
 
             // Standard edit summaries
             scripts.push('MediaWiki:Common.js/standardeditsummaries.js');
-            
+
             if (mwConfig.skin === 'oasis') {
                 // template preloads for oasis
                 scripts.push('MediaWiki:Wikia.js/preload.js');
@@ -405,11 +437,11 @@
             }
 
             break;
-                
+
         case 'view':
 
             switch (true) {
-                
+
             case mwConfig.wgPageName === 'RuneScape:Off-site/IRC':
                 // Embed IRC
                 scripts.push('MediaWiki:Common.js/embedirc.js');
@@ -456,7 +488,7 @@
             case mwConfig.wgNamespaceNumber === 112:
                 // Notice when editing exchange pages
                 scripts.push('MediaWiki:Common.js/exchangeintro.js');
-                
+
                 // @todo make this into switch with default?
                 if (manualExchange.indexOf(mwConfig.wgPageName) > -1) {
                     // Add custom price input for exchange pages
@@ -465,7 +497,7 @@
                     // Semi-automated price updates for exchange pages
                     scripts.push('MediaWiki:Common.js/gemwupdate.js');
                 }
-                
+
                 break;
 
             }
@@ -474,7 +506,7 @@
                 // Ajax refresh for various pages
                 scripts.push('u:dev:AjaxRC/code.js');
             }
-                
+
             break;
         }
 
@@ -487,7 +519,7 @@
          * falls through comment must be on line directly above a case
          */
         switch (true) {
-        
+
         case $('.countdown').length:
             // Countdown timer
             // @todo import directly from dev where it's maintained
@@ -628,6 +660,7 @@
 
     });
 
-}(this, this.jQuery, this.mediaWiki));
+
+}(this, this.jQuery, this.mediaWiki, this.mwConfig, this.rswiki));
 
 /* </pre> */

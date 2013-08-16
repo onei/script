@@ -1,10 +1,56 @@
 /* Any JavaScript here will be loaded for Monobook users on every page load. */
 /* <pre> */
  
-(function (window, $, mw, mwConfig, importArticles) {
+(function (window, $, mw, mwConfig, rswiki, importArticles) {
  
     // @todo make sure collapsible portlets works with this
     // 'use strict';
+ 
+    rswiki.monobook = {
+    
+        /**
+         * Invoke functions conditionally
+         */
+        init: function () {
+        
+        }
+
+        /**
+         * Move the sitenotice dismiss link to within the sitenotice
+         */
+        dismissMove: function () {
+        
+        },
+
+        /**
+         * Change article name to Main Page
+         */
+        articleToMain: function () {
+        
+        },
+
+        /**
+         * Append useskin=oasis to url for monobook users in Special:Chat
+         */
+        chatRedirect: function () {
+        
+        },
+
+        /**
+         * 
+         */
+        userInfo: function () {
+        
+        },
+        
+        /**
+         *
+         */
+        collapsiblePortlets: function () {
+        
+        }
+    
+    }
  
     // move dismiss sitenotice link to within the table
     function moveDismiss() {
@@ -65,6 +111,6 @@
  
     });
  
-}(this, this.jQuery, this.mediaWiki, this.mediaWiki.config.values, this.importArticles));
+}(this, this.jQuery, this.mediaWiki, this.mwConfig = this.mwConfig || this.mediaWiki.config.values, this.rswiki = this.rswiki || {}, this.importArticles));
  
 /* </pre> */
