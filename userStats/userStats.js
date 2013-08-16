@@ -45,7 +45,7 @@
     parseInt: true
 */
 
-(function (window, document, $, mw, mwConfig, navigator, log) {
+(function (window, document, $, mwConfig, log) {
 
     'use strict';
 
@@ -124,26 +124,32 @@
             }
 
             // if a page is reloaded, referrer will be a blank string
+            // @todo check referrer keeps the actual referring page
+            //       not the page that has just been reloaded
             if (referrer === '') {
                 return;
             }
 
+            // do I want to check if cookies are enabled?
+            // possibly return here if not
+
             // how to compensate for new tabs being opened and going back to the old tab?
 
-            // do I want to check if cookies are enabled?
-
+            // check for new visitor
             if (!!$.cookie('metricsNew')) {
                 newUser = true;
             }
 
-            // create the cookie
-            // get overwritten if exists already
+            // (re)create the new user cookie
             $.cookie('metricsNew', 'true', {
                 expires: 365,
                 path: '/'
             });
 
             // check for logged in users
+            // returns a string if logged in, null if not
+            // another method is to check wgUserGroups for 'user' usergroup
+            // but that seems far more drawn out
             if (!!mwConfig.wgUserName) {
                 loggedIn = true;
             }
@@ -234,19 +240,19 @@
                 res = window.screen.availHeight + 'x' + window.screen.availWidth;
 
                 data = {
-                    newSession: true,                        // boolean - for easy checking when processing on server
+                    newSession: true,                       // boolean - for easy checking when processing on server
                     session: session,
                     time: timestamp,
                     li: loggedIn,
-                    refer: previous,                         // string  - url of the referring site
+                    refer: previous,                        // string  - url of the referring site
                     current: current,
                     nu: newUser,
-                    res: res,                                // string  - screen resolution
-                                                             // @example '1024x768'
-                    bname: browser.browser,                  // string  - name of the browser
-                                                             // @example 'Chrome'
-                    bver: browser.browser + browser.version, // string  - name of the browser with major version
-                                                             // @example 'Chrome 28'
+                    res: res,                               // string  - screen resolution
+                                                            // @example '1024x768'
+                    bname: browser.browser,                 // string  - name of the browser
+                                                            // @example 'Chrome'
+                    bver: browser.browser + browser.version // string  - name of the browser with major version
+                                                            // @example 'Chrome 28'
                 };
 
             } else {
@@ -287,4 +293,4 @@
 
     $(userStats.init());
 
-}(this, this.document, this.jQuery, this.mediaWiki, this.mediaWiki.config.values, this.navigator, this.console.log));
+}(this, this.document, this.jQuery, this.mediaWiki.config.values, this.console.log));
