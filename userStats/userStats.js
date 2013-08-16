@@ -1,5 +1,6 @@
 ﻿/**
  * Gather site metrics data and send it to a server to be stored in a database.
+ * This script is under development and not yet ready for use.
  *
  * Gathers data about how readers use the wiki. This includes:
  * - Clickstream, which pages are visited and from where. From this we can see
@@ -17,12 +18,9 @@
  *   <http://gs.statcounter.com/#resolution-ww-monthly-201207-201307>
  * This data is then sent to the server, and converted into a database.
  * 
- * @author      cqm <cqm.fwd@gmail.com>
- * @license     GPLv3 <http://www.gnu.org/licenses/gpl.html>
- * @source      <https://github.com/onei/script/blob/master/userStats/userStats.js>
- * @comment     Due to coppa restrictions we are unable to indiscriminately gather IP addresses.
- * @comment     The most up to date version can be found on github, see @source above.
- *              If this is seen elsewhere, it may be out of date.
+ * @author      Matthew Dowdell <mdowdell244@gmail.com>
+ * @license     <http://www.gnu.org/licenses/gpl.html> GPLv3
+ * @link        <https://github.com/onei/script/blob/master/userStats/userStats.js>
  * @todo        Implement check for mobile browsing
  */
 
@@ -183,7 +181,7 @@
 
             }
 
-            $.cookie('metricsData', session + '|' + curPage + '|' + prevPage, {
+            $.cookie('metricsData', session + '|' + curPage, {
                 expires: 1, // alter to the session time here
                 path: '/'
             });
@@ -194,6 +192,9 @@
 
         /**
          * Create a alphanumeric string to identify the session
+         *
+         * Due to coppa restrictions we are unable to indiscriminately gather IP addresses,
+         * so have to identify users by their session id.
          *
          * @source <http://stackoverflow.com/a/10727155/1942596>
          * @return result - string - session id
@@ -224,6 +225,7 @@
          * @param  current   - string  - name of the current page
          * @param  newUser   - boolean - optional, true if the user has not visited the site before
          * @return data      - object  - gathered data
+         * @todo   get url of current page as well?
          */
         gatherData: function (freshData, session, timestamp, loggedIn, previous, current, newUser) {
 
