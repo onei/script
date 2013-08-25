@@ -55,7 +55,7 @@
                         'title': headerLinks.i18n
                     }).append(
                         $('<a/>').attr({
-                            'href': $(this).attr('id')
+                            'href': '#' + $(this).attr('id')
                         }).append(
                             $('<img>').attr({
                                 'width': '20',
