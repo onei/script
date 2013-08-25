@@ -18,10 +18,11 @@
  *   <http://gs.statcounter.com/#resolution-ww-monthly-201207-201307>
  * This data is then sent to the server, and converted into a database.
  * 
- * @author      Matthew Dowdell <mdowdell244@gmail.com>
+ * @author      <mdowdell244@gmail.com>
  * @license     <http://www.gnu.org/licenses/gpl.html> GPLv3
  * @link        <https://github.com/onei/script/blob/master/userStats/userStats.js>
  * @todo        Implement check for mobile browsing
+ * @todo        Figure out how to handle multi-tabbed browsing
  */
 
 /*jshint
