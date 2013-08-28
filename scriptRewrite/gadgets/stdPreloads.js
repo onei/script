@@ -58,23 +58,35 @@ this.rswiki.scripts = this.rswiki.scripts || [];
          * If the RTE is disabled, the editor can be interacted with on load
          * If it is enabled, the elements this script interacts with are not available on load
          * which requires us to wait until it is ready.
-         *
-         *
-         * @source <http://kangaroopower.wikia.com/wiki/MediaWiki:Scope.js>
          */
         editor: function () {
 
+            // RTE enabled
             if (CKEDITOR) {
 
                 CKEDITOR.on('instanceReady', function() {
 
-		            RTE.getInstance().on('wysiwygModeReady', rswiki.gadgets.preloads.loadPreloads);
-		            RTE.getInstance().on('sourceModeReady', rswiki.gadgets.preloads.loadPreloads);
+		            RTE.getInstance().on('wysiwygModeReady', function () {
+                        console.log('visual mode loaded');
+                        rswiki.gadgets.preloads.loadPreloads();
+                    });
+
+		            RTE.getInstance().on('sourceModeReady', function () {
+                        console.log('source mode loaded');
+                        rswiki.gadgets.preloads.loadPreloads();
+                    });
 
                 });
 
+            // RTE disabled
+            } else if (WikiaEditor) {
+
+                rswiki.gadgets.preloads.loadPreloads();
+
             } else {
-                console.log('Cannot detect editor, null');
+
+                mw.log('Cannot detect editor');
+
             }
 
         },
