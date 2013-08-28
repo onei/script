@@ -59,6 +59,7 @@ this.rswiki.scripts = this.rswiki.scripts || [];
          * If it is enabled, the elements this script interacts with are not available on load
          * which requires us to wait until it is ready.
          *
+         *
          * @source <http://kangaroopower.wikia.com/wiki/MediaWiki:Scope.js>
          */
         editor: function () {
@@ -66,27 +67,11 @@ this.rswiki.scripts = this.rswiki.scripts || [];
             if (CKEDITOR) {
 
                 CKEDITOR.on('instanceReady', function() {
-                
-                    console.log(CKEDITOR.status);
-                    console.log('editor instance ready');
 
 		            RTE.getInstance().on('wysiwygModeReady', rswiki.gadgets.preloads.loadPreloads);
 		            RTE.getInstance().on('sourceModeReady', rswiki.gadgets.preloads.loadPreloads);
 
                 });
-
-            } else if (WikiaEditor) {
-
-                console.log('visual disabled');
-                if (WikiaEditor.getInstance && WikiaEditor.getInstance()) {
-                    console.log('wikiaeditor instance');
-                    rswiki.gadgets.preloads.loadPreloads();
-                } else if (GlobalTriggers) {
-                    console.log('globaltriggers');
-                    GlobalTriggers.on('WikiaEditorReady', rswiki.gadgets.preloads.loadPreloads);
-                } else {
-                   console.log('Cannot detect editor, WikiaEditor');
-                }
 
             } else {
                 console.log('Cannot detect editor, null');
