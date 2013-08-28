@@ -78,8 +78,10 @@ this.rswiki.scripts = this.rswiki.scripts || [];
             } else if (WikiaEditor) {
                 console.log('visual disabled');
                 if (WikiaEditor.getInstance && WikiaEditor.getInstance()) {
+                    console.log('wikiaeditor instance');
                     rswiki.gadgets.preloads.loadPreloads();
                 } else if (GlobalTriggers) {
+                    console.log('globaltriggers');
                     GlobalTriggers.on('WikiaEditorReady', rswiki.gadgets.preloads.loadPreloads);
                 } else {
                    console.log('Cannot detect editor, WikiaEditor');
