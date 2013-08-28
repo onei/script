@@ -1,0 +1,24 @@
+/* <syntaxhighlight lang="css"><nowiki> */
+/**
+ * Styling for StandardPreloads
+ * @author Cqm
+ */
+
+
+/* Visual mode's template module actually works quite well
+ * So keep that and just replace the source mode version that doesn't really work */
+.mode-wysiwyg #temp-preload {
+    display: none;
+}
+
+.mode-source .cke_toolbar_templates .cke_button {
+    display: none;
+}
+
+/* Add a bit of spacing */
+#cust-preload,
+#std-preload {
+    margin-bottom: 10px;
+}
+
+/* </nowiki></syntaxhighlight> */
