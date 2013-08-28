@@ -66,11 +66,13 @@ this.rswiki.scripts = this.rswiki.scripts || [];
             if (CKEDITOR) {
 
                 CKEDITOR.on('instanceReady', function() {
+                
+                    console.log(CKEDITOR.status);
 
                     console.log('editor instance ready');
 
 		            RTE.getInstance().on('wysiwygModeReady', function() {
-			            console.log( 'my visual mode loaded' );
+			            console.log('my visual mode loaded');
 		            });
 
 		            RTE.getInstance().on('sourceModeReady', function() {
