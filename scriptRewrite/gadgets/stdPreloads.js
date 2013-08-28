@@ -25,11 +25,9 @@ this.rswiki.gadgets = this.rswiki.gadgets || {};
 // used to track what scripts are loading and where
 this.rswiki.scripts = this.rswiki.scripts || [];
 
-(function (document, $, mw, RTE, CKEDITOR, WikiaEditor, GlobalTriggers, rswiki) {
+(function (document, $, mw, RTE, CKEDITOR, WikiaEditor, rswiki) {
 
     'use strict';
-    
-    console.log(document.readyState);
 
     rswiki.gadgets.preloads = {
 
@@ -43,12 +41,19 @@ this.rswiki.scripts = this.rswiki.scripts || [];
             }
 
             if (mw.config.get('wgAction') === 'edit' || mw.config.get('wgAction') === 'submit') {
+
+                // for checking what scripts are loaded
                 rswiki.scripts.push('rswiki.gadgets.preloads');
+
+                // oasis needs a a check for if the editor is loaded
                 if (mw.config.get('skin') === 'oasis') {
                     rswiki.gadgets.preloads.editor();
+
+                // monobook is nice and simple
                 } else if (mw.config.get('skin') === 'monobook') {
                     rswiki.gadgets.preloads.loadPreloads();
                 }
+
             }
 
         },
@@ -64,17 +69,11 @@ this.rswiki.scripts = this.rswiki.scripts || [];
             // RTE enabled
             if (CKEDITOR) {
 
-                CKEDITOR.on('instanceReady', function() {
+                CKEDITOR.on('instanceReady', function () {
 
-		            RTE.getInstance().on('wysiwygModeReady', function () {
-                        console.log('visual mode loaded');
-                        rswiki.gadgets.preloads.loadPreloads();
-                    });
-
-		            RTE.getInstance().on('sourceModeReady', function () {
-                        console.log('source mode loaded');
-                        rswiki.gadgets.preloads.loadPreloads();
-                    });
+                    // these are fired with every switch between source and visual mode with RTE enabled
+                    RTE.getInstance().on('wysiwygModeReady', rswiki.gadgets.preloads.loadPreloads);
+                    RTE.getInstance().on('sourceModeReady', rswiki.gadgets.preloads.loadPreloads);
 
                 });
 
@@ -95,8 +94,8 @@ this.rswiki.scripts = this.rswiki.scripts || [];
          * Gets list of preload templates from Template:Stdpreloads
          */
         loadPreloads: function () {
-        
-            // this is called repeatedly when switching between source and visual
+
+            // to stop the module being prepended multiple times
             if ($('#temp-preload').length) {
                 return;
             }
@@ -140,7 +139,7 @@ this.rswiki.scripts = this.rswiki.scripts || [];
          * Inserts the template module
          */
         insertModule: function (list) {
-        
+
             var br = '',
                 module;
 
@@ -195,7 +194,6 @@ this.rswiki.scripts = this.rswiki.scripts || [];
             );
 
             if (mw.config.get('skin') === 'oasis') {
-                console.log('inserting module');
                 $('.module_templates > .module_content > .cke_toolbar_templates').prepend(module);
             }
 
@@ -207,6 +205,7 @@ this.rswiki.scripts = this.rswiki.scripts || [];
 
         /**
          * Loads page and inserts the preload into the edit area
+         * @todo check this works in ie10
          */
         insertPreload: function (page) {
             $.get(mw.config.get('wgScript'), {title: page, action: 'raw', ctype: 'text/plain'}, function (data) {
@@ -241,12 +240,12 @@ this.rswiki.scripts = this.rswiki.scripts || [];
 
             });
 
-        },
+        }
 
     };
 
     $(rswiki.gadgets.preloads.init);
 
-}(this.document, this.jQuery, this.mediaWiki, this.RTE, this.CKEDITOR, this.WikiaEditor, this.GlobalTriggers, this.rswiki));
+}(this.document, this.jQuery, this.mediaWiki, this.RTE, this.CKEDITOR, this.WikiaEditor, this.rswiki));
 
 /* </nowiki> */
