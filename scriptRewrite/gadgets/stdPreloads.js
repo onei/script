@@ -68,16 +68,11 @@ this.rswiki.scripts = this.rswiki.scripts || [];
                 CKEDITOR.on('instanceReady', function() {
                 
                     console.log(CKEDITOR.status);
-
                     console.log('editor instance ready');
 
-		            RTE.getInstance().on('wysiwygModeReady', function() {
-			            console.log('my visual mode loaded');
-		            });
+		            RTE.getInstance().on('wysiwygModeReady', rswiki.gadgets.preloads.loadPreloads);
+		            RTE.getInstance().on('sourceModeReady', rswiki.gadgets.preloads.loadPreloads);
 
-		            RTE.getInstance().on('sourceModeReady', function() {
-			            console.log('my source mode loaded');
-		            });
                 });
 
             } else if (WikiaEditor) {
