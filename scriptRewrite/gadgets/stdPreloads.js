@@ -62,20 +62,24 @@ this.rswiki.scripts = this.rswiki.scripts || [];
          * @source <http://kangaroopower.wikia.com/wiki/MediaWiki:Scope.js>
          */
         editor: function () {
-            if (RTE && RTE.getInstance && RTE.getInstance()) {
-                if (RTE.getInstance().mode === 'source' || RTE.getInstance().mode === 'wysiwyg') {
-                    console.log('rte loaded');
-                    rswiki.gadgets.preloads.loadPreloads();
-                } else {
-                    console.log('Cannot detect editor, RTE');
-                }
-            } else if (CKEDITOR) {
-                CKEDITOR.on('instanceReady', function () {
-                    console.log('ckeditor loaded');
-                    RTE.getInstance().on('wysiwygModeReady', rswiki.gadgets.preloads.loadPreloads);
-                    RTE.getInstance().on('sourceModeReady', rswiki.gadgets.preloads.loadPreloads);
+
+            if (CKEDITOR) {
+
+                CKEDITOR.on('instanceReady', function() {
+
+                    console.log('editor instance ready');
+
+		            RTE.getInstance().on('wysiwygModeReady', function() {
+			            console.log( 'my visual mode loaded' );
+		            });
+
+		            RTE.getInstance().on('sourceModeReady', function() {
+			            console.log('my source mode loaded');
+		            });
                 });
+
             } else if (WikiaEditor) {
+
                 console.log('visual disabled');
                 if (WikiaEditor.getInstance && WikiaEditor.getInstance()) {
                     console.log('wikiaeditor instance');
@@ -86,6 +90,7 @@ this.rswiki.scripts = this.rswiki.scripts || [];
                 } else {
                    console.log('Cannot detect editor, WikiaEditor');
                 }
+
             } else {
                 console.log('Cannot detect editor, null');
             }
