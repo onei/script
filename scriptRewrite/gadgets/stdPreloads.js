@@ -94,6 +94,11 @@ this.rswiki.scripts = this.rswiki.scripts || [];
          * Gets list of preload templates from Template:Stdpreloads
          */
         loadPreloads: function () {
+        
+            // this is called repeatedly when switching between source and visual
+            if ($('#temp-preload').length) {
+                return;
+            }
 
             $.get(mw.config.get('wgScript'), {title: 'Template:Stdpreloads', action: 'raw', ctype: 'text/plain'}, function (data) {
 
