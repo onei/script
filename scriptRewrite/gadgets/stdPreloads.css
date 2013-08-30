@@ -12,7 +12,7 @@
 }
 
 .mode-source .cke_toolbar_templates .cke_button {
-    display: none;
+    display: none !important;
 }
 
 /* Add a bit of spacing */

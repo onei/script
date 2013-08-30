@@ -25,7 +25,7 @@ this.rswiki.gadgets = this.rswiki.gadgets || {};
 // used to track what scripts are loading and where
 this.rswiki.scripts = this.rswiki.scripts || [];
 
-(function (document, $, mw, RTE, CKEDITOR, WikiaEditor, rswiki) {
+(function (document, $, mw, RTE, CKEDITOR, rswiki) {
 
     'use strict';
 
@@ -45,12 +45,10 @@ this.rswiki.scripts = this.rswiki.scripts || [];
                 // for checking what scripts are loaded
                 rswiki.scripts.push('rswiki.gadgets.preloads');
 
-                // oasis needs a a check for if the editor is loaded
-                if (mw.config.get('skin') === 'oasis') {
+                // RTE needs to load before it can be interacted with
+                if (mw.config.get('skin') === 'oasis' && $('body.rte').length) {
                     rswiki.gadgets.preloads.editor();
-
-                // monobook is nice and simple
-                } else if (mw.config.get('skin') === 'monobook') {
+                } else {
                     rswiki.gadgets.preloads.loadPreloads();
                 }
 
@@ -58,47 +56,38 @@ this.rswiki.scripts = this.rswiki.scripts || [];
 
         },
         /**
-         * Oasis editor detection
+         * RTE loading detection
          *
          * If the RTE is disabled, the editor can be interacted with on load
          * If it is enabled, the elements this script interacts with are not available on load
          * which requires us to wait until it is ready.
          */
         editor: function () {
+/*
+            CKEDITOR.on('instanceReady', function () {
 
-            // RTE enabled
-            if (CKEDITOR) {
-
-                CKEDITOR.on('instanceReady', function () {
-
-                    // these are fired with every switch between source and visual mode with RTE enabled
-                    RTE.getInstance().on('wysiwygModeReady', rswiki.gadgets.preloads.loadPreloads);
-                    RTE.getInstance().on('sourceModeReady', rswiki.gadgets.preloads.loadPreloads);
-
+                // these are fired with every switch between source and visual mode with RTE enabled
+                // stop it adding a new module each time
+                RTE.getInstance().on('wysiwygModeReady', function () {
+                    if (!$('#temp-preload').length) {
+                        rswiki.gadgets.preloads.loadPreloads();
+                    }
+                });
+                    
+                RTE.getInstance().on('sourceModeReady', function () {
+                    if (!$('#temp-preload').length) {
+                        rswiki.gadgets.preloads.loadPreloads();
+                    }
                 });
 
-            // RTE disabled
-            } else if (WikiaEditor) {
-
-                rswiki.gadgets.preloads.loadPreloads();
-
-            } else {
-
-                mw.log('Cannot detect editor');
-
-            }
-
+            });
+*/
         },
 
         /**
          * Gets list of preload templates from Template:Stdpreloads
          */
         loadPreloads: function () {
-
-            // to stop the module being prepended multiple times
-            if ($('#temp-preload').length) {
-                return;
-            }
 
             $.get(mw.config.get('wgScript'), {title: 'Template:Stdpreloads', action: 'raw', ctype: 'text/plain'}, function (data) {
 
@@ -137,6 +126,7 @@ this.rswiki.scripts = this.rswiki.scripts || [];
 
         /**
          * Inserts the template module
+         * @param list - html string of option tags to be appended to dropdown
          */
         insertModule: function (list) {
 
@@ -206,6 +196,9 @@ this.rswiki.scripts = this.rswiki.scripts || [];
         /**
          * Loads page and inserts the preload into the edit area
          * @todo check this works in ie10
+         * @todo make this work in source editing with RTE enabled
+         *       RTE uses textarea.innerHTML rather than textarea.value
+         * @param page - page to be loaded
          */
         insertPreload: function (page) {
             $.get(mw.config.get('wgScript'), {title: page, action: 'raw', ctype: 'text/plain'}, function (data) {
@@ -246,6 +239,6 @@ this.rswiki.scripts = this.rswiki.scripts || [];
 
     $(rswiki.gadgets.preloads.init);
 
-}(this.document, this.jQuery, this.mediaWiki, this.RTE, this.CKEDITOR, this.WikiaEditor, this.rswiki));
+}(this.document, this.jQuery, this.mediaWiki, this.RTE, this.CKEDITOR, this.rswiki));
 
 /* </nowiki> */
