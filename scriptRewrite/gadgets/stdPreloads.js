@@ -1,4 +1,4 @@
-// <syntaxhighlight lang="javascript">
+// <syntaxhighlight lang="javascript"><nowiki>
 /**
  * Replaces Wikia's template preloads with a customisable dropdown list.
  * Appends dropdown list to Monobook's edit summary area.
@@ -11,13 +11,7 @@
  * @author Grunny <http://starwars.wikia.com/wiki/User:Grunny>
  * @author Cqm    <http://runescape.wikia.com/wiki/User:Cqm>
  */
-// </syntaxhighlight>
 
-// <syntaxhighlight lang="javascript">
-
-// </syntaxhighlight>
-
-// <syntaxhighlight lang="javascript"><nowiki>
 // define global objects if not already existing
 ( this.rswiki = this.rswiki || {} ).gadgets = this.rswiki.gadgets || {};
 
