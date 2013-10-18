@@ -107,6 +107,10 @@
                         return;
                     }
                     
+                    if ( !term.length ) {
+                        return;
+                    }
+                    
                     console.log( term );
                 }
 
@@ -126,6 +130,10 @@
 
                     if ( term.match( illegalChars ) ) {
                         return;
+                    }
+                    
+                    if ( !term.length ) {
+                        return
                     }
                     
                     console.log( term );
