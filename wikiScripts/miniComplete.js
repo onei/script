@@ -51,6 +51,20 @@
             } );
         
         },
+        
+        /**
+         * Gets caret position for detecting search term and inserting autocomplete term.
+         * 
+         * @param elem {jquery object} Textarea element to get carert position of.
+         * @return {number} Caret position in string.
+         *         false {boolean} if browser does not support caret position methods
+         *                         as this is likely to be of little help.
+         */
+        getCaretPos: function ( elem ) {
+            
+            console.log( elem );
+            
+        },
 
         /**
          * Counts back from caret position looking for unclosed {{ or [[
@@ -81,15 +95,15 @@
 
                     term = $val.substring( linkCheck + 2 );
 
+                    // also disallows certain illegal characters in pagenames
+                    // based on $wgLegaltitleChars
+                    // @link <http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars>
+                    // will disallow | as it sdignals an override to the displayed pagename
+                    // @example [[foo|bar]]
+                    // if it detects a { it is passed to the templatecheck
                     // if we find a ], assume the user is closing the link themselves
-                    if ( term.indexOf( ']' ) > -1 ) {
+                    if ( term.match( /[\}\[\]\|#<>%\+\?\\]/ ) )
                         return;
-                    }
-
-                    // if a template is nested within cancel the checks
-                    // as it's passed to the template check
-                    if ( term.indexOf( '{' ) === -1 ) {
-                        console.log( term );
                     }
                 }
 
@@ -107,34 +121,21 @@
 
                     term = $val.substring( templateCheck + 2 );
 
+                    // also disallows certain illegal characters in pagenames
+                    // based on $wgLegaltitleChars
+                    // @link <http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars>
+                    // will disallow | as it signals params used in a template
+                    // @example {{foo|bar=test}}
+                    // if it detects a [ it is passed to the linkcheck
                     // if we find a }, assume the user is closing the template themselves
-                    if ( term.indexOf( '}' ) > -1 ) {
+                    if ( term.match( /[\}\[\]\|#<>%\+\?\\]/ ) )
                         return;
                     }
 
-                    // if a link is nested within the template cancel the check
-                    // as it's passed to the link check
-                    if ( term.indexOf( '[' ) === -1 ) {
-                        console.log( term );
-                    }
                 }
 
             }
 
-        },
-        
-        /**
-         * Gets caret position for detecting search term and inserting autocomplete term.
-         * 
-         * @param elem {jquery object} Textarea element to get carert position of.
-         * @return {number} Caret position in string.
-         *         false {boolean} if browser does not support caret position methods
-         *                         as this is likely to be of little help.
-         */
-        getCaretPos: function ( elem ) {
-            
-            console.log( elem );
-            
         },
         
         /**
