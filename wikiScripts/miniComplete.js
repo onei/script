@@ -81,6 +81,12 @@
             var $val = $( elem ).val(),
                 linkCheck = $val.lastIndexOf( '[['),
                 templateCheck = $val.lastIndexOf( '{{' ),
+                // disallows certain characters in serach terms
+                // based on $wgLegalTitleChars <http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars>
+                // and to prevent serahces for terms that don't need it
+                // such as those with pipes as they signal template params or link display changes
+                // or if the user is closing the link/template themselves
+                illegalChars = /[\{\}\[\]\|#<>%\+\?\\]/,
                 term;
             
             if ( linkCheck > -1 ) {
@@ -95,14 +101,7 @@
 
                     term = $val.substring( linkCheck + 2 );
 
-                    // also disallows certain illegal characters in pagenames
-                    // based on $wgLegaltitleChars
-                    // @link <http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars>
-                    // will disallow | as it sdignals an override to the displayed pagename
-                    // @example [[foo|bar]]
-                    // if it detects a { it is passed to the templatecheck
-                    // if we find a ], assume the user is closing the link themselves
-                    if ( term.match( /[\}\[\]\|#<>%\+\?\\]/ ) )
+                    if ( term.match( illegalChars ) ) {
                         return;
                     }
                 }
@@ -121,14 +120,7 @@
 
                     term = $val.substring( templateCheck + 2 );
 
-                    // also disallows certain illegal characters in pagenames
-                    // based on $wgLegaltitleChars
-                    // @link <http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars>
-                    // will disallow | as it signals params used in a template
-                    // @example {{foo|bar=test}}
-                    // if it detects a [ it is passed to the linkcheck
-                    // if we find a }, assume the user is closing the template themselves
-                    if ( term.match( /[\}\[\]\|#<>%\+\?\\]/ ) )
+                    if ( term.match( illegalChars ) ) {
                         return;
                     }
 
