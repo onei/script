@@ -11,7 +11,7 @@
  * ^ denotes a feature has yet to start development
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.3.2
+ * @version 0.0.3.3
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  */
 
@@ -35,6 +35,7 @@
     'use strict';
     
     var miniComplete = {
+        
         /**
          * Loading function
          */
@@ -46,23 +47,21 @@
             // but it does appear that all of these have ids to use document.getElementByID in getCaretPos
             var selector = false;
             
-            if ( mw.config.get( 'wgCanonicalSpecialPageName' ) === 'Upload' ) {
+            switch ( true ) {
+            // Special:Upload
+            case !!( mw.config.get( 'wgCanonicalSpecialPageName' ) === 'Upload' ):
                 selector = '#wpUploadDescription';
-            }
-            
+                break;
+            // Article and Blog comments
+            case !!( $( '#WikiaArticleComments' ).length ):
             // Message wall comments
-            // #WikiaEditor-X.wikiaEditor.focused
-            // X is a number
-            // extract selector from $( this ).attr( 'id' )?
-            
-            // Blog comments
-            // #article-comm for new comments
-            // #article-comm-... for replies
-            // which would also apply to article comnments
-            
-            // Special:Forum posts
-            // same as message wall comments
-            // else return false
+            case !!( mw.config.get( 'wgNamespaceNumber' ) === 1200 ):
+            // Special:Forum posts (Thread namespace)
+            case !!( mw.config.get( 'wgNamespaceNumber' ) === 1201 ):
+            // posting from Board namespace?
+                selector = '.wikiaEditor';
+                break;
+            }
             
             if ( !selector ) {
                 return;
@@ -79,7 +78,7 @@
          * Gets caret position for detecting search term and inserting autocomplete term.
          * @link <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
          * 
-         * @param elem {jquery object} Textarea element to get carert position of.
+         * @param elem {string} Id of textarea to get caret position of.
          * @return {number} Caret position in string.
          *         false {boolean} if browser does not support caret position methods
          *                         as this is likely to be of little help.
@@ -87,6 +86,7 @@
         getCaretPos: function ( selector ) {
             
             console.log( selector );
+            return $( selector ).val().length;
             
         },
 
@@ -103,6 +103,11 @@
 
             // @todo work from caret position
             var $val = $( elem ).val(),
+                // for use in getCaretPos
+                textarea = $( elem ).attr( 'id' ),
+                // text to search for
+                searchText = $val.substring( 0, miniComplete.getCaretPos( textarea ) ),
+                // for separating search term
                 linkCheck = $val.lastIndexOf( '[['),
                 templateCheck = $val.lastIndexOf( '{{' ),
                 // disallows certain characters in serach terms
