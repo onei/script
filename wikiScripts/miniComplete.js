@@ -40,15 +40,36 @@
          */
         init: function () {
         
-            var selector = mw.config.get( 'wgCanonicalSpecialPageName' ) === 'Upload' ? '#wpUploadDescription' :
-                // @todo other textareas here
-                false;
+            // this is kinda complicated, so it might be easier to check the selector from $( this ).attr( 'id' )
+            // and compare to a predefined list of selectors it should match under certain circumstances
+            // such as namespace id or specialpagename
+            // but it does appear that all of these have ids to use document.getElementByID in getCaretPos
+            var selector = false;
+            
+            if ( mw.config.get( 'wgCanonicalSpecialPageName' ) === 'Upload' ) {
+                selector = '#wpUploadDescription';
+            }
+            
+            // Message wall comments
+            // #WikiaEditor-X.wikiaEditor.focused
+            // X is a number
+            // extract selector from $( this ).attr( 'id' )?
+            
+            // Blog comments
+            // #article-comm for new comments
+            // #article-comm-... for replies
+            // which would also apply to article comnments
+            
+            // Special:Forum posts
+            // same as message wall comments
+            // else return false
             
             if ( !selector ) {
                 return;
             }
             
             $( selector ).on( 'input', function () {
+                // selector is used for caret pos
                 miniComplete.findTerm( this );
             } );
         
@@ -56,15 +77,16 @@
         
         /**
          * Gets caret position for detecting search term and inserting autocomplete term.
+         * @link <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
          * 
          * @param elem {jquery object} Textarea element to get carert position of.
          * @return {number} Caret position in string.
          *         false {boolean} if browser does not support caret position methods
          *                         as this is likely to be of little help.
          */
-        getCaretPos: function ( elem ) {
+        getCaretPos: function ( selector ) {
             
-            console.log( elem );
+            console.log( selector );
             
         },
 
@@ -207,6 +229,9 @@
         
         /**
          * Inserts selected suggestion
+         * 
+         * It is virtually impossible to get caret coordinates straight from the textarea
+         * so convert a jQuery plugin for our needs <https://github.com/Codecademy/textarea-helper>
          */
         insertComplete: function () {
         
