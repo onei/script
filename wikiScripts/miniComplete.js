@@ -11,7 +11,7 @@
  * ^ denotes a feature has yet to start development
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.3.1
+ * @version 0.0.3.2
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  */
 
