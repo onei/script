@@ -97,9 +97,9 @@
                 }
                 
                 // lastIndexOf measures from just before it starts
-                // so subtract 2 to check the term length
+                // so add 2 to check the term length
                 // to make sure we're just selecting the search term
-                if ( ( $val.length - linkCheck - 2 ) >= 0 ) {
+                if ( ( $val.length - ( linkCheck + 2 ) ) >= 0 ) {
 
                     term = $val.substring( linkCheck + 2 );
 
@@ -118,9 +118,9 @@
                 }
                 
                 // lastIndexOf measures from just before it starts
-                // so subtract 2 to check the term length
+                // so add 2 to check the term length
                 // to make sure we're just selecting the search term
-                if ( ( $val.length - templateCheck - 2 ) > 0 ) {
+                if ( ( $val.length - ( templateCheck + 2 ) ) > 0 ) {
 
                     term = $val.substring( templateCheck + 2 );
 
