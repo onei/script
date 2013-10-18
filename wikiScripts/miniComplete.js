@@ -40,10 +40,12 @@
          */
         init: function () {
         
-            var selector;
+            var selector = mw.config.get( 'wgCanonicalSpecialPageName' ) === 'Upload' ? '#wpUploadDescription' :
+                // @todo other textareas here
+                false;
             
-            if ( mw.config.get( 'wgCanonicalSpecialPageName' ) === 'Upload' ) {
-                selector = '#wpUploadDescription';
+            if ( !selector ) {
+                return;
             }
             
             $( selector ).on( 'input', function () {
@@ -104,6 +106,8 @@
                     if ( term.match( illegalChars ) ) {
                         return;
                     }
+                    
+                    console.log( term );
                 }
 
             }
@@ -123,6 +127,8 @@
                     if ( term.match( illegalChars ) ) {
                         return;
                     }
+                    
+                    console.log( term );
 
                 }
 
