@@ -11,12 +11,23 @@
  * ^ denotes a feature has yet to start development
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.3
+ * @version 0.0.3.1
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  */
 
 /*global
-    jQuery:true, mediaWiki:true
+    mediaWiki:true
+*/
+
+/*jshint
+    bitwise:true, camelcase:true, curly:true, eqeqeq:true, es3:false,
+    forin:true, immed:true, indent:4, latedef:true, newcap:true,
+    noarg:true, noempty:true, nonew:true, plusplus:true, quotmark:single,
+    undef:true, unused:true, strict:true, trailing:true,
+    
+    browser:true, jquery:true,
+     
+    onevar:true
 */
 
 ;( function ( $, mw ) {
@@ -43,6 +54,10 @@
 
         /**
          * Counts back from caret position looking for unclosed {{ or [[
+         * This will break if someone attempts to use [ within a template tranclusion
+         * @example {{foo[bar
+         * or a { within a wikitext link
+         * @example [[foo{bar
          *
          * @param elem {jquery object} Element to look for search term within
          */
@@ -54,10 +69,6 @@
                 templateCheck = $val.lastIndexOf( '{{' ),
                 term;
             
-            // @todo add some sort of check to prevent conflicting checks
-            //       in case someone decides to subst a magic word or something
-            // @example [[{{subst:PAGENAME}} detailed]]
-
             if ( linkCheck > -1 ) {
                 if ( linkCheck < $val.lastIndexOf( ']]' ) ) {
                     return;
@@ -77,7 +88,7 @@
 
                     // if a template is nested within cancel the checks
                     // as it's passed to the template check
-                    if ( term.indexOf( '{' ) == -1 ) {
+                    if ( term.indexOf( '{' ) === -1 ) {
                         console.log( term );
                     }
                 }
@@ -110,6 +121,20 @@
 
             }
 
+        },
+        
+        /**
+         * Gets caret position for detecting search term and inserting autocomplete term.
+         * 
+         * @param elem {jquery object} Textarea element to get carert position of.
+         * @return {number} Caret position in string.
+         *         false {boolean} if browser does not support caret position methods
+         *                         as this is likely to be of little help.
+         */
+        getCaretPos: function ( elem ) {
+            
+            console.log( elem );
+            
         },
         
         /**
