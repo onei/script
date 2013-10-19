@@ -11,7 +11,7 @@
  * ^ denotes a feature has yet to start development
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.3.3
+ * @version 0.0.3.4
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  */
 
@@ -41,24 +41,25 @@
          */
         init: function () {
         
-            // this is kinda complicated, so it might be easier to check the selector from $( this ).attr( 'id' )
-            // and compare to a predefined list of selectors it should match under certain circumstances
-            // such as namespace id or specialpagename
-            // but it does appear that all of these have ids to use document.getElementByID in getCaretPos
-            var selector = false;
+            var selector = false,
+                config = mw.config.get( [
+                    'wgCanonicalSpecialPageName',
+                    'wgNamespaceNumber'
+                ] );
             
             switch ( true ) {
             // Special:Upload
-            case !!( mw.config.get( 'wgCanonicalSpecialPageName' ) === 'Upload' ):
+            case !!( config.wgCanonicalSpecialPageName === 'Upload' ):
                 selector = '#wpUploadDescription';
                 break;
             // Article and Blog comments
             case !!( $( '#WikiaArticleComments' ).length ):
             // Message wall comments
-            case !!( mw.config.get( 'wgNamespaceNumber' ) === 1200 ):
+            case !!( config.wgNamespaceNumber === 1200 ):
             // Special:Forum posts (Thread namespace)
-            case !!( mw.config.get( 'wgNamespaceNumber' ) === 1201 ):
-            // posting from Board namespace?
+            case !!( config.wgNamespaceNumber === 1201 ):
+            // Special:Forum posts (Board namespace)
+            case !!( config.wgNamespaceNumber === 2000 ):
                 selector = '.wikiaEditor';
                 break;
             }
