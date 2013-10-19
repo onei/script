@@ -36,7 +36,6 @@
  * Textareahelper jQuery plugin
  * @source <https://github.com/Codecademy/textarea-helper/blob/master/textarea-helper.js>
  */
-
 // disable warning about ;(
 /*jshint -W015 */
 ;( function ( $ ) {
@@ -195,8 +194,7 @@
 }( jQuery ) );
 
 /**
- *
- *
+ * MiniComplete code begins here
  */
 ( function ( document, $, mw ) {
 
