@@ -164,6 +164,7 @@
                     }
 
                     console.log( term );
+                    miniEditor.getSuggestions( term );
 
                 }
 
@@ -192,6 +193,7 @@
                     }
 
                     console.log( term );
+                    miniEditor.getSuggestions( term );
 
                 }
 
