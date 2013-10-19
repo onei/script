@@ -29,6 +29,7 @@
     onevar:true
 */
 
+// disable indent warning
 /*jshint -W015 */
 ;( function ( document, $, mw ) {
 /*jshint +W015 */
