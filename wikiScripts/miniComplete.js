@@ -247,7 +247,7 @@
 
             }
 
-            ( new mw.API() ).get( query )
+            ( new mw.Api() ).get( query )
                             .done( function ( data ) {
                                 console.log( data );
                             } )
