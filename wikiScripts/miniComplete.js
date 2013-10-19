@@ -164,7 +164,7 @@
                     }
 
                     console.log( term );
-                    miniEditor.getSuggestions( term );
+                    miniComplete.getSuggestions( term, 0 );
 
                 }
 
@@ -193,7 +193,7 @@
                     }
 
                     console.log( term );
-                    miniEditor.getSuggestions( term );
+                    miniComplete.getSuggestions( term, 10 );
 
                 }
 
@@ -207,20 +207,22 @@
          * For API docs, see <https://www.mediawiki.org/wiki/API:Allpages>
          *
          * @param term {string} Page title to search for
+         * @param ns {integer} Namespace to search in
          */
-        getSuggestions: function ( term ) {
+        getSuggestions: function ( term, ns ) {
 
             var query = {
                     action: 'query',
                     list: 'allpages',
                     aplimit: '5',
-                    apnamespace: '0',
+                    apnamespace: ns,
                     apprefix: term
                 },
                 termSplit,
                 namespaceId,
                 title;
 
+            // @todo fix for {{:ns:title|param}}
             if ( term.indexOf( ':' ) > -1 ) {
 
                 termSplit = term.split( ':' );
