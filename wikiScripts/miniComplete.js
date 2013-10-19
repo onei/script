@@ -460,7 +460,7 @@
                     // etc.
                 ];
 
-                mw.util.appendCSS(
+                mw.util.addCSS(
                     css.join()
                 );
 
