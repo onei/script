@@ -12,6 +12,9 @@
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
+ *
+ * For documentation and licensing of jQuery textareahelper plugin
+ * see <https://github.com/Codecademy/textarea-helper>
  */
 
 /*global
@@ -29,10 +32,173 @@
     onevar:true
 */
 
-// disable indent warning
+/**
+ * Textareahelper jQuery plugin
+ * @source <https://github.com/Codecademy/textarea-helper/blob/master/textarea-helper.js>
+ */
+
+// disable warning about ;(
 /*jshint -W015 */
-;( function ( document, $, mw ) {
+;( function ( $ ) {
 /*jshint +W015 */
+ 
+    'use strict';
+
+    var caretClass = 'textarea-helper-caret',
+        dataKey = 'textarea-helper',
+        // Styles that could influence size of the mirrored element
+        mirrorStyles = [
+            // Box Styles
+            'box-sizing', 'height', 'width', 'padding-bottom',
+            'padding-left', 'padding-right', 'padding-top',
+  
+            // Font stuff
+            'font-family', 'font-size', 'font-style',
+            'font-variant', 'font-weight',
+  
+            // Spacing etc.
+            'word-spacing', 'letter-spacing', 'line-height',
+            'text-decoration', 'text-indent', 'text-transform',
+                     
+            // Direction
+            'direction'
+        ],
+        TextareaHelper = function ( elem ) {
+
+            if ( elem.nodeName.toLowerCase() !== 'textarea' ) {
+                return;
+            }
+
+            this.$text = $( elem );
+            this.$mirror = $( '<div>' )
+                           /*jshint -W015 */
+                           .css( {
+                               'position': 'absolute',
+                               'overflow': 'auto',
+                               'white-space': 'pre-wrap',
+                               'word-wrap': 'break-word',
+                               'top': 0,
+                               'left': -9999
+                               
+                           } )
+                           /*jshint +W015 */
+                           .insertAfter( this.$text );
+
+        };
+
+    ( function () {
+        this.update = function () {
+
+            // Copy styles.
+            var styles = {},
+                i,
+                caretPos,
+                str,
+                pre,
+                post,
+                $car;
+
+            for ( i = 0; i < mirrorStyles.length; i += 1 ) {
+                styles[ mirrorStyles[i] ] = this.$text.css( mirrorStyles[i] );
+            }
+
+            this.$mirror.css( styles ).empty();
+      
+            // Update content and insert caret.
+            caretPos = this.getOriginalCaretPos();
+            str = this.$text.val();
+            pre = document.createTextNode( str.substring( 0, caretPos ) );
+            post = document.createTextNode( str.substring( caretPos ) );
+            $car = $( '<span>' ).addClass( caretClass )
+                                .css( 'position', 'absolute' )
+                                .html( '&nbsp;' );
+            this.$mirror.append( pre, $car, post )
+                        .scrollTop( this.$text.scrollTop() );
+        };
+
+        this.destroy = function () {
+            this.$mirror.remove();
+            this.$text.removeData( dataKey );
+            return null;
+        };
+
+        this.caretPos = function () {
+            this.update();
+            var $caret = this.$mirror.find( '.' + caretClass ),
+                pos = $caret.position();
+
+            if ( this.$text.css( 'direction' ) === 'rtl' ) {
+                pos.right = this.$mirror.innerWidth() - pos.left - $caret.width();
+                pos.left = 'auto';
+            }
+
+            return pos;
+        };
+
+        this.height = function () {
+            this.update();
+            this.$mirror.css( 'height', '' );
+            return this.$mirror.height();
+        };
+
+        // XBrowser caret position
+        // Adapted from http://stackoverflow.com/questions/263743/how-to-get-caret-position-in-textarea
+        this.getOriginalCaretPos = function () {
+            var text = this.$text[0],
+                r,
+                re,
+                rc;
+
+            if (text.selectionStart) {
+                return text.selectionStart;
+            } else if (document.selection) {
+
+                text.focus();
+                r = document.selection.createRange();
+                if ( !r ) {
+                    return 0;
+                }
+                re = text.createTextRange();
+                rc = re.duplicate();
+
+                re.moveToBookmark(r.getBookmark());
+                rc.setEndPoint('EndToStart', re);
+                return rc.text.length;
+            }
+
+            return 0;
+        };
+
+    } ).call( TextareaHelper.prototype );
+  
+    $.fn.textareaHelper = function ( method ) {
+
+        this.each( function () {
+            var $this = $( this ),
+                instance = $this.data( dataKey );
+
+            if ( !instance ) {
+                instance = new TextareaHelper( this );
+                $this.data( dataKey, instance );
+            }
+        } );
+
+        if ( method ) {
+            var instance = this.first().data( dataKey );
+            return instance[ method ]();
+        } else {
+            return this;
+        }
+
+    };
+
+}( jQuery ) );
+
+/**
+ *
+ *
+ */
+( function ( document, $, mw ) {
 
     'use strict';
 
@@ -100,7 +266,7 @@
             if ( document.selection ) {
                 elem.focus ();
                 sel = document.selection.createRange();
-                sel.moveStart('character', -elem.value.length);
+                sel.moveStart( 'character', -elem.value.length );
                 caretPos = sel.text.length;
 
             // Normal browsers
@@ -271,10 +437,6 @@
         /**
          * Inserts list of options to select from
          * 
-         * It is virtually impossible to get caret coordinates straight from the textarea
-         * so convert a jQuery plugin for our needs
-         * @source <https://github.com/Codecademy/textarea-helper>
-         * 
          * @param result {array} Result from API
          * @todo Hide options if Esc key is pressed
          */
@@ -301,7 +463,7 @@
                 ];
 
                 mw.util.appendCSS(
-                    css.join();
+                    css.join()
                 );
 
             }
