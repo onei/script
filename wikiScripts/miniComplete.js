@@ -11,7 +11,7 @@
  * @version 0.0.4.0
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
- * Jshint warning messages:<https://github.com/jshint/jshint/blob/master/src/messages.js>
+ * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
  */
 
 /*global
@@ -32,16 +32,16 @@
 /*jshint -W015 */
 ;( function ( document, $, mw ) {
 /*jshint +W015 */
-  
+
     'use strict';
-    
+
     var miniComplete = {
-        
+
         /**
          * Loading function
          */
         init: function () {
-        
+
             var selector = false,
                 config = mw.config.get( [
                     'wgCanonicalSpecialPageName',
@@ -67,18 +67,17 @@
                 break;
             }
             /*jshint +W018 */
-            
+
             if ( !selector ) {
                 return;
             }
-            
+
             $( selector ).on( 'input', function () {
-                // selector is used for caret pos
                 miniComplete.findTerm( this );
             } );
-        
+
         },
-        
+
         /**
          * Gets caret position for detecting search term and inserting autocomplete term.
          * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
@@ -89,13 +88,13 @@
          *                         as this is likely to be of little help.
          */
         getCaretPos: function ( selector ) {
-            
+
             console.log( selector );
-            
+
             var elem = document.getElementByID( selector ),
                 caretPos = 0,
                 sel;
-            
+
             // IE9 support
             // may need to exclude IE10 from this
             // Earlier versions of IE aren't supported so don't worry about them
@@ -104,12 +103,12 @@
                 sel = document.selection.createRange();
                 sel.moveStart('character', -elem.value.length);
                 caretPos = sel.text.length;
-                
+
             // Normal browsers
             } else if ( elem.selectionStart || elem.selectionStart === '0' ) {
                 caretPos = elem.selectionStart;
             }
-            
+
             return ( caretPos );
 
         },
@@ -135,20 +134,20 @@
                 // or if the user is closing the link/template themselves
                 illegalChars = /[\{\}\[\]\|#<>%\+\?\\]/,
                 term;
-                
+
             // searchText will be empty if the browser does not support getCaretPos
             // which will probably cause errors/confusion
             // so stop here if that's the case
             if ( !searchText.length ) {
                 return;
             }
-            
+
             if ( linkCheck > -1 ) {
 
                 if ( linkCheck < searchText.lastIndexOf( ']]' ) ) {
                     return;
                 }
-                
+
                 // lastIndexOf measures from just before it starts
                 // so add 2 to check the term length
                 // to make sure we're just selecting the search term
@@ -159,24 +158,24 @@
                     if ( term.match( illegalChars ) ) {
                         return;
                     }
-                    
+
                     // prevent searches for empty strings
                     if ( !term.length ) {
                         return;
                     }
-                    
+
                     console.log( term );
 
                 }
 
             }
-            
+
             if ( templateCheck > -1 ) {
 
                 if ( templateCheck < searchText.lastIndexOf( '}}' ) ) {
                     return;
                 }
-                
+
                 // lastIndexOf measures from just before it starts
                 // so add 2 to check the term length
                 // to make sure we're just selecting the search term
@@ -187,12 +186,12 @@
                     if ( term.match( illegalChars ) ) {
                         return;
                     }
-                    
+
                     // prevent searches for empty strings
                     if ( !term.length ) {
                         return;
                     }
-                    
+
                     console.log( term );
 
                 }
@@ -200,7 +199,7 @@
             }
 
         },
-        
+
         /**
          * Queries mw api for possible suggestions
          *
@@ -209,7 +208,7 @@
          * @param term {string} Page title to search for
          */
         getSuggestions: function ( term ) {
-        
+
             var query = {
                     action: 'query',
                     list: 'allpages',
@@ -220,7 +219,7 @@
                 termSplit,
                 namespaceId,
                 title;
-        
+
             if ( term.indexOf( ':' ) > -1 ) {
 
                 termSplit = term.split( ':' );
@@ -231,18 +230,18 @@
                     console.log( 'Namespace error detected. Aborting suggestion search.' );
                     return;
                 }
-                
+
                 namespaceId = mw.config.get( 'wgNamespaceIds' )[
                     // wgNamespaceIds uses underscores and lower case
                     termSplit[0].replace( / /g, '_' )
                                 .toLowerCase()
                 ];
-                
+
                 if ( namespaceId ) {
                     query.apnamespace = namespaceId;
                     query.apprefix = title;
                 }
-                
+
             }
 
             ( new mw.API() ).get( query )
@@ -252,16 +251,16 @@
                             .error( function ( error ) {
                                 console.log( 'API error: (', error );
                             } );
-        
+
         },
-        
+
         /**
          * Inserts list of options to select from
          */
         showSuggestions: function () {
         
         },
-        
+
         /**
          * Inserts selected suggestion
          * 
@@ -271,9 +270,9 @@
         insertComplete: function () {
         
         }
-    };
-    
-    $( miniComplete.init );
 
+    };
+
+    $( miniComplete.init );
 
 }( document, jQuery, mediaWiki ) );
