@@ -223,6 +223,7 @@
                 title;
 
             // @todo fix for {{:ns:title|param}}
+            // check value of ns to handle exception
             if ( term.indexOf( ':' ) > -1 ) {
 
                 termSplit = term.split( ':' );
@@ -249,7 +250,14 @@
 
             ( new mw.Api() ).get( query )
                             .done( function ( data ) {
-                                console.log( data );
+
+                                // no suggestions
+                                if ( !data.query.allpages.length ) {
+                                    return;
+                                }
+                                
+                                console.log( data.query.allpages );
+
                             } )
                             .error( function ( error ) {
                                 console.log( 'API error: (', error );
