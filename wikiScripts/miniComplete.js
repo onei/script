@@ -450,7 +450,12 @@
                     $( '<div>' )
                     .attr( {
                         id: 'minicomplete-options'
-                    } )
+                    } ).append(
+                        $( '<ul>' )
+                        .attr( {
+                            // attr
+                        } )
+                    )
                 );
 
                 css = [
@@ -467,7 +472,7 @@
             }
 
             for ( i = 0; i < result.length; i += 1 ) {
-                options.push( result[i].title );
+                options.push( '<li class="">' + result[i].title + '</li>' );
             }
             
             console.log( options );
