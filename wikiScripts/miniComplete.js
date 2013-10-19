@@ -90,9 +90,7 @@
          */
         getCaretPos: function ( selector ) {
 
-            console.log( selector );
-
-            var elem = document.getElementByID( selector ),
+            var elem = document.getElementById( selector ),
                 caretPos = 0,
                 sel;
 
