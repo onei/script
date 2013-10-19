@@ -8,7 +8,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.4.0
+ * @version 0.0.5.0
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -85,8 +85,8 @@
          * 
          * @param elem {string} Id of textarea to get caret position of.
          * @return {number} Caret position in string.
-         *         false {boolean} if browser does not support caret position methods
-         *                         as this is likely to be of little help.
+         *                  if browser does not support caret position methods
+         *                  returns 0 to prevent errors
          */
         getCaretPos: function ( selector ) {
 
@@ -204,8 +204,7 @@
         /**
          * Queries mw api for possible suggestions
          *
-         * For API docs, see <https://www.mediawiki.org/wiki/API:Allpages>
-         *
+         * @link <https://www.mediawiki.org/wiki/API:Allpages> Allpages API docs
          * @param term {string} Page title to search for
          * @param ns {integer} Namespace to search in
          */
@@ -215,6 +214,7 @@
                     action: 'query',
                     list: 'allpages',
                     aplimit: '5',
+                    apfilterredir: 'nonredirects',
                     apnamespace: ns,
                     apprefix: term
                 },
@@ -222,8 +222,12 @@
                 namespaceId,
                 title;
 
-            // @todo fix for {{:ns:title|param}}
-            // check value of ns to handle exception
+            // fix for when the namespace is preceeded by a :
+            // in a template transclusion
+            if ( term.indexOf( ':' ) === 0 && ns === 10 ) {
+                term = term.substring( 1 );
+            }
+            
             if ( term.indexOf( ':' ) > -1 ) {
 
                 termSplit = term.split( ':' );
@@ -231,7 +235,6 @@
 
                 // make sure there's only the namespace and the page title
                 if ( termSplit.length > 2 ) {
-                    console.log( 'Namespace error detected. Aborting suggestion search.' );
                     return;
                 }
 
@@ -255,8 +258,8 @@
                                 if ( !data.query.allpages.length ) {
                                     return;
                                 }
-                                
-                                console.log( data.query.allpages );
+
+                                miniComplete.showSuggestions( data.query.allpages );
 
                             } )
                             .error( function ( error ) {
@@ -267,16 +270,52 @@
 
         /**
          * Inserts list of options to select from
+         * 
+         * It is virtually impossible to get caret coordinates straight from the textarea
+         * so convert a jQuery plugin for our needs
+         * @source <https://github.com/Codecademy/textarea-helper>
+         * 
+         * @param result {array} Result from API
+         * @todo Hide options if Esc key is pressed
          */
-        showSuggestions: function () {
+        showSuggestions: function ( result ) {
+
+            var i,
+                options = [],
+                css;
+
+            if ( !$( '#minicomplete-options' ).length ) {
+
+                $( 'body' ).append(
+                    $( '<div>' )
+                    .attr( {
+                        id: 'minicomplete-options'
+                    } )
+                );
+
+                css = [
+                    // rule1
+                    // rule2
+                    // rule3
+                    // etc.
+                ];
+
+                mw.util.appendCSS(
+                    css.join();
+                );
+
+            }
+
+            for ( i = 0; i < result.length; i += 1 ) {
+                options.push( result[i].title );
+            }
+            
+            console.log( options );
         
         },
 
         /**
          * Inserts selected suggestion
-         * 
-         * It is virtually impossible to get caret coordinates straight from the textarea
-         * so convert a jQuery plugin for our needs <https://github.com/Codecademy/textarea-helper>
          */
         insertComplete: function () {
         
