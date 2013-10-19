@@ -2,17 +2,16 @@
  * Minieditor Autocomplete (MiniComplete)
  *
  * Adds autocomplete to certain form elements.
- * - Special:Upload description *
- * - Message Wall comments ^
- * - Blog comments ^
- * - Special:Forum posts ^
- *
- * * denotes a feature in in development
- * ^ denotes a feature has yet to start development
+ * - Special:Upload description
+ * - Message Wall comments
+ * - Blog comments
+ * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.3.4
+ * @version 0.0.4.0
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
+ *
+ * Jshint warning messages:<https://github.com/jshint/jshint/blob/master/src/messages.js>
  */
 
 /*global
@@ -30,8 +29,10 @@
     onevar:true
 */
 
-;( function ( $, mw ) {
-
+/*jshint -W015 */
+;( function ( document, $, mw ) {
+/*jshint +W015 */
+  
     'use strict';
     
     var miniComplete = {
@@ -46,7 +47,9 @@
                     'wgCanonicalSpecialPageName',
                     'wgNamespaceNumber'
                 ] );
-            
+
+            // disable !! warnings
+            /*jshint -W018 */
             switch ( true ) {
             // Special:Upload
             case !!( config.wgCanonicalSpecialPageName === 'Upload' ):
@@ -63,6 +66,7 @@
                 selector = '.wikiaEditor';
                 break;
             }
+            /*jshint +W018 */
             
             if ( !selector ) {
                 return;
@@ -77,7 +81,7 @@
         
         /**
          * Gets caret position for detecting search term and inserting autocomplete term.
-         * @link <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
+         * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
          * 
          * @param elem {string} Id of textarea to get caret position of.
          * @return {number} Caret position in string.
@@ -87,81 +91,106 @@
         getCaretPos: function ( selector ) {
             
             console.log( selector );
-            return $( selector ).val().length;
             
+            var elem = document.getElementByID( selector ),
+                caretPos = 0,
+                sel;
+            
+            // IE9 support
+            // may need to exclude IE10 from this
+            // Earlier versions of IE aren't supported so don't worry about them
+            if ( document.selection ) {
+                elem.focus ();
+                sel = document.selection.createRange();
+                sel.moveStart('character', -elem.value.length);
+                caretPos = sel.text.length;
+                
+            // Normal browsers
+            } else if ( elem.selectionStart || elem.selectionStart === '0' ) {
+                caretPos = elem.selectionStart;
+            }
+            
+            return ( caretPos );
+
         },
 
         /**
          * Counts back from caret position looking for unclosed {{ or [[
-         * This will break if someone attempts to use [ within a template tranclusion
-         * @example {{foo[bar
-         * or a { within a wikitext link
-         * @example [[foo{bar
          *
          * @param elem {jquery object} Element to look for search term within
          */
         findTerm: function ( elem ) {
 
-            // @todo work from caret position
-            var $val = $( elem ).val(),
                 // for use in getCaretPos
-                textarea = $( elem ).attr( 'id' ),
+            var textarea = $( elem ).attr( 'id' ),
                 // text to search for
-                searchText = $val.substring( 0, miniComplete.getCaretPos( textarea ) ),
+                searchText = $( elem ).val().substring( 0, miniComplete.getCaretPos( textarea ) ),
                 // for separating search term
-                linkCheck = $val.lastIndexOf( '[['),
-                templateCheck = $val.lastIndexOf( '{{' ),
+                linkCheck = searchText.lastIndexOf( '[['),
+                templateCheck = searchText.lastIndexOf( '{{' ),
                 // disallows certain characters in serach terms
                 // based on $wgLegalTitleChars <http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars>
-                // and to prevent serahces for terms that don't need it
+                // and to prevent searches for terms that don't need it
                 // such as those with pipes as they signal template params or link display changes
                 // or if the user is closing the link/template themselves
                 illegalChars = /[\{\}\[\]\|#<>%\+\?\\]/,
                 term;
+                
+            // searchText will be empty if the browser does not support getCaretPos
+            // which will probably cause errors/confusion
+            // so stop here if that's the case
+            if ( !searchText.length ) {
+                return;
+            }
             
             if ( linkCheck > -1 ) {
-                if ( linkCheck < $val.lastIndexOf( ']]' ) ) {
+
+                if ( linkCheck < searchText.lastIndexOf( ']]' ) ) {
                     return;
                 }
                 
                 // lastIndexOf measures from just before it starts
                 // so add 2 to check the term length
                 // to make sure we're just selecting the search term
-                if ( ( $val.length - ( linkCheck + 2 ) ) >= 0 ) {
+                if ( ( searchText.length - ( linkCheck + 2 ) ) >= 0 ) {
 
-                    term = $val.substring( linkCheck + 2 );
+                    term = searchText.substring( linkCheck + 2 );
 
                     if ( term.match( illegalChars ) ) {
                         return;
                     }
                     
+                    // prevent searches for empty strings
                     if ( !term.length ) {
                         return;
                     }
                     
                     console.log( term );
+
                 }
 
             }
             
             if ( templateCheck > -1 ) {
-                if ( templateCheck < $val.lastIndexOf( '}}' ) ) {
+
+                if ( templateCheck < searchText.lastIndexOf( '}}' ) ) {
                     return;
                 }
                 
                 // lastIndexOf measures from just before it starts
                 // so add 2 to check the term length
                 // to make sure we're just selecting the search term
-                if ( ( $val.length - ( templateCheck + 2 ) ) > 0 ) {
+                if ( ( searchText.length - ( templateCheck + 2 ) ) > 0 ) {
 
-                    term = $val.substring( templateCheck + 2 );
+                    term = searchText.substring( templateCheck + 2 );
 
                     if ( term.match( illegalChars ) ) {
                         return;
                     }
                     
+                    // prevent searches for empty strings
                     if ( !term.length ) {
-                        return
+                        return;
                     }
                     
                     console.log( term );
@@ -247,4 +276,4 @@
     $( miniComplete.init );
 
 
-}( jQuery, mediaWiki ) );
+}( document, jQuery, mediaWiki ) );
