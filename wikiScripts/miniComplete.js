@@ -15,6 +15,10 @@
  *
  * For documentation and licensing of jquery.textareahelper
  * see <https://github.com/Codecademy/textarea-helper>
+ * 
+ * @todo Use Colors library to style options to fit into each wiki
+ *       <http://dev.wikia.com/wiki/Colors>
+ *       or use wgSassParams when I get time
  */
 
 /*global
@@ -40,6 +44,7 @@
     'use strict';
     
     // create jquery.textareahelper module
+    // @todo move this into function when I'm feeling particularly active
     mw.loader.implement( 'jquery.textareahelper', [ 'http://camtest.wikia.com/index.php?title=MediaWiki:TextareaHelper.js&action=raw&ctype=text/javascript' ], {}, {} );
 
     var miniComplete = {
