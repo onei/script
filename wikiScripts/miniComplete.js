@@ -267,6 +267,7 @@
             );
 
             $( selector ).on( 'input', function () {
+                // hide minicomplete-options
                 miniComplete.findTerm( this );
             } );
 
@@ -466,6 +467,7 @@
          * 
          * @param result {array} Result from API
          * @todo Hide options if Esc key is pressed
+         * @link <http://jsfiddle.net/5KqmF/112/> Example
          */
         showSuggestions: function ( result ) {
 
@@ -473,10 +475,14 @@
                 options = [];
 
             for ( i = 0; i < result.length; i += 1 ) {
-                options.push( '<li class="">' + result[i].title + '</li>' );
+                options.push( '<li class="minicomplete-choose">' + result[i].title + '</li>' );
             }
             
+            // populate options
+            
             console.log( options );
+            
+            // show option list
         
         },
 
