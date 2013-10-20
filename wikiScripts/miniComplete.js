@@ -34,6 +34,9 @@
 
 /**
  * Textareahelper jQuery plugin
+ * 
+ * Has been slightly altered for coding conventions and to remove unnecessary functions
+ * 
  * @source <https://github.com/Codecademy/textarea-helper/blob/master/textarea-helper.js>
  */
 // disable indent warning
@@ -115,12 +118,6 @@
                         .scrollTop( this.$text.scrollTop() );
         };
 
-        this.destroy = function () {
-            this.$mirror.remove();
-            this.$text.removeData( dataKey );
-            return null;
-        };
-
         this.caretPos = function () {
             this.update();
             var $caret = this.$mirror.find( '.' + caretClass ),
@@ -132,12 +129,6 @@
             }
 
             return pos;
-        };
-
-        this.height = function () {
-            this.update();
-            this.$mirror.css( 'height', '' );
-            return this.$mirror.height();
         };
 
         // XBrowser caret position
@@ -479,7 +470,7 @@
                 options.push( '<li class="minicomplete-choose">' + result[i].title + '</li>' );
             }
 
-            console.log( options );
+            console.log( result, options );
 
             // append options to container
             $( '#minicomplete-list' ).html(
