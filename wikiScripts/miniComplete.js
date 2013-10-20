@@ -95,7 +95,7 @@
             ];
 
             mw.util.addCSS(
-                css.join()
+                css.join( '' )
             );
             
             // create options container
@@ -327,7 +327,7 @@
 
             // append options to container
             $( '#minicomplete-list' ).html(
-                options.join()
+                options.join( '' )
             );
             
             // position option list
