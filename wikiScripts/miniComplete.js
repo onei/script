@@ -48,6 +48,8 @@
          * Loading function
          */
         init: function () {
+            
+            console.log( 'miniComplete.init loaded');
 
             var selector = false,
                 config = mw.config.get( [
