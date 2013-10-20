@@ -211,7 +211,12 @@
                 config = mw.config.get( [
                     'wgCanonicalSpecialPageName',
                     'wgNamespaceNumber'
-                ] );
+                ] ),
+                css;
+                
+            if ( $( '#minicomplete-options' ).length ) {
+                return;
+            }
 
             // disable !! warnings
             /*jshint -W018 */
@@ -236,6 +241,30 @@
             if ( !selector ) {
                 return;
             }
+
+            // add css for options elements
+            css = [
+                '#minicomplete-options{display:none;position:absolute;}',
+                '#minicomplete-list{}',
+                '.minicomplete-choose{}'
+            ];
+
+            mw.util.addCSS(
+                css.join()
+            );
+            
+            // create options container
+            $( 'body' ).append(
+                $( '<div>' )
+                .attr( {
+                    id: 'minicomplete-options'
+                } ).append(
+                    $( '<ul>' )
+                    .attr( {
+                        id: 'minicomplete-list'
+                    } )
+                )
+            );
 
             $( selector ).on( 'input', function () {
                 miniComplete.findTerm( this );
@@ -441,35 +470,7 @@
         showSuggestions: function ( result ) {
 
             var i,
-                options = [],
-                css;
-
-            if ( !$( '#minicomplete-options' ).length ) {
-
-                $( 'body' ).append(
-                    $( '<div>' )
-                    .attr( {
-                        id: 'minicomplete-options'
-                    } ).append(
-                        $( '<ul>' )
-                        .attr( {
-                            // attr
-                        } )
-                    )
-                );
-
-                css = [
-                    // rule1
-                    // rule2
-                    // rule3
-                    // etc.
-                ];
-
-                mw.util.addCSS(
-                    css.join()
-                );
-
-            }
+                options = [];
 
             for ( i = 0; i < result.length; i += 1 ) {
                 options.push( '<li class="">' + result[i].title + '</li>' );
