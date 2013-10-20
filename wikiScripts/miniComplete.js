@@ -45,6 +45,8 @@
     
     // create jquery.textareahelper module
     // @todo move this into function when I'm feeling particularly active
+    // non jquery plugin - <http://stackoverflow.com/questions/16212871/get-the-offset-position-of-the-caret-in-a-textarea-in-pixels>
+    // (first answer)
     mw.loader.implement( 'jquery.textareahelper', [ 'http://camtest.wikia.com/index.php?title=MediaWiki:TextareaHelper.js&action=raw&ctype=text/javascript' ], {}, {} );
 
     var miniComplete = {
@@ -366,6 +368,7 @@
     };
 
     // lazy load dependencies and run miniComplete.init as a callback
+    // @todo remove dependencies to allow loading on .ready()
     mw.loader.using( [ 'mediawiki.api', 'mediawiki.util', 'jquery.textareahelper' ], miniComplete.init );
 
 }( document, jQuery, mediaWiki ) );
