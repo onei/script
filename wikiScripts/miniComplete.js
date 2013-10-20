@@ -40,7 +40,7 @@
     'use strict';
     
     // create jquery.textareahelper module
-    mw.loader.implement( 'jquery.textareaHelper', [ 'http://camtest.wikia.com/index.php?title=MediaWiki:TextareaHelper.js&action=raw&ctype=text/javascript' ], {}, {} );
+    mw.loader.implement( 'jquery.textareahelper', [ 'http://camtest.wikia.com/index.php?title=MediaWiki:TextareaHelper.js&action=raw&ctype=text/javascript' ], {}, {} );
 
     var miniComplete = {
 
