@@ -13,7 +13,7 @@
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
  *
- * For documentation and licensing of jQuery textareahelper plugin
+ * For documentation and licensing of jquery.textareaHelper
  * see <https://github.com/Codecademy/textarea-helper>
  */
 
@@ -32,164 +32,16 @@
     onevar:true
 */
 
-/**
- * Textareahelper jQuery plugin
- * 
- * Has been slightly altered for coding conventions and to remove unnecessary functions
- * 
- * @source <https://github.com/Codecademy/textarea-helper/blob/master/textarea-helper.js>
- */
 // disable indent warning
 /*jshint -W015 */
-;( function ( $ ) {
+;( function ( document, $, mw ) {
 /*jshint +W015 */
- 
-    'use strict';
-
-    var caretClass = 'textarea-helper-caret',
-        dataKey = 'textarea-helper',
-        // Styles that could influence size of the mirrored element
-        mirrorStyles = [
-            // Box Styles
-            'box-sizing', 'height', 'width', 'padding-bottom',
-            'padding-left', 'padding-right', 'padding-top',
-  
-            // Font stuff
-            'font-family', 'font-size', 'font-style',
-            'font-variant', 'font-weight',
-  
-            // Spacing etc.
-            'word-spacing', 'letter-spacing', 'line-height',
-            'text-decoration', 'text-indent', 'text-transform',
-                     
-            // Direction
-            'direction'
-        ],
-        TextareaHelper = function ( elem ) {
-
-            if ( elem.nodeName.toLowerCase() !== 'textarea' ) {
-                return;
-            }
-
-            this.$text = $( elem );
-            this.$mirror = $( '<div>' )
-                           // disable indent warning
-                           /*jshint -W015 */
-                           .css( {
-                               'position': 'absolute',
-                               'overflow': 'auto',
-                               'white-space': 'pre-wrap',
-                               'word-wrap': 'break-word',
-                               'top': 0,
-                               'left': -9999
-                           } )
-                           /*jshint +W015 */
-                           .insertAfter( this.$text );
-
-        };
-
-    ( function () {
-        this.update = function () {
-
-            // Copy styles.
-            var styles = {},
-                i,
-                caretPos,
-                str,
-                pre,
-                post,
-                $car;
-
-            for ( i = 0; i < mirrorStyles.length; i += 1 ) {
-                styles[ mirrorStyles[i] ] = this.$text.css( mirrorStyles[i] );
-            }
-
-            this.$mirror.css( styles ).empty();
-      
-            // Update content and insert caret.
-            caretPos = this.getOriginalCaretPos();
-            str = this.$text.val();
-            pre = document.createTextNode( str.substring( 0, caretPos ) );
-            post = document.createTextNode( str.substring( caretPos ) );
-            $car = $( '<span>' ).addClass( caretClass )
-                                .css( 'position', 'absolute' )
-                                .html( '&nbsp;' );
-            this.$mirror.append( pre, $car, post )
-                        .scrollTop( this.$text.scrollTop() );
-        };
-
-        this.caretPos = function () {
-            this.update();
-            var $caret = this.$mirror.find( '.' + caretClass ),
-                pos = $caret.position();
-
-            if ( this.$text.css( 'direction' ) === 'rtl' ) {
-                pos.right = this.$mirror.innerWidth() - pos.left - $caret.width();
-                pos.left = 'auto';
-            }
-
-            return pos;
-        };
-
-        // XBrowser caret position
-        // Adapted from http://stackoverflow.com/questions/263743/how-to-get-caret-position-in-textarea
-        this.getOriginalCaretPos = function () {
-            var text = this.$text[0],
-                r,
-                re,
-                rc;
-
-            if (text.selectionStart) {
-                return text.selectionStart;
-            } else if (document.selection) {
-
-                text.focus();
-                r = document.selection.createRange();
-                if ( !r ) {
-                    return 0;
-                }
-                re = text.createTextRange();
-                rc = re.duplicate();
-
-                re.moveToBookmark(r.getBookmark());
-                rc.setEndPoint('EndToStart', re);
-                return rc.text.length;
-            }
-
-            return 0;
-        };
-
-    } ).call( TextareaHelper.prototype );
-  
-    $.fn.textareaHelper = function ( method ) {
-
-        this.each( function () {
-            var $this = $( this ),
-                instance = $this.data( dataKey );
-
-            if ( !instance ) {
-                instance = new TextareaHelper( this );
-                $this.data( dataKey, instance );
-            }
-        } );
-
-        if ( method ) {
-            var instance = this.first().data( dataKey );
-            return instance[ method ]();
-        } else {
-            return this;
-        }
-
-    };
-
-}( jQuery ) );
-
-/**
- * MiniComplete code begins here
- */
-( function ( document, $, mw ) {
 
     'use strict';
+    
+    if ( !mw.loader.getState ( 'jquery.textareaHelper' ) ) {
+        mw.loader.implement( 'jquery.textareaHelper', [ 'http://camtest.wikia.com/index.php?title=MediaWiki:TextareaHelper.js&action=raw&ctype=text/javascript' ], {}, {} );
+    }
 
     var miniComplete = {
 
@@ -271,8 +123,8 @@
          * 
          * @param elem {string} Id of textarea to get caret position of.
          * @return {number} Caret position in string.
-         *                  if browser does not support caret position methods
-         *                  returns 0 to prevent errors
+         *                  If browser does not support caret position methods
+         *                  returns 0 to prevent syntax errors
          */
         getCaretPos: function ( selector ) {
 
@@ -474,7 +326,7 @@
 
             // append options to container
             $( '#minicomplete-list' ).html(
-                options.join();    
+                options.join()
             );
             
             // position option list
@@ -499,7 +351,7 @@
          */
         insertComplete: function ( elem ) {
             
-            var text = $( this ).text();
+            var text = $( elem ).text();
 
             console.log( text );
             
@@ -507,6 +359,8 @@
 
     };
 
-    $( miniComplete.init );
+    mw.loader.using( [ 'mw.api', 'mw.util', 'jquery.textareaHelper' ], function () {
+        $( miniComplete.init );
+    } );
 
 }( document, jQuery, mediaWiki ) );
