@@ -13,7 +13,7 @@
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
  *
- * For documentation and licensing of jquery.textareaHelper
+ * For documentation and licensing of jquery.textareahelper
  * see <https://github.com/Codecademy/textarea-helper>
  */
 
@@ -39,9 +39,8 @@
 
     'use strict';
     
-    if ( !mw.loader.getState ( 'jquery.textareaHelper' ) ) {
-        mw.loader.implement( 'jquery.textareaHelper', [ 'http://camtest.wikia.com/index.php?title=MediaWiki:TextareaHelper.js&action=raw&ctype=text/javascript' ], {}, {} );
-    }
+    // create jquery.textareahelper module
+    mw.loader.implement( 'jquery.textareaHelper', [ 'http://camtest.wikia.com/index.php?title=MediaWiki:TextareaHelper.js&action=raw&ctype=text/javascript' ], {}, {} );
 
     var miniComplete = {
 
@@ -359,8 +358,7 @@
 
     };
 
-    mw.loader.using( [ 'mw.api', 'mw.util', 'jquery.textareaHelper' ], function () {
-        $( miniComplete.init );
-    } );
+    // lazy load dependencies and run miniComplete.init as a callback
+    mw.loader.using( [ 'mediawiki.api', 'mediawiki.util', 'jquery.textareahelper' ], miniComplete.init );
 
 }( document, jQuery, mediaWiki ) );
