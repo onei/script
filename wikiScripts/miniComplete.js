@@ -8,7 +8,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.5.0
+ * @version 0.0.5.1
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -36,7 +36,7 @@
  * Textareahelper jQuery plugin
  * @source <https://github.com/Codecademy/textarea-helper/blob/master/textarea-helper.js>
  */
-// disable warning about ;(
+// disable indent warning
 /*jshint -W015 */
 ;( function ( $ ) {
 /*jshint +W015 */
@@ -70,6 +70,7 @@
 
             this.$text = $( elem );
             this.$mirror = $( '<div>' )
+                           // disable indent warning
                            /*jshint -W015 */
                            .css( {
                                'position': 'absolute',
@@ -78,7 +79,6 @@
                                'word-wrap': 'break-word',
                                'top': 0,
                                'left': -9999
-                               
                            } )
                            /*jshint +W015 */
                            .insertAfter( this.$text );
@@ -218,7 +218,8 @@
                 return;
             }
 
-            // disable !! warnings
+            // disable !! warnings (convert to boolean)
+            // because this is a bit prettier than a staggered if statement
             /*jshint -W018 */
             switch ( true ) {
             // Special:Upload
@@ -477,20 +478,40 @@
             for ( i = 0; i < result.length; i += 1 ) {
                 options.push( '<li class="minicomplete-choose">' + result[i].title + '</li>' );
             }
-            
-            // populate options
-            
+
             console.log( options );
+
+            // append options to container
+            $( '#minicomplete-list' ).html(
+                options.join();    
+            );
+            
+            // position option list
+            
+            // check if too close to top/bottom/sides of the screen
             
             // show option list
+            $( '#minicomplete-options' ).css( 'display', 'block' );
+            
+            // add onclick handler for inserting the option
+            $( '.minicomplete-choose' ).on( 'click', function () {
+                // miniComplete.insertComplete( this );
+                console.log( $( this ).text() );
+            } );
         
         },
 
         /**
          * Inserts selected suggestion
+         * 
+         * @param elem {jquery object}
          */
-        insertComplete: function () {
-        
+        insertComplete: function ( elem ) {
+            
+            var text = $( this ).text();
+
+            console.log( text );
+            
         }
 
     };
