@@ -19,6 +19,10 @@
  * @todo Use Colors library to style options to fit into each wiki
  *       <http://dev.wikia.com/wiki/Colors>
  *       or use wgSassParams when I get time
+ * 
+ * Imports for testing:
+ * - importScriptURI( 'https://raw.github.com/onei/script/master/wikiScripts/miniComplete.js' );
+ * - mw.loader.load( 'https://raw.github.com/onei/script/master/wikiScripts/miniComplete.js' );
  */
 
 /*global
@@ -269,8 +273,7 @@
                 title;
 
             // fix for when the namespace is preceeded by a :
-            // in a template transclusion
-            if ( term.indexOf( ':' ) === 0 && ns === 10 ) {
+            if ( term.indexOf( ':' ) === 0 ) {
                 term = term.substring( 1 );
             }
             
