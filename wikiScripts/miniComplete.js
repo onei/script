@@ -8,7 +8,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.5.1
+ * @version 0.0.6.0
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -159,6 +159,73 @@
             }
 
             return ( caretPos );
+
+        },
+        
+        /**
+         * Get x and y coordinates of caret
+         * 
+         * @source <http://stackoverflow.com/questions/16212871/get-the-offset-position-of-the-caret-in-a-textarea-in-pixels>
+         */
+        caretXYPos: function () {
+          
+            // do stuff
+            
+        },
+        
+        /**
+         * Insert stylesheet using colours set by ThemeDesigner
+         * 
+         * @todo Allow custom colours for when there's non-themedesigner colours
+         *       or custom monobook theme
+         */
+        insertCSS: function () {
+            
+            /*
+            // example mcCols object
+            window.mcCols = {
+                border: '#000',
+                text: '#000',
+                background: '#fff',
+                hoverText: '#000',
+                hoverBackground: '#aaa'
+            }
+            */
+            
+            var oasis = mw.config.get( 'skin' ) === 'oasis',
+                sassParams= mw.config.get( 'wgSassParams' ),
+                customCols = window.mcCols,
+                $body = $( 'body' ),
+                cols = {
+                    border: customCols.border ? customCols.border :
+                        $body.css( 'color' ),
+                    text: customCols.text ? customCols.border :
+                        $body.css( 'color' ),
+                    background: customCols.background ? customCols.background :
+                        $body.css( 'background-color' ),
+                    hoverText: customCols.background ? customCols.background :
+                                   oasis ? '#000',
+                                       '#000',
+                    hoverBackground: customCols.background ? customCols.background :
+                                         oasis ? '#aaa',
+                                             '#aaa'
+                },
+                style = document.createElement( 'style' ),
+                css;
+            
+            style.type = 'text/css';
+            
+            css = [
+                '',
+                '',
+                '',
+                '',
+                ''
+            ];
+            
+            style.innerHTML = css.join( '' );
+            
+            document.getElementsByTagName( 'head' )[0].appendChild( style );
 
         },
 
