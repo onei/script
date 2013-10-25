@@ -133,22 +133,21 @@
          * Gets caret position for detecting search term and inserting autocomplete term.
          * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
          * 
-         * @param elem {string} Id of textarea to get caret position of.
+         * @param elem {node} Textarea to get caret position of.
          * @return {number} Caret position in string.
          *                  If browser does not support caret position methods
          *                  returns 0 to prevent syntax errors
          */
-        getCaretPos: function ( selector ) {
+        getCaretPos: function ( elem ) {
 
-            var elem = document.getElementById( selector ),
-                caretPos = 0,
+            var caretPos = 0,
                 sel;
 
             // IE9 support
             // may need to exclude IE10 from this
             // Earlier versions of IE aren't supported so don't worry about them
             if ( document.selection ) {
-                elem.focus ();
+                elem.focus();
                 sel = document.selection.createRange();
                 sel.moveStart( 'character', -elem.value.length );
                 caretPos = sel.text.length;
@@ -193,7 +192,6 @@
             */
             
             var oasis = mw.config.get( 'skin' ) === 'oasis',
-                sassParams= mw.config.get( 'wgSassParams' ),
                 customCols = window.mcCols,
                 $body = $( 'body' ),
                 cols = {
@@ -204,17 +202,19 @@
                     background: customCols.background ? customCols.background :
                         $body.css( 'background-color' ),
                     hoverText: customCols.background ? customCols.background :
-                                   oasis ? '#000',
-                                       '#000',
+                        oasis ? '#000' :
+                            '#000',
                     hoverBackground: customCols.background ? customCols.background :
-                                         oasis ? '#aaa',
-                                             '#aaa'
+                        oasis ? '#aaa':
+                            '#aaa'
                 },
                 style = document.createElement( 'style' ),
                 css;
             
             style.type = 'text/css';
             
+            console.log( cols );
+          
             css = [
                 '',
                 '',
@@ -236,10 +236,8 @@
          */
         findTerm: function ( elem ) {
 
-                // for use in getCaretPos
-            var textarea = $( elem ).attr( 'id' ),
                 // text to search for
-                searchText = $( elem ).val().substring( 0, miniComplete.getCaretPos( textarea ) ),
+            var searchText = $( elem ).val().substring( 0, miniComplete.getCaretPos( elem ) ),
                 // for separating search term
                 linkCheck = searchText.lastIndexOf( '[['),
                 templateCheck = searchText.lastIndexOf( '{{' ),
