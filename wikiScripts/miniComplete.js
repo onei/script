@@ -47,11 +47,8 @@
 
     'use strict';
     
-    // create jquery.textareahelper module
-    // @todo move this into function when I'm feeling particularly active
-    // non jquery plugin - <http://stackoverflow.com/questions/16212871/get-the-offset-position-of-the-caret-in-a-textarea-in-pixels>
-    // (first answer)
-    mw.loader.implement( 'jquery.textareahelper', [ 'http://camtest.wikia.com/index.php?title=MediaWiki:TextareaHelper.js&action=raw&ctype=text/javascript' ], {}, {} );
+    // implement colors module
+    mw.loader.implement( 'dev.colors', [ 'http://dev.wikia.com/wiki/Colors/code.js?action=raw&ctype=javascript' ], {}, {} );
 
     var miniComplete = {
 
@@ -191,41 +188,28 @@
             }
             */
             
-            var oasis = mw.config.get( 'skin' ) === 'oasis',
-                customCols = window.mcCols,
-                $body = $( 'body' ),
-                cols = {
-                    border: customCols.border ? customCols.border :
-                        $body.css( 'color' ),
-                    text: customCols.text ? customCols.border :
-                        $body.css( 'color' ),
-                    background: customCols.background ? customCols.background :
-                        $body.css( 'background-color' ),
-                    hoverText: customCols.background ? customCols.background :
-                        oasis ? '#000' :
-                            '#000',
-                    hoverBackground: customCols.background ? customCols.background :
-                        oasis ? '#aaa':
-                            '#aaa'
-                },
-                style = document.createElement( 'style' ),
+            // use dev.colors
+            /*
+            var pagebground = dev.colors.parse( dev.colors.wikia.page ),
+                buttons = dev.colors.parse( dev.colors.wikia.menu ),
+                mix = pagebground.mix( buttons, 20 ),
                 css;
+                
+            if ( !pagebground.isBright() ){
+                mix = mix.lighten( 8 );
+            }
             
-            style.type = 'text/css';
-            
-            console.log( cols );
-          
             css = [
-                '',
-                '',
-                '',
-                '',
-                ''
-            ];
+                '#wrapper{border:2px solid #000;background-color:$page;color:$text;position:absolute;z-index:5;}',
+                '.option{border-top:1px solid $border;padding:5px 10px;}
+                '.option:first-child{border-top:none;}',
+                '.option:hover{background-color:$mix;}'
+            ]
+            dev.colors.css( css.join( '' ), {
+                $mix: mix
+            } );
             
-            style.innerHTML = css.join( '' );
-            
-            document.getElementsByTagName( 'head' )[0].appendChild( style );
+            */
 
         },
 
@@ -437,6 +421,6 @@
 
     // lazy load dependencies and run miniComplete.init as a callback
     // @todo remove dependencies to allow loading on .ready()
-    mw.loader.using( [ 'mediawiki.api', 'mediawiki.util', 'jquery.textareahelper' ], miniComplete.init );
+    mw.loader.using( [ 'dev.colors' ], miniComplete.init );
 
 }( document, jQuery, mediaWiki ) );
