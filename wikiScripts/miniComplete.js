@@ -102,6 +102,9 @@ this.dev = this.dev || {};
 
             $( selector ).on( 'input', function () {
                 // hide minicomplete-options
+                $( '#minicomplete-wrapper' ).hide();
+                
+                // run api query
                 module.findTerm( this );
             } );
 
@@ -389,10 +392,15 @@ this.dev = this.dev || {};
             // check if too close to top/bottom/sides of the screen
             
             // show option list
-            $( '#minicomplete-options' ).css( 'display', 'block' );
+            $( '#minicomplete-wrapper' ).show();
+            // temp css until we can use dependent
+            $( '#minicomplete-wrapper' ).css( {
+                position: 'fixed',
+                top: '0'
+            } );
             
             // add onclick handler for inserting the option
-            $( '.minicomplete-choose' ).on( 'click', function () {
+            $( '.minicomplete-option' ).on( 'click', function () {
                 // module.insertComplete( this );
                 console.log( $( this ).text() );
             } );
