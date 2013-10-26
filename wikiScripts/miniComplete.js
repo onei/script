@@ -188,7 +188,8 @@ this.dev = this.dev || {};
             
             css = [
                 '#minicomplete-wrapper{border:2px solid #000;background-color:$page;color:$text;position:absolute;z-index:5;display:none;}',
-                '.minicomplete-option{border-top:1px solid $border;padding:5px 10px;}',
+                '#minicomplete-list{margin:0;}'
+                '.minicomplete-option{border-top:1px solid $border;padding:5px 10px;list-style:none;margin:0;}',
                 '.minicomplete-option:first-child{border-top:none;}',
                 '.minicomplete-option:hover{background-color:$mix;}'
             ];
