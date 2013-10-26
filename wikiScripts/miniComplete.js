@@ -100,7 +100,7 @@ this.dev = this.dev || {};
             // if pressing escape key hide options menu
             $( document ).on( 'keydown', function ( e ) {
                 if ( e.keyCode === 27 ) {
-                    console.lof( 'esc key pressed' );
+                    console.log( 'esc key pressed' );
                     $( '#minicomplete-wrapper' ).hide();
                 }
             } );
