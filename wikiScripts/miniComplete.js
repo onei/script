@@ -238,6 +238,11 @@ this.dev = this.dev || {};
                 return;
             }
 
+            // fix for when the namespace is preceeded by a :
+            if ( term.indexOf( ':' ) === 0 ) {
+                term = term.substring( 1 );
+            }
+
             if ( linkCheck > -1 ) {
 
                 if ( linkCheck < searchText.lastIndexOf( ']]' ) ) {
@@ -318,11 +323,6 @@ this.dev = this.dev || {};
                 termSplit,
                 namespaceId,
                 title;
-
-            // fix for when the namespace is preceeded by a :
-            if ( term.indexOf( ':' ) === 0 ) {
-                term = term.substring( 1 );
-            }
             
             if ( term.indexOf( ':' ) > -1 ) {
 
