@@ -26,7 +26,7 @@
  */
 
 /*global
-    mediaWiki:true
+    mediaWiki:true, dev:true
 */
 
 /*jshint
@@ -40,9 +40,13 @@
     onevar:true
 */
 
+// create globals
+this.dev = this.dev || {};
+
+
 // disable indent warning
 /*jshint -W015 */
-;( function ( document, $, mw ) {
+;( function ( document, $, mw, module ) {
 /*jshint +W015 */
 
     'use strict';
@@ -50,14 +54,14 @@
     // implement colors module
     mw.loader.implement( 'dev.colors', [ 'http://dev.wikia.com/wiki/Colors/code.js?action=raw&ctype=javascript' ], {}, {} );
 
-    var miniComplete = {
+    module = {
 
         /**
          * Loading function
          */
         init: function () {
             
-            console.log( 'miniComplete.init loaded');
+            console.log( 'init loaded');
 
             var selector = false,
                 config = mw.config.get( [
@@ -95,33 +99,12 @@
                 return;
             }
 
-            // add css for options elements
-            css = [
-                '#minicomplete-options{display:none;position:absolute;}',
-                '#minicomplete-list{}',
-                '.minicomplete-choose{}'
-            ];
-
-            mw.util.addCSS(
-                css.join( '' )
-            );
-            
-            // create options container
-            $( 'body' ).append(
-                $( '<div>' )
-                .attr( {
-                    id: 'minicomplete-options'
-                } ).append(
-                    $( '<ul>' )
-                    .attr( {
-                        id: 'minicomplete-list'
-                    } )
-                )
-            );
+            module.insertCSS();
+            module.insertMenu()
 
             $( selector ).on( 'input', function () {
                 // hide minicomplete-options
-                miniComplete.findTerm( this );
+                module.findTerm( this );
             } );
 
         },
@@ -187,9 +170,7 @@
                 hoverBackground: '#aaa'
             }
             */
-            
-            // use dev.colors
-            /*
+
             var pagebground = dev.colors.parse( dev.colors.wikia.page ),
                 buttons = dev.colors.parse( dev.colors.wikia.menu ),
                 mix = pagebground.mix( buttons, 20 ),
@@ -200,17 +181,32 @@
             }
             
             css = [
-                '#wrapper{border:2px solid #000;background-color:$page;color:$text;position:absolute;z-index:5;}',
-                '.option{border-top:1px solid $border;padding:5px 10px;}
-                '.option:first-child{border-top:none;}',
-                '.option:hover{background-color:$mix;}'
+                '#minicomplete-wrapper{border:2px solid #000;background-color:$page;color:$text;position:absolute;z-index:5;}',
+                '.minicomplete-option{border-top:1px solid $border;padding:5px 10px;}
+                '.minicomplete-option:first-child{border-top:none;}',
+                '.minicomplete-option:hover{background-color:$mix;}'
             ]
             dev.colors.css( css.join( '' ), {
                 $mix: mix
             } );
-            
-            */
 
+        },
+        
+        /**
+         * 
+         */
+        insertMenu: function () {
+          
+            var container = document.createElement( 'div' ),
+                list = document.createElement( 'ul' );
+            
+            container.id = 'minicomplete-wrapper';
+            list.id = 'minicomplete-list';
+            
+            container.appendChild( list );
+            
+            document.getElementsByTagName( 'body' )[0].appendChild( container );
+            
         },
 
         /**
@@ -379,7 +375,7 @@
                 options = [];
 
             for ( i = 0; i < result.length; i += 1 ) {
-                options.push( '<li class="minicomplete-choose">' + result[i].title + '</li>' );
+                options.push( '<li class="minicomplete-option">' + result[i].title + '</li>' );
             }
 
             console.log( result, options );
@@ -423,4 +419,4 @@
     // @todo remove dependencies to allow loading on .ready()
     mw.loader.using( [ 'dev.colors' ], miniComplete.init );
 
-}( document, jQuery, mediaWiki ) );
+}( document, jQuery, mediaWiki, dev.miniEditor ) );
