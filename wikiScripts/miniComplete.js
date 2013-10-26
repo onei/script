@@ -238,11 +238,6 @@ this.dev = this.dev || {};
                 return;
             }
 
-            // fix for when the namespace is preceeded by a :
-            if ( term.indexOf( ':' ) === 0 ) {
-                term = term.substring( 1 );
-            }
-
             if ( linkCheck > -1 ) {
 
                 if ( linkCheck < searchText.lastIndexOf( ']]' ) ) {
@@ -258,6 +253,11 @@ this.dev = this.dev || {};
 
                     if ( term.match( illegalChars ) ) {
                         return;
+                    }
+                    
+                    // fix for when the namespace is preceeded by a :
+                    if ( term.indexOf( ':' ) === 0 ) {
+                        term = term.substring( 1 );
                     }
 
                     // prevent searches for empty strings
@@ -287,6 +287,11 @@ this.dev = this.dev || {};
 
                     if ( term.match( illegalChars ) ) {
                         return;
+                    }
+                    
+                    // fix for when the namespace is preceeded by a :
+                    if ( term.indexOf( ':' ) === 0 ) {
+                        term = term.substring( 1 );
                     }
 
                     // prevent searches for empty strings
