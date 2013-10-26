@@ -399,10 +399,6 @@ this.dev = this.dev || {};
                 options.join( '' )
             );
             
-            // position option list
-            
-            // check if too close to top/bottom/sides of the screen
-            
             // show option list
             $( '#minicomplete-wrapper' ).show();
             // temp css until we can use dependent
@@ -410,6 +406,9 @@ this.dev = this.dev || {};
                 position: 'fixed',
                 top: '0'
             } );
+            
+            // position option list
+            // check if too close to top/bottom/sides of the screen
             
             // add onclick handler for inserting the option
             $( '.minicomplete-option' ).on( 'click', function () {
