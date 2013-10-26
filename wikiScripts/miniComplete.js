@@ -8,13 +8,10 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.6.0
+ * @version 0.0.6.1
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
- *
- * For documentation and licensing of jquery.textareahelper
- * see <https://github.com/Codecademy/textarea-helper>
  * 
  * @todo Use Colors library to style options to fit into each wiki
  *       <http://dev.wikia.com/wiki/Colors>
@@ -99,6 +96,14 @@ this.dev = this.dev || {};
 
             module.insertCSS();
             module.insertMenu();
+            
+            // if pressing escape key hide options menu
+            $( document ).on( 'keydown', function () {
+                if ( e.keyCode === 27 ) {
+                    console.lof( 'esc key pressed' );
+                    $( '#minicomplete-wrapper' ).hide();
+                }
+            } );
 
             $( selector ).on( 'input', function () {
                 // hide minicomplete-options
@@ -182,12 +187,13 @@ this.dev = this.dev || {};
             }
             
             css = [
-                '#minicomplete-wrapper{border:2px solid #000;background-color:$page;color:$text;position:absolute;z-index:5;}',
+                '#minicomplete-wrapper{border:2px solid #000;background-color:$page;color:$text;position:absolute;z-index:5;display:none;}',
                 '.minicomplete-option{border-top:1px solid $border;padding:5px 10px;}',
                 '.minicomplete-option:first-child{border-top:none;}',
                 '.minicomplete-option:hover{background-color:$mix;}'
             ];
-          
+            
+            // FIXME: $mix does not work
             dev.colors.css( css.join( '' ), {
                 $mix: mix
             } );
@@ -215,6 +221,8 @@ this.dev = this.dev || {};
          * Counts back from caret position looking for unclosed {{ or [[
          *
          * @param elem {jquery object} Element to look for search term within
+         * @todo Pass what kind of bracket is being used on
+         *       [ or { for use in insertTerm
          */
         findTerm: function ( elem ) {
 
@@ -373,7 +381,6 @@ this.dev = this.dev || {};
          * Inserts list of options to select from
          * 
          * @param result {array} Result from API
-         * @todo Hide options if Esc key is pressed
          * @link <http://jsfiddle.net/5KqmF/112/> Example
          */
         showSuggestions: function ( result ) {
@@ -415,20 +422,32 @@ this.dev = this.dev || {};
         /**
          * Inserts selected suggestion
          * 
-         * @param elem {jquery object}
+         * @param complete {string}
+         * @param type {string} 'template' or 'link'
          */
-        insertComplete: function ( elem ) {
+        insertComplete: function ( complete, type ) {
             
-            var text = $( elem ).text();
+            var insertAfter = type === 'link' ? '[[' : '{{';
+            
+            console.log( complete );
+            
+            // strip template namespace if applicable
+            
+            // count back from caret position to {{ or [[
+            
+            // reselect term
+            // replace term with suggestion
+            // add closing }} or ]] to suggestion
+            
+            // hide options menu
 
-            console.log( text );
-            
         }
 
     };
 
-    // lazy load dependencies and run miniComplete.init as a callback
-    // @todo remove dependencies to allow loading on .ready()
+    // lazy load dependencies and run module.init as a callback
+    // $( function ) is not used as it's very unlikely this will run before .ready()
+    // due to creating dev.colors module
     mw.loader.using( [ 'dev.colors' ], module.init );
 
 }( document, jQuery, mediaWiki, dev.miniEditor ) );
