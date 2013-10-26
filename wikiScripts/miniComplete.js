@@ -98,7 +98,7 @@ this.dev = this.dev || {};
             module.insertMenu();
             
             // if pressing escape key hide options menu
-            $( document ).on( 'keydown', function () {
+            $( document ).on( 'keydown', function ( e ) {
                 if ( e.keyCode === 27 ) {
                     console.lof( 'esc key pressed' );
                     $( '#minicomplete-wrapper' ).hide();
