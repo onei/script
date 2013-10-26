@@ -43,7 +43,6 @@
 // create globals
 this.dev = this.dev || {};
 
-
 // disable indent warning
 /*jshint -W015 */
 ;( function ( document, $, mw, module ) {
@@ -67,8 +66,7 @@ this.dev = this.dev || {};
                 config = mw.config.get( [
                     'wgCanonicalSpecialPageName',
                     'wgNamespaceNumber'
-                ] ),
-                css;
+                ] );
                 
             if ( $( '#minicomplete-options' ).length ) {
                 return;
@@ -100,7 +98,7 @@ this.dev = this.dev || {};
             }
 
             module.insertCSS();
-            module.insertMenu()
+            module.insertMenu();
 
             $( selector ).on( 'input', function () {
                 // hide minicomplete-options
@@ -185,7 +183,8 @@ this.dev = this.dev || {};
                 '.minicomplete-option{border-top:1px solid $border;padding:5px 10px;}',
                 '.minicomplete-option:first-child{border-top:none;}',
                 '.minicomplete-option:hover{background-color:$mix;}'
-            ]
+            ];
+          
             dev.colors.css( css.join( '' ), {
                 $mix: mix
             } );
@@ -217,7 +216,7 @@ this.dev = this.dev || {};
         findTerm: function ( elem ) {
 
                 // text to search for
-            var searchText = $( elem ).val().substring( 0, miniComplete.getCaretPos( elem ) ),
+            var searchText = $( elem ).val().substring( 0, module.getCaretPos( elem ) ),
                 // for separating search term
                 linkCheck = searchText.lastIndexOf( '[['),
                 templateCheck = searchText.lastIndexOf( '{{' ),
@@ -259,7 +258,7 @@ this.dev = this.dev || {};
                     }
 
                     console.log( term );
-                    miniComplete.getSuggestions( term, 0 );
+                    module.getSuggestions( term, 0 );
 
                 }
 
@@ -288,7 +287,7 @@ this.dev = this.dev || {};
                     }
 
                     console.log( term );
-                    miniComplete.getSuggestions( term, 10 );
+                    module.getSuggestions( term, 10 );
 
                 }
 
@@ -353,7 +352,7 @@ this.dev = this.dev || {};
                                     return;
                                 }
 
-                                miniComplete.showSuggestions( data.query.allpages );
+                                module.showSuggestions( data.query.allpages );
 
                             } )
                             .error( function ( error ) {
@@ -394,7 +393,7 @@ this.dev = this.dev || {};
             
             // add onclick handler for inserting the option
             $( '.minicomplete-choose' ).on( 'click', function () {
-                // miniComplete.insertComplete( this );
+                // module.insertComplete( this );
                 console.log( $( this ).text() );
             } );
         
@@ -417,6 +416,6 @@ this.dev = this.dev || {};
 
     // lazy load dependencies and run miniComplete.init as a callback
     // @todo remove dependencies to allow loading on .ready()
-    mw.loader.using( [ 'dev.colors' ], miniComplete.init );
+    mw.loader.using( [ 'dev.colors' ], module.init );
 
 }( document, jQuery, mediaWiki, dev.miniEditor ) );
