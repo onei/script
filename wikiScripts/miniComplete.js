@@ -111,6 +111,18 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 console.log( 'esc key pressed' );
                 $( '#minicomplete-wrapper' ).hide();
             }
+            
+            if ( e.keyCode === 38 ) {
+                console.log( 'up key pressed' );
+            }
+            
+            if ( e.keyCode === 40 ) {
+                console.log( 'down key pressed' );
+            }
+            
+            if ( e.keyCode === 13 ) {
+                console.log( 'enter key pressed' );
+            }
         } );
 
         $( selector ).on( 'input', function () {
