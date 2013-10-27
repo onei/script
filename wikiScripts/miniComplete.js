@@ -148,6 +148,10 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             
             if ( e.keyCode === 13 ) {
                 console.log( 'enter key pressed' );
+                if ( $select.length ) {
+                    e.preventDefault();
+                    console.log( $select.text() );
+                }
             }
         } );
 
