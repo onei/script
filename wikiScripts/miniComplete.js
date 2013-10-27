@@ -8,7 +8,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.7.1
+ * @version 0.0.7.2
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -130,14 +130,14 @@ this.dev.miniComplete = this.dev.miniComplete || {};
      * Gets caret position for detecting search term and inserting autocomplete term.
      * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
      * 
-     * @param elem {node} Textarea to get caret position of.
      * @return {number} Caret position in string.
      *                  If browser does not support caret position methods
      *                  returns 0 to prevent syntax errors
      */
-    module.getCaretPos = function ( elem ) {
+    module.getCaretPos = function () {
 
-        var caretPos = 0,
+        var elem = module.elem,
+            caretPos = 0,
             sel;
 
         // IE9 support
@@ -241,7 +241,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
     module.findTerm = function ( elem ) {
 
             // text to search for
-        var searchText = $( elem ).val().substring( 0, module.getCaretPos( elem ) ),
+        var searchText = $( elem ).val().substring( 0, module.getCaretPos() ),
             // for separating search term
             linkCheck = searchText.lastIndexOf( '[['),
             templateCheck = searchText.lastIndexOf( '{{' ),
@@ -451,26 +451,26 @@ this.dev.miniComplete = this.dev.miniComplete || {};
     /**
      * Inserts selected suggestion
      * 
-     * @param complete {string}
+     * @param complete {string} Search suggestion to insert
+     * @todo Allow user to navigate through suggestions with up/down keys
      */
     module.insertComplete = function ( complete ) {
 
         console.log( complete, module.type );
 
-        var caret = module.getCaretPos( module.elem ),
+        var caret = module.getCaretPos(),
             val = $( module.elem ).val(),
             text = val.substring( 0, caret ),
             open = module.type,
-            close = module.type === '[[' ? ']]' : '}}',
-            before = text.substring( 0, text.lastIndexOf( module.type ) ),
-            colon = text[ text.lastIndexOf( module.type ) + 2 ] === ':';
+            close = open === '[[' ? ']]' : '}}',
+            before = text.substring( 0, text.lastIndexOf( open ) );
         
         // strip template namespace for template transclusion
         if ( module.type === '{{' && complete.split(':')[0] === 'Template' ) {
             complete = complete.split(':')[1];
         }
         
-        if ( colon ) {
+        if ( text[ text.lastIndexOf( open ) + 2 ] === ':' ) {
             open += ':';
         }
 
