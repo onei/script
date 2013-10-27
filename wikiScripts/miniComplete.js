@@ -8,7 +8,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.7.2
+ * @version 0.0.7.3
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -114,9 +114,10 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         } );
 
         $( selector ).on( 'input', function () {
-            // hide minicomplete-options
+            // hide and empty minicomplete menu
             $( '#minicomplete-wrapper' ).hide();
-
+            $( '#minicomplete-list' ).empty();
+            
             // store node for later use
             module.elem = this;
             
@@ -445,25 +446,70 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             module.insertComplete( $( this ).text() );
         } );
         
-        /*
         // allows user to navigate through suggestions with up/down keys
         $( document ).on( 'keydown', function ( e ) {
+            
+            var $option = $( 'minicomplete-option' ),
+                i;
+            
+            if ( !$option.length ) {
+                return;
+            }
+            
             // down key pressed
             if ( e.keyCode === 40 ) {
-                // no option selected
+                
+                // if no option selected
                 if ( !$( '.minicomplete-option.selected' ).length ) {
-                    $( $( '.minicomplete-option' )[0] ).addClass( 'selected' );
+                    $( $option[0] ).addClass( 'selected' );
+                // else select next option
+                } else {
+                    for ( i = 0; i < $option.length; i += 1 ) {
+                        if ( $( $option[i] ).hasClass( 'selected' ) ) {
+                            // remove previous class
+                            $( $option[i] ).removeClass( 'selected' );
+                            
+                            // if at end of list start at top of list
+                            if ( $option[i] === ( $option.length - 1 ) ) {
+                                $( $option[0] ).addClass( 'selected' );
+                            // else move on to next
+                            } else {
+                                $( $option[i + 1] ).addClass( 'selected' );
+                            }
+                            
+                            // exit loop
+                            return;
+                        }
+                    }
                 }
-                
-                // option selected
-                // remember to remove previous .selected class
-                
-                // if at end of list go back to top
             }
             
             // up key pressed
             if ( e.keyCode === 38 ) {
-                // same as down key stuff, but in reverse
+                
+                // if no option selected
+                if ( !$( '.minicomplete-option.selected' ).length ) {
+                    $( $option[$option.length -1] ).addClass( 'selected' );
+                // else select next option
+                } else {
+                    for ( i = 0; i < $option.length; i += 1 ) {
+                        if ( $( $option[i] ).hasClass( 'selected' ) ) {
+                            // remove previous class
+                            $( $option[i] ).removeClass( 'selected' );
+                            
+                            // if at strat of list start at bottom of list
+                            if ( $option[i] === $option[0] ) {
+                                $( $option[$option.length - 1] ).addClass( 'selected' );
+                            // else move on to next
+                            } else {
+                                $( $option[i - 1] ).addClass( 'selected' );
+                            }
+                            
+                            // exit loop
+                            return;
+                        }
+                    }
+                }
             }
             
             // enter key pressed and option is selected
@@ -474,11 +520,10 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         } );
         
         // clear .selected class on hover
-        // css :hover pseudo-class does hover colour chnage instead
-        $( '.minicomplete-option.selected' ).on( 'hover', function () {
-            $( this ).removeClass( 'selected' );
+        // css :hover pseudo-class does hover colour change instead
+        $( '.minicomplete-option' ).on( 'hover', function () {
+            $( '.minicomplete-option' ).removeClass( 'selected' );
         } );
-        */
 
     };
 
@@ -514,8 +559,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             before + open + complete + close + val.substring( caret )
         );
         
-        // hide the options
+        // hide and empty the options
         $( '#minicomplete-wrapper' ).hide();
+        $( '#minicomplete-list' ).empty();
 
         console.log( 'boom' );
 
