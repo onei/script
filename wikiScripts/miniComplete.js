@@ -8,7 +8,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.7.0
+ * @version 0.0.7.1
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -460,24 +460,27 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         var caret = module.getCaretPos( module.elem ),
             val = $( module.elem ).val(),
             text = val.substring( 0, caret ),
+            open = module.type,
             close = module.type === '[[' ? ']]' : '}}',
             before = text.substring( 0, text.lastIndexOf( module.type ) ),
-            colon = text[ text.lastIndexOf( module.type ) + 2 ];
+            colon = text[ text.lastIndexOf( module.type ) + 2 ] === ':';
         
         // strip template namespace for template transclusion
         if ( module.type === '{{' && complete.split(':')[0] === 'Template' ) {
             complete = complete.split(':')[1];
         }
-
-        console.log( colon );
         
-        // count back from caret position to {{ or [[
+        if ( colon ) {
+            open += ':';
+        }
 
-        // reselect term
-        // replace term with suggestion
-        // add closing }} or ]] to suggestion
+        $( module.elem ).val(
+            before + open + complete + close + val.substring( caret )
+        );
+        
+        $( '#minicomplete-wrapper' ).hide();
 
-        // hide options menu
+        console.log( 'boom' );
 
     };
 
