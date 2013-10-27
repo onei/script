@@ -89,7 +89,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         // we need Colors after this point
         // so declare our dependencies and run the rest of the script
         // in the callback
-        mw.loader.using( [ 'dev.colors' ], function () {
+        mw.loader.using( [ 'dev.colors', 'mediawiki.api' ], function () {
             module.load( selector );
         } );
 
