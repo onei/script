@@ -42,84 +42,83 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
     'use strict';
     
+    // @todo don't do this on every page load
     // implement colors module
     mw.loader.implement( 'dev.colors', [ 'http://dev.wikia.com/wiki/Colors/code.js?action=raw&ctype=javascript' ], {}, {} );
 
-    module = {
-
-        /**
-         * Loading function
-         */
-        init: function () {
+    /**
+     * Loading function
+     */
+    module.init =  function () {
             
-            console.log( 'init loaded');
+        console.log( 'init loaded');
 
-            var selector = false,
-                config = mw.config.get( [
-                    'wgCanonicalSpecialPageName',
-                    'wgNamespaceNumber'
-                ] );
+        var selector = false,
+            config = mw.config.get( [
+                'wgCanonicalSpecialPageName',
+                'wgNamespaceNumber'
+            ] );
                 
-            if ( $( '#minicomplete-options' ).length ) {
-                return;
-            }
+        if ( $( '#minicomplete-options' ).length ) {
+            return;
+        }
 
-            // disable !! warnings (convert to boolean)
-            // because this is a bit prettier than a staggered if statement/ternary
-            /*jshint -W018 */
-            switch ( true ) {
-            // Special:Upload
-            case !!( config.wgCanonicalSpecialPageName === 'Upload' ):
-                selector = '#wpUploadDescription';
-                break;
-            // Article and Blog comments
-            case !!( $( '#WikiaArticleComments' ).length ):
-            // Message wall comments
-            case !!( config.wgNamespaceNumber === 1200 ):
-            // Special:Forum posts (Thread namespace)
-            case !!( config.wgNamespaceNumber === 1201 ):
-            // Special:Forum posts (Board namespace)
-            case !!( config.wgNamespaceNumber === 2000 ):
-                selector = '.wikiaEditor';
-                break;
-            }
-            /*jshint +W018 */
+        // disable !! warnings (convert to boolean)
+        // because this is a bit prettier than a staggered if statement/ternary
+        /*jshint -W018 */
+        switch ( true ) {
+        // Special:Upload
+        case !!( config.wgCanonicalSpecialPageName === 'Upload' ):
+            selector = '#wpUploadDescription';
+            break;
+        // Article and Blog comments
+        case !!( $( '#WikiaArticleComments' ).length ):
+        // Message wall comments
+        case !!( config.wgNamespaceNumber === 1200 ):
+        // Special:Forum posts (Thread namespace)
+        case !!( config.wgNamespaceNumber === 1201 ):
+        // Special:Forum posts (Board namespace)
+        case !!( config.wgNamespaceNumber === 2000 ):
+            selector = '.wikiaEditor';
+            break;
+        }
+        /*jshint +W018 */
 
-            if ( !selector ) {
-                return;
-            }
+        if ( !selector ) {
+            return;
+        }
 
-            module.insertCSS();
-            module.insertMenu();
+        module.insertCSS();
+        module.insertMenu();
             
-            // if pressing escape key hide options menu
-            $( document ).on( 'keydown', function ( e ) {
-                if ( e.keyCode === 27 ) {
-                    console.log( 'esc key pressed' );
-                    $( '#minicomplete-wrapper' ).hide();
-                }
-            } );
-
-            $( selector ).on( 'input', function () {
-                // hide minicomplete-options
+        // if pressing escape key hide options menu
+        $( document ).on( 'keydown', function ( e ) {
+            if ( e.keyCode === 27 ) {
+                console.log( 'esc key pressed' );
                 $( '#minicomplete-wrapper' ).hide();
-                
-                // run api query
-                module.findTerm( this );
-            } );
+            }
+        } );
 
-        },
+        $( selector ).on( 'input', function () {
+            // hide minicomplete-options
+            $( '#minicomplete-wrapper' ).hide();
 
-        /**
-         * Gets caret position for detecting search term and inserting autocomplete term.
-         * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
-         * 
-         * @param elem {node} Textarea to get caret position of.
-         * @return {number} Caret position in string.
-         *                  If browser does not support caret position methods
-         *                  returns 0 to prevent syntax errors
-         */
-        getCaretPos: function ( elem ) {
+            // run api query
+            module.findTerm( this );
+        } );
+
+    };
+
+    /**
+     * Gets caret position for detecting search term and inserting autocomplete term.
+     * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
+     * 
+     * @param elem {node} Textarea to get caret position of.
+     * @return {number} Caret position in string.
+     *                  If browser does not support caret position methods
+     *                  returns 0 to prevent syntax errors
+     */
+    module.getCaretPos = function ( elem ) {
 
             var caretPos = 0,
                 sel;
@@ -140,18 +139,18 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
             return ( caretPos );
 
-        },
+        };
         
         /**
          * Get x and y coordinates of caret
          * 
          * @source <http://stackoverflow.com/questions/16212871/get-the-offset-position-of-the-caret-in-a-textarea-in-pixels>
          */
-        caretXYPos: function () {
+        module.caretXYPos = function () {
           
             // do stuff
             
-        },
+        };
         
         /**
          * Insert stylesheet using colours set by ThemeDesigner
@@ -159,7 +158,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
          * @todo Allow custom colours for when there's non-themedesigner colours
          *       or custom monobook theme
          */
-        insertCSS: function () {
+        module.insertCSS = function () {
             
             /*
             // example mcCols object
@@ -202,7 +201,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
          * Inserts options div container and ul
          * So it's ready for populating with li elements when required
          */
-        insertMenu: function () {
+        module.insertMenu = function () {
           
             var container = document.createElement( 'div' ),
                 list = document.createElement( 'ul' );
@@ -214,7 +213,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             
             document.getElementsByTagName( 'body' )[0].appendChild( container );
             
-        },
+        };
 
         /**
          * Counts back from caret position looking for unclosed {{ or [[
@@ -223,7 +222,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
          * @todo Pass what kind of bracket is being used on
          *       [ or { for use in insertTerm
          */
-        findTerm: function ( elem ) {
+        module.findTerm = function ( elem ) {
 
                 // text to search for
             var searchText = $( elem ).val().substring( 0, module.getCaretPos( elem ) ),
@@ -313,7 +312,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
             }
 
-        },
+        };
 
         /**
          * Queries mw api for possible suggestions
@@ -322,7 +321,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
          * @param term {string} Page title to search for
          * @param ns {integer} Namespace to search in
          */
-        getSuggestions: function ( term, ns ) {
+        module.getSuggestions = function ( term, ns ) {
 
             var query = {
                     action: 'query',
@@ -374,7 +373,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                                 console.log( 'API error: (', error );
                             } );
 
-        },
+        };
 
         /**
          * Inserts list of options to select from
@@ -382,7 +381,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
          * @param result {array} Result from API
          * @link <http://jsfiddle.net/5KqmF/112/> Example
          */
-        showSuggestions: function ( result ) {
+        module.showSuggestions = function ( result ) {
 
             var i,
                 options = [];
@@ -415,7 +414,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 console.log( $( this ).text() );
             } );
         
-        },
+        };
 
         /**
          * Inserts selected suggestion
@@ -423,7 +422,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
          * @param complete {string}
          * @param type {string} 'template' or 'link'
          */
-        insertComplete: function ( complete, type ) {
+        module.insertComplete = function ( complete, type ) {
             
             var insertAfter = type === 'link' ? '[[' : '{{';
             
@@ -439,9 +438,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             
             // hide options menu
 
-        }
+        };
 
-    };
+    
 
     // lazy load dependencies and run module.init as a callback
     // $( function ) is not used as it's very unlikely this will run before .ready()
