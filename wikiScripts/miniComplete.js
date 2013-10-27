@@ -107,6 +107,10 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         // hide options menu on esc keydown
         $( document ).on( 'keydown', function ( e ) {
+            
+            var $option = $( '.minicomplete-option' ),
+                $select = $( '.minicomplete-option.selected' );
+            
             if ( e.keyCode === 27 ) {
                 console.log( 'esc key pressed' );
                 $( '#minicomplete-wrapper' ).hide();
@@ -114,10 +118,26 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             
             if ( e.keyCode === 38 ) {
                 console.log( 'up key pressed' );
+                
+                if ( $option.length && !$select.length ) {
+                    $option.addClass( 'selected' );
+                }
+                
+                if ( $option.length && $select.length ) {
+                    $option.removeClass( 'selected' );
+                }
             }
             
             if ( e.keyCode === 40 ) {
                 console.log( 'down key pressed' );
+                
+                if ( $option.length && !$select.length ) {
+                    $option.addClass( 'selected' );
+                }
+                
+                if ( $option.length && $select.length ) {
+                    $option.removeClass( 'selected' );
+                }
             }
             
             if ( e.keyCode === 13 ) {
@@ -456,95 +476,14 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         $( '.minicomplete-option' ).on( 'click', function () {
             module.insertComplete( $( this ).text() );
         } );
-        
-        // allows user to navigate through suggestions with up/down keys
-        $( document ).on( 'keydown', function ( e ) {
 
-            var $option = $( 'minicomplete-option' ),
-                i;
-            
-            if ( !$option.length ) {
-                return;
-            }
-
-            console.log( 'options menu found' );
-            
-            // down key pressed
-            if ( e.keyCode === 40 ) {
-                
-                console.log( 'down key pressed' );
-                e.preventDefault();
-                
-                // if no option selected
-                if ( !$( '.minicomplete-option.selected' ).length ) {
-                    $( $option[0] ).addClass( 'selected' );
-                // else select next option
-                } else {
-                    for ( i = 0; i < $option.length; i += 1 ) {
-                        if ( $( $option[i] ).hasClass( 'selected' ) ) {
-                            // remove previous class
-                            $( $option[i] ).removeClass( 'selected' );
-                            
-                            // if at end of list start at top of list
-                            if ( $option[i] === ( $option.length - 1 ) ) {
-                                $( $option[0] ).addClass( 'selected' );
-                            // else move on to next
-                            } else {
-                                $( $option[i + 1] ).addClass( 'selected' );
-                            }
-                            
-                            // exit loop
-                            return;
-                        }
-                    }
-                }
-            }
-            
-            // up key pressed
-            if ( e.keyCode === 38 ) {
-                
-                console.log( 'up key pressed' );
-                e.preventDefault();
-                
-                // if no option selected
-                if ( !$( '.minicomplete-option.selected' ).length ) {
-                    $( $option[$option.length -1] ).addClass( 'selected' );
-                // else select next option
-                } else {
-                    for ( i = 0; i < $option.length; i += 1 ) {
-                        if ( $( $option[i] ).hasClass( 'selected' ) ) {
-                            // remove previous class
-                            $( $option[i] ).removeClass( 'selected' );
-                            
-                            // if at strat of list start at bottom of list
-                            if ( $option[i] === $option[0] ) {
-                                $( $option[$option.length - 1] ).addClass( 'selected' );
-                            // else move on to next
-                            } else {
-                                $( $option[i - 1] ).addClass( 'selected' );
-                            }
-                            
-                            // exit loop
-                            return;
-                        }
-                    }
-                }
-            }
-            
-            // enter key pressed and option is selected
-            if ( e.keyCode === 13 && $( '.minicomplete-option.selected' ).length ) {
-                console.log( 'enter key pressed' );
-                e.preventDefault();
-                module.insertComplete( $( 'minicomplete-option.selected' ).text() );
-            }
-
-        } );
-        
+        /*
         // clear .selected class on hover
         // css :hover pseudo-class does hover colour change instead
         $( '.minicomplete-option' ).on( 'hover', function () {
             $( '.minicomplete-option' ).removeClass( 'selected' );
         } );
+        */
 
     };
 
