@@ -189,7 +189,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         var pagebground = dev.colors.parse( dev.colors.wikia.page ),
             buttons = dev.colors.parse( dev.colors.wikia.menu ),
-            mix = pagebground.mix( buttons, 20 ),
+            mix = buttons.mix( pagebground, 20 ),
             css;
 
         if ( !pagebground.isBright() ){
