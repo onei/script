@@ -434,6 +434,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         ( new mw.Api() ).get( query )
                         .done( function ( data ) {
 
+                            console.log( data );
+
                             // no suggestions
                             if ( !data.query.allpages.length ) {
                                 return;
