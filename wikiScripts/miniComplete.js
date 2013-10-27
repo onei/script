@@ -114,9 +114,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         } );
 
         $( selector ).on( 'input', function () {
-            // hide and empty minicomplete menu
+            // hide menu
             $( '#minicomplete-wrapper' ).hide();
-            $( '#minicomplete-list' ).empty();
             
             // store node for later use
             module.elem = this;
@@ -448,9 +447,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         
         // allows user to navigate through suggestions with up/down keys
         $( document ).on( 'keydown', function ( e ) {
-            
 
-            
             var $option = $( 'minicomplete-option' ),
                 i;
             
@@ -459,7 +456,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             }
 
             console.log( 'options menu found' );
-            /*
+            
             // down key pressed
             if ( e.keyCode === 40 ) {
                 
@@ -528,7 +525,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 e.preventDefault();
                 module.insertComplete( $( 'minicomplete-option.selected' ).text() );
             }
-            */
 
         } );
         
@@ -572,9 +568,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             before + open + complete + close + val.substring( caret )
         );
         
-        // hide and empty the options
+        // hide options
         $( '#minicomplete-wrapper' ).hide();
-        $( '#minicomplete-list' ).empty();
 
         console.log( 'boom' );
 
