@@ -119,24 +119,30 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             if ( e.keyCode === 38 ) {
                 console.log( 'up key pressed' );
                 
-                if ( $option.length && !$select.length ) {
-                    $option.addClass( 'selected' );
-                }
+                if ( $option.length ) {
+                    // stop caret moving
+                    e.preventDefault();
                 
-                if ( $option.length && $select.length ) {
-                    $option.removeClass( 'selected' );
+                    if ( !$select.length ) {
+                        $option.addClass( 'selected' );
+                    } else {
+                        $option.removeClass( 'selected' );
+                    }
                 }
             }
             
             if ( e.keyCode === 40 ) {
                 console.log( 'down key pressed' );
                 
-                if ( $option.length && !$select.length ) {
-                    $option.addClass( 'selected' );
-                }
+                if ( $option.length ) {
+                    // stop caret moving
+                    e.preventDefault();
                 
-                if ( $option.length && $select.length ) {
-                    $option.removeClass( 'selected' );
+                    if ( !$select.length ) {
+                        $option.addClass( 'selected' );
+                    } else {
+                        $option.removeClass( 'selected' );
+                    }
                 }
             }
             
