@@ -13,10 +13,6 @@
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
  * 
- * @todo Use Colors library to style options to fit into each wiki
- *       <http://dev.wikia.com/wiki/Colors>
- *       or use wgSassParams when I get time
- * 
  * Imports for testing:
  * - importScriptURI( 'https://raw.github.com/onei/script/master/wikiScripts/miniComplete.js' );
  * - mw.loader.load( 'https://raw.github.com/onei/script/master/wikiScripts/miniComplete.js' );
@@ -31,14 +27,13 @@
     forin:true, immed:true, indent:4, latedef:true, newcap:true,
     noarg:true, noempty:true, nonew:true, plusplus:true, quotmark:single,
     undef:true, unused:true, strict:true, trailing:true,
-    
     browser:true, jquery:true,
-     
     onevar:true
 */
 
 // create globals
 this.dev = this.dev || {};
+this.dev.miniComplete = this.dev.miniComplete || {};
 
 // disable indent warning
 /*jshint -W015 */
@@ -70,7 +65,7 @@ this.dev = this.dev || {};
             }
 
             // disable !! warnings (convert to boolean)
-            // because this is a bit prettier than a staggered if statement
+            // because this is a bit prettier than a staggered if statement/ternary
             /*jshint -W018 */
             switch ( true ) {
             // Special:Upload
@@ -204,7 +199,8 @@ this.dev = this.dev || {};
         },
         
         /**
-         * 
+         * Inserts options div container and ul
+         * So it's ready for populating with li elements when required
          */
         insertMenu: function () {
           
@@ -452,4 +448,4 @@ this.dev = this.dev || {};
     // due to creating dev.colors module
     mw.loader.using( [ 'dev.colors' ], module.init );
 
-}( document, jQuery, mediaWiki, dev.miniEditor ) );
+}( document, jQuery, mediaWiki, dev.miniComplete ) );
