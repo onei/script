@@ -243,7 +243,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             // for separating search term
             linkCheck = searchText.lastIndexOf( '[['),
             templateCheck = searchText.lastIndexOf( '{{' ),
-            // disallows certain characters in serach terms
+            // disallows certain characters in search terms
             // based on $wgLegalTitleChars <http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars>
             // and to prevent searches for terms that don't need it
             // such as those with pipes as they signal template params or link display changes
