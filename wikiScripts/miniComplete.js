@@ -109,11 +109,13 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         $( document ).on( 'keydown', function ( e ) {
             
             var $option = $( '.minicomplete-option' ),
-                $select = $( '.minicomplete-option.selected' );
+                $select = $( '.minicomplete-option.selected' ),
+                i;
             
             if ( e.keyCode === 27 ) {
                 console.log( 'esc key pressed' );
                 $( '#minicomplete-wrapper' ).hide();
+                $( '#minicomplete-list' ).empty();
             }
             
             if ( e.keyCode === 38 ) {
@@ -124,9 +126,23 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                     e.preventDefault();
                 
                     if ( !$select.length ) {
-                        $option.addClass( 'selected' );
+                        $( $option[$option.length - 1] ).addClass( 'selected' );
                     } else {
-                        $option.removeClass( 'selected' );
+                        for ( i = 0; i < $option.length; i += 1 ) {
+                            if ( $( $option[i] ).hasClass( 'selected' ) ) {
+                                // remove class
+                                $( $option[i] ).removeClass( 'selected' );
+                                
+                                // if at top of list jump to bottom
+                                if ( i = 0 ) {
+                                    $( $option[$option.length - 1] ).addClass( 'selected' );
+                                } else {
+                                    $( $option[i - 1] ).addClass( 'selected' );
+                                }
+                                
+                                return;
+                            }
+                        }
                     }
                 }
             }
@@ -139,9 +155,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                     e.preventDefault();
                 
                     if ( !$select.length ) {
-                        $option.addClass( 'selected' );
+                        $( $option[0] ).addClass( 'selected' );
                     } else {
-                        $option.removeClass( 'selected' );
+                        
                     }
                 }
             }
