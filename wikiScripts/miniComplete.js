@@ -154,6 +154,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         $( selector ).on( 'input', function () {
             // hide menu
             $( '#minicomplete-wrapper' ).hide();
+            $( '#minicomplete-lest' ).empty();
             
             // store node for later use
             module.elem = this;
@@ -527,6 +528,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         
         // hide options
         $( '#minicomplete-wrapper' ).hide();
+        $( '#minicomplete-list' ).empty();
 
         console.log( 'boom' );
 
