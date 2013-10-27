@@ -449,8 +449,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         // allows user to navigate through suggestions with up/down keys
         $( document ).on( 'keydown', function ( e ) {
             
-            console.log( 'hello?' );
-            /*
+
+            
             var $option = $( 'minicomplete-option' ),
                 i;
             
@@ -458,9 +458,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 return;
             }
 
-            
             console.log( 'options menu found' );
-            
+            /*
             // down key pressed
             if ( e.keyCode === 40 ) {
                 
