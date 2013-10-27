@@ -449,7 +449,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         // allows user to navigate through suggestions with up/down keys
         $( document ).on( 'keydown', function ( e ) {
             // down key pressed
-            if ( e.keyCode === XX ) {
+            if ( e.keyCode === 40 ) {
                 // no option selected
                 if ( !$( '.minicomplete-option.selected' ).length ) {
                     $( $( '.minicomplete-option' )[0] ).addClass( 'selected' );
@@ -462,12 +462,12 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             }
             
             // up key pressed
-            if ( e.keyCode === XX ) {
+            if ( e.keyCode === 38 ) {
                 // same as down key stuff, but in reverse
             }
             
             // enter key pressed and option is selected
-            if ( e.keyCode === XX && $( '.minicomplete-option.selected' ).length ) {
+            if ( e.keyCode === 13 && $( '.minicomplete-option.selected' ).length ) {
                 module.insertComplete( $( 'minicomplete-option.selected' ).text() );
             }
 
