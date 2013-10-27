@@ -434,7 +434,11 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         ( new mw.Api() ).get( query )
                         .done( function ( data ) {
 
-                            console.log( data );
+                            // error handling
+                            if ( data.error ) {
+                                console.log( data.error.code, data.error.info );
+                                return;
+                            }
 
                             // no suggestions
                             if ( !data.query.allpages.length ) {
