@@ -456,6 +456,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 return;
             }
             
+            console.log( 'options menu found' );
+            
             // down key pressed
             if ( e.keyCode === 40 ) {
                 
