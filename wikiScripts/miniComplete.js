@@ -190,6 +190,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         var pagebground = dev.colors.parse( dev.colors.wikia.page ),
             buttons = dev.colors.parse( dev.colors.wikia.menu ),
             mix = buttons.mix( pagebground, 20 ),
+            shadow = pagebground.lighten( -8 ),
             css;
 
         if ( !pagebground.isBright() ){
@@ -197,16 +198,16 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         }
 
         css = [
-            '#minicomplete-wrapper{border:2px solid #000;background-color:$page;color:$text;position:absolute;z-index:5;display:none;font-size:13px;cursor:default;}',
+            '#minicomplete-wrapper{border:1px solid $border;background-color:$page;color:$text;position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
             '#minicomplete-list{margin:0;}',
-            '.minicomplete-option{border-top:1px solid $border;padding:5px 10px;list-style:none;margin:0;}',
-            '.minicomplete-option:first-child{border-top:none;}',
+            '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}',
             '.minicomplete-option:hover{background-color:$mix;}'
         ];
             
         // FIXME: $mix does not work
         dev.colors.css( css.join( '' ), {
-            mix: mix
+            mix: mix,
+            shadow: shadow
         } );
 
     };
