@@ -197,7 +197,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         }
 
         css = [
-            '#minicomplete-wrapper{border:2px solid #000;background-color:$page;color:$text;position:absolute;z-index:5;display:none;font-size:13px;}',
+            '#minicomplete-wrapper{border:2px solid #000;background-color:$page;color:$text;position:absolute;z-index:5;display:none;font-size:13px;cursor:default;}',
             '#minicomplete-list{margin:0;}',
             '.minicomplete-option{border-top:1px solid $border;padding:5px 10px;list-style:none;margin:0;}',
             '.minicomplete-option:first-child{border-top:none;}',
