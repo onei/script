@@ -452,9 +452,11 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             var $option = $( 'minicomplete-option' ),
                 i;
             
+            /*
             if ( !$option.length ) {
                 return;
             }
+            */
             
             console.log( 'options menu found' );
             
