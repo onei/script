@@ -459,6 +459,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             // down key pressed
             if ( e.keyCode === 40 ) {
                 
+                console.log( 'down key pressed' );
+                e.preventDefault();
+                
                 // if no option selected
                 if ( !$( '.minicomplete-option.selected' ).length ) {
                     $( $option[0] ).addClass( 'selected' );
@@ -487,6 +490,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             // up key pressed
             if ( e.keyCode === 38 ) {
                 
+                console.log( 'up key pressed' );
+                e.preventDefault();
+                
                 // if no option selected
                 if ( !$( '.minicomplete-option.selected' ).length ) {
                     $( $option[$option.length -1] ).addClass( 'selected' );
@@ -514,6 +520,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             
             // enter key pressed and option is selected
             if ( e.keyCode === 13 && $( '.minicomplete-option.selected' ).length ) {
+                console.log( 'enter key pressed' );
+                e.preventDefault();
                 module.insertComplete( $( 'minicomplete-option.selected' ).text() );
             }
 
