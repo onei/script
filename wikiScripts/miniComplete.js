@@ -204,10 +204,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             '#minicomplete-wrapper{border:1px solid $border;background-color:$page;color:$text;position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
             '#minicomplete-list{margin:0;}',
             '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}',
-            '.minicomplete-option:hover{background-color:$mix;}'
+            '.minicomplete-option:hover,.minicomplete-option.selected{background-color:$mix;}'
         ];
-            
-        // FIXME: $mix does not work
+
         dev.colors.css( css.join( '' ), {
             mix: mix,
             shadow: shadow
@@ -430,7 +429,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         // show option list
         $( '#minicomplete-wrapper' ).show();
-        // temp css until we can use dependent
+        
+        // temp css until we can use xy pos
+        // @todo finish module.caretXYPos
         $( '#minicomplete-wrapper' ).css( {
             position: 'fixed',
             top: '0'
@@ -441,10 +442,43 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         // add onclick handler for inserting the option
         $( '.minicomplete-option' ).on( 'click', function () {
-            module.insertComplete(
-                $( this ).text()
-            );
+            module.insertComplete( $( this ).text() );
         } );
+        
+        /*
+        // allows user to navigate through suggestions with up/down keys
+        $( document ).on( 'keydown', function ( e ) {
+            // down key pressed
+            if ( e.keyCode === XX ) {
+                // no option selected
+                if ( !$( '.minicomplete-option.selected' ).length ) {
+                    $( $( '.minicomplete-option' )[0] ).addClass( 'selected' );
+                }
+                
+                // option selected
+                // remember to remove previous .selected class
+                
+                // if at end of list go back to top
+            }
+            
+            // up key pressed
+            if ( e.keyCode === XX ) {
+                // same as down key stuff, but in reverse
+            }
+            
+            // enter key pressed and option is selected
+            if ( e.keyCode === XX && $( '.minicomplete-option.selected' ).length ) {
+                module.insertComplete( $( 'minicomplete-option.selected' ).text() );
+            }
+
+        } );
+        
+        // clear .selected class on hover
+        // css :hover pseudo-class does hover colour chnage instead
+        $( '.minicomplete-option.selected' ).on( 'hover', function () {
+            $( this ).removeClass( 'selected' );
+        } );
+        */
 
     };
 
@@ -470,14 +504,17 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             complete = complete.split(':')[1];
         }
         
+        // check if a colon is after the opening brackets
         if ( text[ text.lastIndexOf( open ) + 2 ] === ':' ) {
             open += ':';
         }
 
+        // insert search term
         $( module.elem ).val(
             before + open + complete + close + val.substring( caret )
         );
         
+        // hide the options
         $( '#minicomplete-wrapper' ).hide();
 
         console.log( 'boom' );
