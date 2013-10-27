@@ -8,7 +8,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.6.1
+ * @version 0.0.6.2
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -41,24 +41,18 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 /*jshint +W015 */
 
     'use strict';
-    
-    // @todo don't do this on every page load
-    // implement colors module
-    mw.loader.implement( 'dev.colors', [ 'http://dev.wikia.com/wiki/Colors/code.js?action=raw&ctype=javascript' ], {}, {} );
 
     /**
-     * Loading function
+     * Checks for correct environment
      */
     module.init =  function () {
-            
-        console.log( 'init loaded');
 
         var selector = false,
             config = mw.config.get( [
                 'wgCanonicalSpecialPageName',
                 'wgNamespaceNumber'
             ] );
-                
+
         if ( $( '#minicomplete-options' ).length ) {
             return;
         }
@@ -88,10 +82,30 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             return;
         }
 
+        // by this point we know this can run
+        // so implement colors module
+        mw.loader.implement( 'dev.colors', [ 'http://dev.wikia.com/wiki/Colors/code.js?action=raw&ctype=javascript' ], {}, {} );
+
+        // we need Colors after this point
+        // so declare our dependencies and run the rest of the script
+        // in the callback
+        mw.loader.using( [ 'dev.colors' ], function () {
+            module.load( selector );
+        } );
+
+    };
+
+    /**
+     * Loads the rest of the functions
+     * 
+     * @param selector {string} Selector to bind events in textarea to
+     */
+    module.load = function ( selector ) {
+
         module.insertCSS();
         module.insertMenu();
-            
-        // if pressing escape key hide options menu
+
+        // hide options menu on esc keydown
         $( document ).on( 'keydown', function ( e ) {
             if ( e.keyCode === 27 ) {
                 console.log( 'esc key pressed' );
@@ -120,331 +134,339 @@ this.dev.miniComplete = this.dev.miniComplete || {};
      */
     module.getCaretPos = function ( elem ) {
 
-            var caretPos = 0,
-                sel;
+        var caretPos = 0,
+            sel;
 
-            // IE9 support
-            // may need to exclude IE10 from this
-            // Earlier versions of IE aren't supported so don't worry about them
-            if ( document.selection ) {
-                elem.focus();
-                sel = document.selection.createRange();
-                sel.moveStart( 'character', -elem.value.length );
-                caretPos = sel.text.length;
+        // IE9 support
+        // may need to exclude IE10 from this
+        // Earlier versions of IE aren't supported so don't worry about them
+        if ( document.selection ) {
+            elem.focus();
+            sel = document.selection.createRange();
+            sel.moveStart( 'character', -elem.value.length );
+            caretPos = sel.text.length;
 
-            // Normal browsers
-            } else if ( elem.selectionStart || elem.selectionStart === '0' ) {
-                caretPos = elem.selectionStart;
-            }
+        // Normal browsers
+        } else if ( elem.selectionStart || elem.selectionStart === '0' ) {
+            caretPos = elem.selectionStart;
+        }
 
-            return ( caretPos );
+        return ( caretPos );
 
-        };
+    };
+
+    /**
+     * Get x and y coordinates of caret
+     * 
+     * @source <http://stackoverflow.com/questions/16212871/get-the-offset-position-of-the-caret-in-a-textarea-in-pixels>
+     */
+    module.caretXYPos = function () {
+
+        // do stuff
+
+    };
+
+    /**
+     * Insert stylesheet using colours set by ThemeDesigner
+     * 
+     * For documentation on Colors library, see <http://dev.wikia.com/wiki/Colors>
+     * 
+     * @todo Allow custom colours for when there's non-themedesigner colours
+     *       or custom monobook theme
+     */
+    module.insertCSS = function () {
+
+        /*
+        // example mcCols object
+        window.mcCols = {
+            border: '#000',
+            text: '#000',
+            background: '#fff',
+            hoverText: '#000',
+            hoverBackground: '#aaa'
+        }
+        */
+
+        var pagebground = dev.colors.parse( dev.colors.wikia.page ),
+            buttons = dev.colors.parse( dev.colors.wikia.menu ),
+            mix = pagebground.mix( buttons, 20 ),
+            css;
+
+        if ( !pagebground.isBright() ){
+            mix = mix.lighten( 8 );
+        }
+
+        css = [
+            '#minicomplete-wrapper{border:2px solid #000;background-color:$page;color:$text;position:absolute;z-index:5;display:none;font-size:13px;}',
+            '#minicomplete-list{margin:0;}',
+            '.minicomplete-option{border-top:1px solid $border;padding:5px 10px;list-style:none;margin:0;}',
+            '.minicomplete-option:first-child{border-top:none;}',
+            '.minicomplete-option:hover{background-color:$mix;}'
+        ];
+            
+        // FIXME: $mix does not work
+        dev.colors.css( css.join( '' ), {
+            mix: mix
+        } );
+
+    };
         
-        /**
-         * Get x and y coordinates of caret
-         * 
-         * @source <http://stackoverflow.com/questions/16212871/get-the-offset-position-of-the-caret-in-a-textarea-in-pixels>
-         */
-        module.caretXYPos = function () {
+    /**
+     * Inserts options div container and ul
+     * So it's ready for populating with li elements when required
+     */
+    module.insertMenu = function () {
           
-            // do stuff
+        var container = document.createElement( 'div' ),
+            list = document.createElement( 'ul' );
             
-        };
-        
-        /**
-         * Insert stylesheet using colours set by ThemeDesigner
-         * 
-         * @todo Allow custom colours for when there's non-themedesigner colours
-         *       or custom monobook theme
-         */
-        module.insertCSS = function () {
+        container.id = 'minicomplete-wrapper';
+        list.id = 'minicomplete-list';
             
-            /*
-            // example mcCols object
-            window.mcCols = {
-                border: '#000',
-                text: '#000',
-                background: '#fff',
-                hoverText: '#000',
-                hoverBackground: '#aaa'
-            }
-            */
+        container.appendChild( list );
+            
+        document.getElementsByTagName( 'body' )[0].appendChild( container );
+            
+    };
 
-            var pagebground = dev.colors.parse( dev.colors.wikia.page ),
-                buttons = dev.colors.parse( dev.colors.wikia.menu ),
-                mix = pagebground.mix( buttons, 20 ),
-                css;
-                
-            if ( !pagebground.isBright() ){
-                mix = mix.lighten( 8 );
-            }
-            
-            css = [
-                // @todo set an explicit font-size in px so it's not so tiny in monobook
-                // maybe 13px?
-                '#minicomplete-wrapper{border:2px solid #000;background-color:$page;color:$text;position:absolute;z-index:5;display:none;}',
-                '#minicomplete-list{margin:0;}',
-                '.minicomplete-option{border-top:1px solid $border;padding:5px 10px;list-style:none;margin:0;}',
-                '.minicomplete-option:first-child{border-top:none;}',
-                '.minicomplete-option:hover{background-color:$mix;}'
-            ];
-            
-            // FIXME: $mix does not work
-            dev.colors.css( css.join( '' ), {
-                $mix: mix
-            } );
+    /**
+     * Counts back from caret position looking for unclosed {{ or [[
+     *
+     * @param elem {jquery object} Element to look for search term within
+     * @todo Pass what kind of bracket is being used on
+     *       [ or { for use in insertTerm
+     */
+    module.findTerm = function ( elem ) {
 
-        },
-        
-        /**
-         * Inserts options div container and ul
-         * So it's ready for populating with li elements when required
-         */
-        module.insertMenu = function () {
-          
-            var container = document.createElement( 'div' ),
-                list = document.createElement( 'ul' );
-            
-            container.id = 'minicomplete-wrapper';
-            list.id = 'minicomplete-list';
-            
-            container.appendChild( list );
-            
-            document.getElementsByTagName( 'body' )[0].appendChild( container );
-            
-        };
+            // text to search for
+        var searchText = $( elem ).val().substring( 0, module.getCaretPos( elem ) ),
+            // for separating search term
+            linkCheck = searchText.lastIndexOf( '[['),
+            templateCheck = searchText.lastIndexOf( '{{' ),
+            // disallows certain characters in serach terms
+            // based on $wgLegalTitleChars <http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars>
+            // and to prevent searches for terms that don't need it
+            // such as those with pipes as they signal template params or link display changes
+            // or if the user is closing the link/template themselves
+            illegalChars = /[\{\}\[\]\|#<>%\+\?\\]/,
+            term,
+            ns;
 
-        /**
-         * Counts back from caret position looking for unclosed {{ or [[
-         *
-         * @param elem {jquery object} Element to look for search term within
-         * @todo Pass what kind of bracket is being used on
-         *       [ or { for use in insertTerm
-         */
-        module.findTerm = function ( elem ) {
+        // searchText will be empty if the browser does not support getCaretPos
+        // which will probably cause errors/confusion
+        // so stop here if that's the case
+        if ( !searchText.length ) {
+            return;
+        }
 
-                // text to search for
-            var searchText = $( elem ).val().substring( 0, module.getCaretPos( elem ) ),
-                // for separating search term
-                linkCheck = searchText.lastIndexOf( '[['),
-                templateCheck = searchText.lastIndexOf( '{{' ),
-                // disallows certain characters in serach terms
-                // based on $wgLegalTitleChars <http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars>
-                // and to prevent searches for terms that don't need it
-                // such as those with pipes as they signal template params or link display changes
-                // or if the user is closing the link/template themselves
-                illegalChars = /[\{\}\[\]\|#<>%\+\?\\]/,
-                term;
+        if ( linkCheck > -1 ) {
 
-            // searchText will be empty if the browser does not support getCaretPos
-            // which will probably cause errors/confusion
-            // so stop here if that's the case
-            if ( !searchText.length ) {
+            if ( linkCheck < searchText.lastIndexOf( ']]' ) ) {
                 return;
             }
 
-            if ( linkCheck > -1 ) {
+            // lastIndexOf measures from just before it starts
+            // so add 2 to check the term length
+            // to make sure we're just selecting the search term
+            if ( ( searchText.length - ( linkCheck + 2 ) ) >= 0 ) {
 
-                if ( linkCheck < searchText.lastIndexOf( ']]' ) ) {
+                term = searchText.substring( linkCheck + 2 );
+
+                if ( term.match( illegalChars ) ) {
                     return;
                 }
 
-                // lastIndexOf measures from just before it starts
-                // so add 2 to check the term length
-                // to make sure we're just selecting the search term
-                if ( ( searchText.length - ( linkCheck + 2 ) ) >= 0 ) {
-
-                    term = searchText.substring( linkCheck + 2 );
-
-                    if ( term.match( illegalChars ) ) {
-                        return;
-                    }
-                    
-                    // fix for when the namespace is preceeded by a :
-                    if ( term.indexOf( ':' ) === 0 ) {
-                        term = term.substring( 1 );
-                    }
-
-                    // prevent searches for empty strings
-                    if ( !term.length ) {
-                        return;
-                    }
-
-                    console.log( term );
-                    module.getSuggestions( term, 0 );
-
+                // fix for when the namespace is preceeded by a :
+                if ( term.indexOf( ':' ) === 0 ) {
+                    term = term.substring( 1 );
                 }
 
-            }
-
-            if ( templateCheck > -1 ) {
-
-                if ( templateCheck < searchText.lastIndexOf( '}}' ) ) {
+                // prevent searches for empty strings
+                if ( !term.length ) {
                     return;
                 }
 
-                // lastIndexOf measures from just before it starts
-                // so add 2 to check the term length
-                // to make sure we're just selecting the search term
-                if ( ( searchText.length - ( templateCheck + 2 ) ) > 0 ) {
+                console.log( term );
 
-                    term = searchText.substring( templateCheck + 2 );
-
-                    if ( term.match( illegalChars ) ) {
-                        return;
-                    }
-                    
-                    // fix for when the namespace is preceeded by a :
-                    if ( term.indexOf( ':' ) === 0 ) {
-                        term = term.substring( 1 );
-                    }
-
-                    // prevent searches for empty strings
-                    if ( !term.length ) {
-                        return;
-                    }
-
-                    console.log( term );
-                    module.getSuggestions( term, 10 );
-
-                }
+                // set type here as it's easier than
+                // passing it through all the functions
+                module.type = '[[';
+                module.getSuggestions( term, 0 );
 
             }
 
-        };
+        }
 
-        /**
-         * Queries mw api for possible suggestions
-         *
-         * @link <https://www.mediawiki.org/wiki/API:Allpages> Allpages API docs
-         * @param term {string} Page title to search for
-         * @param ns {integer} Namespace to search in
-         */
-        module.getSuggestions = function ( term, ns ) {
+        if ( templateCheck > -1 ) {
 
-            var query = {
-                    action: 'query',
-                    list: 'allpages',
-                    aplimit: '5',
-                    apfilterredir: 'nonredirects',
-                    apnamespace: ns,
-                    apprefix: term
-                },
-                termSplit,
-                namespaceId,
-                title;
-            
-            if ( term.indexOf( ':' ) > -1 ) {
+            if ( templateCheck < searchText.lastIndexOf( '}}' ) ) {
+                return;
+            }
 
-                termSplit = term.split( ':' );
-                title = termSplit[1];
+            // lastIndexOf measures from just before it starts
+            // so add 2 to check the term length
+            // to make sure we're just selecting the search term
+            if ( ( searchText.length - ( templateCheck + 2 ) ) > 0 ) {
 
-                // make sure there's only the namespace and the page title
-                if ( termSplit.length > 2 ) {
+                term = searchText.substring( templateCheck + 2 );
+
+                if ( term.match( illegalChars ) ) {
                     return;
                 }
 
-                namespaceId = mw.config.get( 'wgNamespaceIds' )[
-                    // wgNamespaceIds uses underscores and lower case
-                    termSplit[0].replace( / /g, '_' )
-                                .toLowerCase()
-                ];
-
-                if ( namespaceId ) {
-                    query.apnamespace = namespaceId;
-                    query.apprefix = title;
+                // fix for when the namespace is preceeded by a :
+                if ( term.indexOf( ':' ) === 0 ) {
+                    term = term.substring( 1 );
+                    // use mainspace queries if using a :
+                    // as it signifies a page transclusion
+                    // rather than a template
+                    ns = 0;
+                } else {
+                    ns = 10;
                 }
 
+                // prevent searches for empty strings
+                if ( !term.length ) {
+                    return;
+                }
+
+                console.log( term );
+
+                // set type here as it's easier than
+                // passing it through all the functions
+                module.type = '{{';
+                module.getSuggestions( term, ns );
+
             }
 
-            ( new mw.Api() ).get( query )
-                            .done( function ( data ) {
+        }
 
-                                // no suggestions
-                                if ( !data.query.allpages.length ) {
-                                    return;
-                                }
+    };
 
-                                module.showSuggestions( data.query.allpages );
+    /**
+     * Queries mw api for possible suggestions
+     *
+     * @link <https://www.mediawiki.org/wiki/API:Allpages> Allpages API docs
+     * @param term {string} Page title to search for
+     * @param ns {integer} Namespace to search in
+     */
+    module.getSuggestions = function ( term, ns ) {
 
-                            } )
-                            .error( function ( error ) {
-                                console.log( 'API error: (', error );
-                            } );
+        var query = {
+                action: 'query',
+                list: 'allpages',
+                aplimit: '5',
+                apfilterredir: 'nonredirects',
+                apnamespace: ns,
+                apprefix: term
+            },
+            termSplit,
+            namespaceId,
+            title;
 
-        };
+        if ( term.indexOf( ':' ) > -1 ) {
 
-        /**
-         * Inserts list of options to select from
-         * 
-         * @param result {array} Result from API
-         * @link <http://jsfiddle.net/5KqmF/112/> Example
-         */
-        module.showSuggestions = function ( result ) {
+            termSplit = term.split( ':' );
+            title = termSplit[1];
 
-            var i,
-                options = [];
-
-            for ( i = 0; i < result.length; i += 1 ) {
-                options.push( '<li class="minicomplete-option">' + result[i].title + '</li>' );
+            // make sure there's only the namespace and the page title
+            if ( termSplit.length > 2 ) {
+                return;
             }
 
-            console.log( result, options );
+            namespaceId = mw.config.get( 'wgNamespaceIds' )[
+                // wgNamespaceIds uses underscores and lower case
+                termSplit[0].replace( / /g, '_' )
+                            .toLowerCase()
+            ];
 
-            // append options to container
-            $( '#minicomplete-list' ).html(
-                options.join( '' )
+            if ( namespaceId ) {
+                query.apnamespace = namespaceId;
+                query.apprefix = title;
+            }
+
+        }
+
+        ( new mw.Api() ).get( query )
+                        .done( function ( data ) {
+
+                            // no suggestions
+                            if ( !data.query.allpages.length ) {
+                                return;
+                            }
+
+                            module.showSuggestions( data.query.allpages );
+
+                        } )
+                        .error( function ( error ) {
+                            console.log( 'API error: (', error );
+                        } );
+
+    };
+
+    /**
+     * Inserts list of options to select from
+     * 
+     * @param result {array} Result from API
+     * @link <http://jsfiddle.net/5KqmF/112/> Example
+     */
+    module.showSuggestions = function ( result ) {
+
+        var i,
+            options = [];
+
+        for ( i = 0; i < result.length; i += 1 ) {
+            options.push( '<li class="minicomplete-option">' + result[i].title + '</li>' );
+        }
+
+        console.log( result, options );
+
+        // append options to container
+        $( '#minicomplete-list' ).html(
+            options.join( '' )
+        );
+
+        // show option list
+        $( '#minicomplete-wrapper' ).show();
+        // temp css until we can use dependent
+        $( '#minicomplete-wrapper' ).css( {
+            position: 'fixed',
+            top: '0'
+        } );
+
+        // position option list
+        // check if too close to top/bottom/sides of the screen
+
+        // add onclick handler for inserting the option
+        $( '.minicomplete-option' ).on( 'click', function () {
+            module.insertComplete(
+                $( this ).text()
             );
-            
-            // show option list
-            $( '#minicomplete-wrapper' ).show();
-            // temp css until we can use dependent
-            $( '#minicomplete-wrapper' ).css( {
-                position: 'fixed',
-                top: '0'
-            } );
-            
-            // position option list
-            // check if too close to top/bottom/sides of the screen
-            
-            // add onclick handler for inserting the option
-            $( '.minicomplete-option' ).on( 'click', function () {
-                // module.insertComplete( this );
-                console.log( $( this ).text() );
-            } );
-        
-        };
+        } );
 
-        /**
-         * Inserts selected suggestion
-         * 
-         * @param complete {string}
-         * @param type {string} 'template' or 'link'
-         */
-        module.insertComplete = function ( complete, type ) {
-            
-            var insertAfter = type === 'link' ? '[[' : '{{';
-            
-            console.log( complete );
-            
-            // strip template namespace if applicable
-            
-            // count back from caret position to {{ or [[
-            
-            // reselect term
-            // replace term with suggestion
-            // add closing }} or ]] to suggestion
-            
-            // hide options menu
+    };
 
-        };
+    /**
+     * Inserts selected suggestion
+     * 
+     * @param complete {string}
+     */
+    module.insertComplete = function ( complete ) {
 
-    
+        console.log( complete, module.type );
 
-    // lazy load dependencies and run module.init as a callback
-    // $( function ) is not used as it's very unlikely this will run before .ready()
-    // due to creating dev.colors module
-    mw.loader.using( [ 'dev.colors' ], module.init );
+        // strip template namespace if applicable
+
+        // count back from caret position to {{ or [[
+
+        // reselect term
+        // replace term with suggestion
+        // add closing }} or ]] to suggestion
+
+        // hide options menu
+
+    };
+
+    $( module.init );
 
 }( document, jQuery, mediaWiki, dev.miniComplete ) );
