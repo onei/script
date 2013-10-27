@@ -449,14 +449,15 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         // allows user to navigate through suggestions with up/down keys
         $( document ).on( 'keydown', function ( e ) {
             
+            console.log( 'hello?' );
+            /*
             var $option = $( 'minicomplete-option' ),
                 i;
             
-            /*
             if ( !$option.length ) {
                 return;
             }
-            */
+
             
             console.log( 'options menu found' );
             
@@ -528,6 +529,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 e.preventDefault();
                 module.insertComplete( $( 'minicomplete-option.selected' ).text() );
             }
+            */
 
         } );
         
