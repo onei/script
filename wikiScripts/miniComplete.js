@@ -8,7 +8,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.6.2
+ * @version 0.0.6.3
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -233,9 +233,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
     /**
      * Counts back from caret position looking for unclosed {{ or [[
      *
-     * @param elem {jquery object} Element to look for search term within
-     * @todo Pass what kind of bracket is being used on
-     *       [ or { for use in insertTerm
+     * @param elem {node} Element to look for search term within
      */
     module.findTerm = function ( elem ) {
 
