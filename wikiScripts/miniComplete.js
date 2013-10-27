@@ -8,7 +8,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.6.3
+ * @version 0.0.7.0
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -117,8 +117,11 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             // hide minicomplete-options
             $( '#minicomplete-wrapper' ).hide();
 
+            // store node for later use
+            module.elem = this;
+            
             // run api query
-            module.findTerm( this );
+            module.findTerm( module.elem );
         } );
 
     };
@@ -454,8 +457,20 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         console.log( complete, module.type );
 
-        // strip template namespace if applicable
+        var caret = module.getCaretPos( module.elem ),
+            val = $( module.elem ).val(),
+            text = val.substring( 0, caret ),
+            close = module.type === '[[' ? ']]' : '}}',
+            before = text.substring( 0, text.lastIndexOf( module.type ) ),
+            colon = text[ text.lastIndexOf( module.type ) + 2 ];
+        
+        // strip template namespace for template transclusion
+        if ( module.type === '{{' && complete.split(':')[0] === 'Template' ) {
+            complete = complete.split(':')[1];
+        }
 
+        console.log( colon );
+        
         // count back from caret position to {{ or [[
 
         // reselect term
