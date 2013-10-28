@@ -578,8 +578,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         $( '#minicomplete-wrapper' ).hide();
         $( '#minicomplete-list' ).empty();
 
-        console.log( 'boom' );
-
     };
 
     $( module.init );
