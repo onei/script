@@ -96,7 +96,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
     };
 
     /**
-     * Loads the rest of the functions
+     * Loads the rest of the functions and adds event listeners
      * 
      * @param selector {string} Selector to bind events in textarea to
      */
@@ -139,12 +139,14 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                                 console.log( 'removing selected class' );
                                 
                                 // if at top of list jump to bottom
-                                if ( $option[i] === $option[0] ) {
+                                if ( i === 0 ) {
                                     $( $option[$option.length - 1] ).addClass( 'selected' );
                                     console.log( 'top of list' );
+                                // else move up list
                                 } else {
-                                    $( $option[i] ).addClass( 'selected' );
+                                    $( $option[i - 1] ).addClass( 'selected' );
                                     console.log( 'moving up list', i, i - 1 );
+                                    console.log( $option[i - 1], $option[i] );
                                 }
                                 
                                 return;
@@ -164,7 +166,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                     if ( !$select.length ) {
                         $( $option[0] ).addClass( 'selected' );
                     } else {
-                        
+                        console.log( 'move down list' );
                     }
                 }
             }
