@@ -1,3 +1,4 @@
+// <syntaxhighlight lang="javascript">
 /**
  * Minieditor Autocomplete (MiniComplete)
  *
@@ -13,12 +14,8 @@
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
  * 
- * Colors libarary docs: <http://dev.wikia.com/wiki/Colors>
- * Textarea-helper docs: <>
- * 
- * Imports for testing:
- * - importScriptURI( 'https://raw.github.com/onei/script/master/wikiScripts/miniComplete.js' );
- * - mw.loader.load( 'https://raw.github.com/onei/script/master/wikiScripts/miniComplete.js' );
+ * Colors library docs: <http://dev.wikia.com/wiki/Colors>
+ * Textarea-helper docs: <https://github.com/Codecademy/textarea-helper>
  */
 
 /*global
@@ -583,3 +580,5 @@ this.dev.miniComplete = this.dev.miniComplete || {};
     $( module.init );
 
 }( document, jQuery, mediaWiki, dev.miniComplete ) );
+
+// </syntaxhighlight>
