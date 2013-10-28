@@ -159,7 +159,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                     if ( !$select.length ) {
                         $( $option[0] ).addClass( 'selected' );
                     } else {
-                        for ( i = 0; i < $options.length; i += 1 ) {
+                        for ( i = 0; i < $option.length; i += 1 ) {
                             // remove selected class
                             $( $option[i] ).removeClass( 'selected' );
                         
