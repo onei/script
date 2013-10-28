@@ -193,7 +193,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         
         // clear .selected class on hover
         // css :hover pseudo-class does hover colour change instead
-        $( '.minicomplete-option' ).on( 'hover', function () {
+        $( '.minicomplete-option' ).on( 'mouseover', function () {
+            console.log( 'hover event fired' );
             $( '.minicomplete-option' ).removeClass( 'selected' );
         } );
 
