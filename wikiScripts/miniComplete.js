@@ -139,12 +139,12 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                                 console.log( 'removing selected class' );
                                 
                                 // if at top of list jump to bottom
-                                if ( i = 0 ) {
+                                if ( $option[i] === $option[0] ) {
                                     $( $option[$option.length - 1] ).addClass( 'selected' );
                                     console.log( 'top of list' );
                                 } else {
                                     $( $option[i] ).addClass( 'selected' );
-                                    console.log( 'moving up list', i - 1 );
+                                    console.log( 'moving up list', i, i - 1 );
                                 }
                                 
                                 return;
