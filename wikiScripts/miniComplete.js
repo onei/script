@@ -132,6 +132,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                             if ( $( $option[i] ).hasClass( 'selected' ) ) {
                                 
                                 console.log( $option.length, i );
+                                console.log( $option );
                                 
                                 // remove class
                                 $( $option[i] ).removeClass( 'selected' );
@@ -142,8 +143,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                                     $( $option[$option.length - 1] ).addClass( 'selected' );
                                     console.log( 'top of list' );
                                 } else {
-                                    $( $option[i - 2] ).addClass( 'selected' );
-                                    console.log( 'moving up list' );
+                                    $( $option[i - 1] ).addClass( 'selected' );
+                                    console.log( 'moving up list', i - 1 );
                                 }
                                 
                                 return;
