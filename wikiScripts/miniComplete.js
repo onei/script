@@ -13,6 +13,9 @@
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
  * 
+ * Colors libarary docs: <http://dev.wikia.com/wiki/Colors>
+ * Textarea-helper docs: <>
+ * 
  * Imports for testing:
  * - importScriptURI( 'https://raw.github.com/onei/script/master/wikiScripts/miniComplete.js' );
  * - mw.loader.load( 'https://raw.github.com/onei/script/master/wikiScripts/miniComplete.js' );
@@ -83,13 +86,14 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         }
 
         // by this point we know this can run
-        // so implement colors module
+        // so create our custom resourceloader modules
         mw.loader.implement( 'dev.colors', [ 'http://dev.wikia.com/wiki/Colors/code.js?action=raw&ctype=javascript' ], {}, {} );
+        mw.loader.implement( 'jquery.textareahelper', [ 'http://camtest.wikia.com/index.php?title=MediaWiki:TextareaHelper.js&action=raw&ctype=text/javascript' ], {}, {} );
 
-        // we need Colors after this point
+        // we need custom modules after this point
         // so declare our dependencies and run the rest of the script
         // in the callback
-        mw.loader.using( [ 'dev.colors', 'mediawiki.api' ], function () {
+        mw.loader.using( [ 'dev.colors', 'jquery.textareahelper', 'mediawiki.api' ], function () {
             module.load( selector );
         } );
 
@@ -227,17 +231,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         }
 
         return ( caretPos );
-
-    };
-
-    /**
-     * Get x and y coordinates of caret
-     * 
-     * @source <http://stackoverflow.com/questions/16212871/get-the-offset-position-of-the-caret-in-a-textarea-in-pixels>
-     */
-    module.caretXYPos = function () {
-
-        // do stuff
 
     };
 
@@ -502,15 +495,10 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         // show option list
         $( '#minicomplete-wrapper' ).show();
         
-        // temp css until we can use xy pos
-        // @todo finish module.caretXYPos
-        $( '#minicomplete-wrapper' ).css( {
-            position: 'fixed',
-            top: '0'
-        } );
-
         // position option list
         // check if too close to top/bottom/sides of the screen
+        $( '#minicomplete-wrapper' ).css( $( module.elem ).textareaHelper( 'caretPos' ) );
+        console.log( $( module.elem ).textareaHelper( 'caretPos' ) );
 
         // add event handlers for .minicomplete-option here
         // as the won't fire if they aren't created when you try to bind
