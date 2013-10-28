@@ -8,7 +8,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.7.3
+ * @version 0.0.7.4
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -113,13 +113,11 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 i;
             
             if ( e.keyCode === 27 ) {
-                console.log( 'esc key pressed' );
                 $( '#minicomplete-wrapper' ).hide();
                 $( '#minicomplete-list' ).empty();
             }
             
             if ( e.keyCode === 38 ) {
-                console.log( 'up key pressed' );
                 
                 if ( $option.length ) {
                     // stop caret moving
@@ -150,7 +148,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             }
             
             if ( e.keyCode === 40 ) {
-                console.log( 'down key pressed' );
                 
                 if ( $option.length ) {
                     // stop caret moving
@@ -165,13 +162,10 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                                 $( $option[i] ).removeClass( 'selected' );
                         
                                 // if at bottom of list jump to top
-                                console.log( i, i + 1, $option.length, $option.length - 1 );
                                 if ( i === ( $option.length - 1 ) ) {
-                                    console.log( 'bottom of list' );
                                     $( $option[0] ).addClass( 'selected' );
                                 // else move down list
                                 } else {
-                                    console.log( 'moving down list' );
                                     $( $option[i + 1] ).addClass( 'selected' );
                                 }
                             
@@ -183,10 +177,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             }
             
             if ( e.keyCode === 13 ) {
-                console.log( 'enter key pressed' );
                 if ( $select.length ) {
                     e.preventDefault();
-                    console.log( $select.text() );
+                    module.insertComplete( $select.text() );
                 }
             }
         } );
@@ -195,7 +188,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             // hide menu
             $( '#minicomplete-wrapper' ).hide();
             $( '#minicomplete-lest' ).empty();
-            
+
             // store node for later use
             module.elem = this;
             
@@ -366,8 +359,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                     return;
                 }
 
-                console.log( term );
-
                 // set type here as it's easier than
                 // passing it through all the functions
                 module.type = '[[';
@@ -409,8 +400,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 if ( !term.length ) {
                     return;
                 }
-
-                console.log( term );
 
                 // set type here as it's easier than
                 // passing it through all the functions
@@ -472,7 +461,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
                             // error handling
                             if ( data.error ) {
-                                console.log( data.error.code, data.error.info );
+                                mw.log( data.error.code, data.error.info );
                                 return;
                             }
 
@@ -485,7 +474,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
                         } )
                         .error( function ( error ) {
-                            console.log( 'API error: (', error );
+                            mw.log( 'API error: (', error );
                         } );
 
     };
@@ -504,8 +493,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         for ( i = 0; i < result.length; i += 1 ) {
             options.push( '<li class="minicomplete-option">' + result[i].title + '</li>' );
         }
-
-        console.log( result, options );
 
         // append options to container
         $( '#minicomplete-list' ).html(
@@ -537,8 +524,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         // clear .selected class on hover
         // css :hover pseudo-class does hover colour change instead
         $( '.minicomplete-option' ).on( 'mouseenter', function () {
-            console.log( 'hover event fired' );
-            $( '.minicomplete-option' ).removeClass( 'selected' );
+            if ( $( '.minicomplete-option.selected' ).length ) {
+                $( '.minicomplete-option' ).removeClass( 'selected' );
+            }
         } );
 
     };
@@ -550,8 +538,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
      * @todo Allow user to navigate through suggestions with up/down keys
      */
     module.insertComplete = function ( complete ) {
-
-        console.log( complete, module.type );
 
         var caret = module.getCaretPos(),
             val = $( module.elem ).val(),
