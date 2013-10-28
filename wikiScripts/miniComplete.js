@@ -552,7 +552,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
      * Inserts selected suggestion
      *
      * @param complete {string} Search suggestion to insert
-     * @todo Allow user to navigate through suggestions with up/down keys
      */
     module.insertComplete = function ( complete ) {
 
