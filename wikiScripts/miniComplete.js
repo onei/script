@@ -190,13 +190,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 }
             }
         } );
-        
-        // clear .selected class on hover
-        // css :hover pseudo-class does hover colour change instead
-        $( '.minicomplete-option' ).hover( function () {
-            console.log( 'hover event fired' );
-            $( '.minicomplete-option' ).removeClass( 'selected' );
-        } );
 
         $( selector ).on( 'input', function () {
             // hide menu
@@ -532,9 +525,20 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         // position option list
         // check if too close to top/bottom/sides of the screen
 
+        // add event handlers for .minicomplete-option here
+        // as the won't fire if they aren't created when you try to bind
+        // events to them
+
         // add onclick handler for inserting the option
         $( '.minicomplete-option' ).on( 'click', function () {
             module.insertComplete( $( this ).text() );
+        } );
+        
+        // clear .selected class on hover
+        // css :hover pseudo-class does hover colour change instead
+        $( '.minicomplete-option' ).on( 'mouseenter', function () {
+            console.log( 'hover event fired' );
+            $( '.minicomplete-option' ).removeClass( 'selected' );
         } );
 
     };
