@@ -8,7 +8,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 0.0.7.4
+ * @version 1.0
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -108,19 +108,41 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         module.insertCSS();
         module.insertMenu();
+        module.bindEvents();
 
-        // hide options menu on esc keydown
+        $( selector ).on( 'input', function () {
+            // hide menu
+            $( '#minicomplete-wrapper' ).hide();
+            $( '#minicomplete-lest' ).empty();
+
+            // store node for later use
+            module.elem = this;
+            
+            // run api query
+            module.findTerm( module.elem );
+        } );
+
+    };
+    
+    /**
+     * Binds events related to navigating through menu with up/down keys
+     */
+    module.bindEvents = function () {
+        
+
         $( document ).on( 'keydown', function ( e ) {
             
             var $option = $( '.minicomplete-option' ),
                 $select = $( '.minicomplete-option.selected' ),
                 i;
             
+            // hide options menu on esc keydown
             if ( e.keyCode === 27 ) {
                 $( '#minicomplete-wrapper' ).hide();
                 $( '#minicomplete-list' ).empty();
             }
             
+            // select option using up key
             if ( e.keyCode === 38 ) {
                 
                 if ( $option.length ) {
@@ -151,6 +173,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 }
             }
             
+            // select option using down key
             if ( e.keyCode === 40 ) {
                 
                 if ( $option.length ) {
@@ -180,6 +203,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 }
             }
             
+            // insert selected option using enter key
             if ( e.keyCode === 13 ) {
                 if ( $select.length ) {
                     e.preventDefault();
@@ -187,19 +211,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 }
             }
         } );
-
-        $( selector ).on( 'input', function () {
-            // hide menu
-            $( '#minicomplete-wrapper' ).hide();
-            $( '#minicomplete-lest' ).empty();
-
-            // store node for later use
-            module.elem = this;
-            
-            // run api query
-            module.findTerm( module.elem );
-        } );
-
+        
     };
 
     /**
@@ -498,17 +510,20 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         $( '#minicomplete-wrapper' ).show();
         
         // position option list
-        // check if too close to top/bottom/sides of the screen
         coords = $( module.elem ).textareaHelper( 'caretPos' );
         offset = $( module.elem ).offset();
-        
-        console.log( offset );
-        console.log( $( module.elem ).offset() );
-        
+
         $( '#minicomplete-wrapper' ).css( {
             top: offset.top + coords.top - $( '#minicomplete-wrapper').height(),
             left: offset.left + coords.left
         } );
+        
+        // I haven't added any behaviour for if the menu is outside of the window
+        // as if I moved it down it would obscure text
+        // and if I moved it up chances are the user can't see the textarea in the first place
+        
+        // may possibly need right repositioning for monobook
+        // see what feedback says
 
         // add event handlers for .minicomplete-option here
         // as the won't fire if they aren't created when you try to bind
