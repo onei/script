@@ -190,6 +190,12 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 }
             }
         } );
+        
+        // clear .selected class on hover
+        // css :hover pseudo-class does hover colour change instead
+        $( '.minicomplete-option' ).on( 'hover', function () {
+            $( '.minicomplete-option' ).removeClass( 'selected' );
+        } );
 
         $( selector ).on( 'input', function () {
             // hide menu
@@ -529,14 +535,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         $( '.minicomplete-option' ).on( 'click', function () {
             module.insertComplete( $( this ).text() );
         } );
-
-        /*
-        // clear .selected class on hover
-        // css :hover pseudo-class does hover colour change instead
-        $( '.minicomplete-option' ).on( 'hover', function () {
-            $( '.minicomplete-option' ).removeClass( 'selected' );
-        } );
-        */
 
     };
 
