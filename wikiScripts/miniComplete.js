@@ -482,7 +482,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         var i,
             options = [],
-            coords;
+            coords,
+            offset;
 
         for ( i = 0; i < result.length; i += 1 ) {
             options.push( '<li class="minicomplete-option">' + result[i].title + '</li>' );
@@ -500,7 +501,10 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         // check if too close to top/bottom/sides of the screen
         coords = $( module.elem ).textareaHelper( 'caretPos' );
         offset = $( module.elem ).offset();
-
+        
+        console.log( offset );
+        console.log( $( module.elem ).offset() );
+        
         $( '#minicomplete-wrapper' ).css( {
             top: offset.top + coords.top,
             left: offset.left + coords.left
