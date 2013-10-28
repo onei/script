@@ -9,11 +9,11 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.0
+ * @version 1.0.2
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
- * 
+ *
  * Colors library docs: <http://dev.wikia.com/wiki/Colors>
  * Textarea-helper docs: <https://github.com/Codecademy/textarea-helper>
  */
@@ -57,12 +57,21 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             return;
         }
 
+        // prevent loading twice
+        if ( module.loaded ) {
+            return;
+        }
+
+        module.loaded = true;
+
         // disable !! warnings (convert to boolean)
         // because this is a bit prettier than a staggered if statement/ternary
         /*jshint -W018 */
         switch ( true ) {
         // Special:Upload
         case !!( config.wgCanonicalSpecialPageName === 'Upload' ):
+        // Special:MultipleUpload (is there a right associated with using this?)
+        case !!( config.wgCanonicalSpecialPageName === 'MultipleUpload' ):
             selector = '#wpUploadDescription';
             break;
         // Article and Blog comments
@@ -84,7 +93,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         // by this point we know this can run
         // so create our custom resourceloader modules
-        mw.loader.implement( 'dev.colors', [ 'http://dev.wikia.com/wiki/Colors/code.js?action=raw&ctype=javascript' ], {}, {} );
+        mw.loader.implement( 'dev.colors', [ 'http://dev.wikia.com/wiki/Colors/code.js?action=raw&ctype=text/javascript' ], {}, {} );
         mw.loader.implement( 'jquery.textareahelper', [ 'http://camtest.wikia.com/index.php?title=MediaWiki:TextareaHelper.js&action=raw&ctype=text/javascript' ], {}, {} );
 
         // we need custom modules after this point
@@ -97,8 +106,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
     };
 
     /**
-     * Loads the rest of the functions and adds event listeners
-     * 
+     * Loads the rest of the functions
+     *
      * @param selector {string} Selector to bind events in textarea to
      */
     module.load = function ( selector ) {
@@ -114,47 +123,46 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
             // store node for later use
             module.elem = this;
-            
+
             // run api query
             module.findTerm( module.elem );
         } );
 
     };
-    
+
     /**
      * Binds events related to navigating through menu with up/down keys
      */
     module.bindEvents = function () {
-        
 
         $( document ).on( 'keydown', function ( e ) {
-            
+
             var $option = $( '.minicomplete-option' ),
                 $select = $( '.minicomplete-option.selected' ),
                 i;
-            
+
             // hide options menu on esc keydown
             if ( e.keyCode === 27 ) {
                 $( '#minicomplete-wrapper' ).hide();
                 $( '#minicomplete-list' ).empty();
             }
-            
+
             // select option using up key
             if ( e.keyCode === 38 ) {
-                
+
                 if ( $option.length ) {
                     // stop caret moving
                     e.preventDefault();
-                
+
                     if ( !$select.length ) {
                         $( $option[$option.length - 1] ).addClass( 'selected' );
                     } else {
                         for ( i = 0; i < $option.length; i += 1 ) {
                             if ( $( $option[i] ).hasClass( 'selected' ) ) {
-                                
+
                                 // remove class
                                 $( $option[i] ).removeClass( 'selected' );
-                                
+
                                 // if at top of list jump to bottom
                                 if ( i === 0 ) {
                                     $( $option[$option.length - 1] ).addClass( 'selected' );
@@ -162,21 +170,21 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                                 } else {
                                     $( $option[i - 1] ).addClass( 'selected' );
                                 }
-                                
+
                                 return;
                             }
                         }
                     }
                 }
             }
-            
+
             // select option using down key
             if ( e.keyCode === 40 ) {
-                
+
                 if ( $option.length ) {
                     // stop caret moving
                     e.preventDefault();
-                
+
                     if ( !$select.length ) {
                         $( $option[0] ).addClass( 'selected' );
                     } else {
@@ -184,7 +192,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                             if ( $( $option[i] ).hasClass( 'selected' ) ) {
                                 // remove selected class
                                 $( $option[i] ).removeClass( 'selected' );
-                        
+
                                 // if at bottom of list jump to top
                                 if ( i === ( $option.length - 1 ) ) {
                                     $( $option[0] ).addClass( 'selected' );
@@ -192,14 +200,14 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                                 } else {
                                     $( $option[i + 1] ).addClass( 'selected' );
                                 }
-                            
+
                                 return;
                             }
                         }
                     }
                 }
             }
-            
+
             // insert selected option using enter key
             if ( e.keyCode === 13 ) {
                 if ( $select.length ) {
@@ -208,13 +216,13 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                 }
             }
         } );
-        
+
     };
 
     /**
      * Gets caret position for detecting search term and inserting autocomplete term.
      * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
-     * 
+     *
      * @return {number} Caret position in string.
      *                  If browser does not support caret position methods
      *                  returns 0 to prevent syntax errors
@@ -245,9 +253,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
     /**
      * Insert stylesheet using colours set by ThemeDesigner
-     * 
+     *
      * For documentation on Colors library, see <http://dev.wikia.com/wiki/Colors>
-     * 
+     *
      * @todo Allow custom colours for when there's non-themedesigner colours
      *       or custom monobook theme
      */
@@ -287,23 +295,23 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         } );
 
     };
-        
+
     /**
      * Inserts options div container and ul
      * So it's ready for populating with li elements when required
      */
     module.insertMenu = function () {
-          
+
         var container = document.createElement( 'div' ),
             list = document.createElement( 'ul' );
-            
+
         container.id = 'minicomplete-wrapper';
         list.id = 'minicomplete-list';
-            
+
         container.appendChild( list );
-            
+
         document.getElementsByTagName( 'body' )[0].appendChild( container );
-            
+
     };
 
     /**
@@ -483,7 +491,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
     /**
      * Inserts list of options to select from
-     * 
+     *
      * @param result {array} Result from API
      */
     module.showSuggestions = function ( result ) {
@@ -504,7 +512,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         // show option list
         $( '#minicomplete-wrapper' ).show();
-        
+
         // position option list
         coords = $( module.elem ).textareaHelper( 'caretPos' );
         offset = $( module.elem ).offset();
@@ -513,12 +521,12 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             top: offset.top + coords.top - $( '#minicomplete-wrapper').height(),
             left: offset.left + coords.left
         } );
-        
+
         // I haven't added any behaviour for if the menu is outside of the window
         // as if I moved it down it would obscure text
         // and if I moved it up chances are the user can't see the textarea in the first place
-        
-        // may possibly need right repositioning for monobook
+
+        // may possibly need right/left repositioning for monobook
         // see what feedback says
 
         // add event handlers for .minicomplete-option here
@@ -529,10 +537,10 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         $( '.minicomplete-option' ).on( 'click', function () {
             module.insertComplete( $( this ).text() );
         } );
-        
+
         // clear .selected class on hover
         // css :hover pseudo-class does hover colour change instead
-        $( '.minicomplete-option' ).on( 'mouseenter', function () {
+        $( '.minicomplete-option' ).on( 'mouseover', function () {
             if ( $( '.minicomplete-option.selected' ).length ) {
                 $( '.minicomplete-option' ).removeClass( 'selected' );
             }
@@ -542,7 +550,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
     /**
      * Inserts selected suggestion
-     * 
+     *
      * @param complete {string} Search suggestion to insert
      * @todo Allow user to navigate through suggestions with up/down keys
      */
@@ -554,14 +562,14 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             open = module.type,
             close = open === '[[' ? ']]' : '}}',
             before = text.substring( 0, text.lastIndexOf( open ) );
-        
+
         // strip template namespace for template transclusion
-        if ( module.type === '{{' && complete.split(':')[0] === 'Template' ) {
-            complete = complete.split(':')[1];
+        if ( module.type === '{{' && complete.split( ':' )[0] === 'Template' ) {
+            complete = complete.split( ':' )[1];
         }
-        
+
         // check if a colon is after the opening brackets
-        if ( text[ text.lastIndexOf( open ) + 2 ] === ':' ) {
+        if ( text[text.lastIndexOf( open ) + 2] === ':' ) {
             open += ':';
         }
 
@@ -580,4 +588,4 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
 }( document, jQuery, mediaWiki, dev.miniComplete ) );
 
-// </syntaxhighlight>
+// </syntaxhighlight> __NOWYSIWYG__
