@@ -485,7 +485,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
      * Inserts list of options to select from
      * 
      * @param result {array} Result from API
-     * @link <http://jsfiddle.net/5KqmF/112/> Example
      */
     module.showSuggestions = function ( result ) {
 
