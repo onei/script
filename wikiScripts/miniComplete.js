@@ -132,12 +132,15 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                             if ( $( $option[i] ).hasClass( 'selected' ) ) {
                                 // remove class
                                 $( $option[i] ).removeClass( 'selected' );
+                                console.log( 'removing selected class' );
                                 
                                 // if at top of list jump to bottom
                                 if ( i = 0 ) {
                                     $( $option[$option.length - 1] ).addClass( 'selected' );
+                                    console.log( 'top of list' );
                                 } else {
                                     $( $option[i - 1] ).addClass( 'selected' );
+                                    console.log( 'moving down list' );
                                 }
                                 
                                 return;
