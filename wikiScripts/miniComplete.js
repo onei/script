@@ -481,7 +481,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
     module.showSuggestions = function ( result ) {
 
         var i,
-            options = [];
+            options = [],
+            coords;
 
         for ( i = 0; i < result.length; i += 1 ) {
             options.push( '<li class="minicomplete-option">' + result[i].title + '</li>' );
@@ -497,8 +498,13 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         
         // position option list
         // check if too close to top/bottom/sides of the screen
-        $( '#minicomplete-wrapper' ).css( $( module.elem ).textareaHelper( 'caretPos' ) );
-        console.log( $( module.elem ).textareaHelper( 'caretPos' ) );
+        coords = $( module.elem ).textareaHelper( 'caretPos' );
+        offset = $( module.elem ).offset();
+
+        $( '#minicomplete-wrapper' ).css( {
+            top: offset.top + coords.top,
+            left: offset.left + coords.left
+        } );
 
         // add event handlers for .minicomplete-option here
         // as the won't fire if they aren't created when you try to bind
