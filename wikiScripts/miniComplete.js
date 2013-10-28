@@ -506,7 +506,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         console.log( $( module.elem ).offset() );
         
         $( '#minicomplete-wrapper' ).css( {
-            top: offset.top + coords.top,
+            top: offset.top + coords.top - $( '#minicomplete-wrapper').height(),
             left: offset.left + coords.left
         } );
 
