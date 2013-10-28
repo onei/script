@@ -163,9 +163,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                         // remove selected class
                         $( $option[i] ).removeClass( 'selected' );
                         
-                        if ( i === ( $options.length - 1 ) ) {
+                        if ( i === ( $option.length - 1 ) ) {
                             console.log( 'bottom of list' );
-                            $( $opton[0] ).addClass( 'selected' );
+                            $( $option[0] ).addClass( 'selected' );
                         } else {
                             console.log( 'moving down list' );
                             $( $option[i + 1] ).addClass( 'selected' );
