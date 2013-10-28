@@ -131,22 +131,15 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                         for ( i = 0; i < $option.length; i += 1 ) {
                             if ( $( $option[i] ).hasClass( 'selected' ) ) {
                                 
-                                console.log( $option.length, i );
-                                console.log( $option );
-                                
                                 // remove class
                                 $( $option[i] ).removeClass( 'selected' );
-                                console.log( 'removing selected class' );
                                 
                                 // if at top of list jump to bottom
                                 if ( i === 0 ) {
                                     $( $option[$option.length - 1] ).addClass( 'selected' );
-                                    console.log( 'top of list' );
                                 // else move up list
                                 } else {
                                     $( $option[i - 1] ).addClass( 'selected' );
-                                    console.log( 'moving up list', i, i - 1 );
-                                    console.log( $option[i - 1], $option[i] );
                                 }
                                 
                                 return;
@@ -166,7 +159,17 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                     if ( !$select.length ) {
                         $( $option[0] ).addClass( 'selected' );
                     } else {
-                        console.log( 'move down list' );
+                        
+                        // remove selected class
+                        $( $option[i] ).removeClass( 'selected' );
+                        
+                        if ( i === ( $options.length - 1 ) ) {
+                            console.log( 'bottom of list' );
+                            $( $opton[0] ).addClass( 'selected' );
+                        } else {
+                            console.log( 'moving down list' );
+                            $( $option[i + 1] ).addClass( 'selected' );
+                        }
                     }
                 }
             }
