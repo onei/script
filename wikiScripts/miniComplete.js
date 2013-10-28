@@ -142,7 +142,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                                     $( $option[$option.length - 1] ).addClass( 'selected' );
                                     console.log( 'top of list' );
                                 } else {
-                                    $( $option[i - 1] ).addClass( 'selected' );
+                                    $( $option[i - 2] ).addClass( 'selected' );
                                     console.log( 'moving up list' );
                                 }
                                 
