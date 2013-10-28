@@ -160,18 +160,22 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                         $( $option[0] ).addClass( 'selected' );
                     } else {
                         for ( i = 0; i < $option.length; i += 1 ) {
-                            // remove selected class
-                            $( $option[i] ).removeClass( 'selected' );
+                            if ( $( $option[i] ).hasClass( 'selected' ) ) {
+                                // remove selected class
+                                $( $option[i] ).removeClass( 'selected' );
                         
-                            // if at bottom of list jump to top
-                            console.log( i, i + 1, $option.length, $option.length - 1 );
-                            if ( i === ( $option.length - 1 ) ) {
-                                console.log( 'bottom of list' );
-                                $( $option[0] ).addClass( 'selected' );
-                            // else move down list
-                            } else {
-                                console.log( 'moving down list' );
-                                $( $option[i + 1] ).addClass( 'selected' );
+                                // if at bottom of list jump to top
+                                console.log( i, i + 1, $option.length, $option.length - 1 );
+                                if ( i === ( $option.length - 1 ) ) {
+                                    console.log( 'bottom of list' );
+                                    $( $option[0] ).addClass( 'selected' );
+                                // else move down list
+                                } else {
+                                    console.log( 'moving down list' );
+                                    $( $option[i + 1] ).addClass( 'selected' );
+                                }
+                            
+                                return;
                             }
                         }
                     }
