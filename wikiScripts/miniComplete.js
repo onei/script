@@ -130,6 +130,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                     } else {
                         for ( i = 0; i < $option.length; i += 1 ) {
                             if ( $( $option[i] ).hasClass( 'selected' ) ) {
+                                
+                                console.log( $option.length, i );
+                                
                                 // remove class
                                 $( $option[i] ).removeClass( 'selected' );
                                 console.log( 'removing selected class' );
@@ -140,7 +143,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                                     console.log( 'top of list' );
                                 } else {
                                     $( $option[i - 1] ).addClass( 'selected' );
-                                    console.log( 'moving down list' );
+                                    console.log( 'moving up list' );
                                 }
                                 
                                 return;
