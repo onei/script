@@ -21,8 +21,35 @@
  */
 
 /**
+ * -- Instructions:
+ * To install this script as a gadget, the gadgets extension is required.
+ * If you do not have this extension installed already you can do so through
+ * <http://c.wikia.com/Speial:Contact/general>
+ * 
+ * For documentation on the gadgets extension, see <https://www.mediawiki.com/wiki/Extenion:Gadgets>
  *
- *
+ * -- Setup:
+ * To add this script as a gadget save this page as [[MediaWiki:Gadget-Minicomplete.js]] on your wiki
+ * 
+ * This will also require additional CSS located at <http://dev.wikia.com/wiki/MiniComplete.gadget.css>
+ * Save the CSS file at [[MediaWiki:Gadget-Minicomplete.css]] on your wiki.
+ * 
+ * You will also need to create [[MediaWiki:Gadget-Minicomplete]] which is the description of the gadget
+ * seen when viewing the gadgets section of [[Special:Preferences]]. Create this page with the text (without
+ * the quote marks):
+ * ""
+ * 
+ * Finally add the script to [[MediaWiki:Gadgets-defintion]] by adding the following line (without the quote marks):
+ * "* Minicomplete[dependencies=mediawiki.api]|Minicomplete.js|Minicomplete.css"
+ * To enable as a default gadget (loads for every user registered and anonymous) use the following line instead
+ * (without the quote marks):
+ * "* Minicomplete[default|dependencies=mediawiki.api]|Minicomplete.js|Minicomplete.css"
+ * 
+ * -- Disclaimer:
+ * The author of this script will not accept any responsibility for maintaining scripts unless explicitly stated.
+ * Any version of this script not located on dev wiki will be the responsibility of local sysops. If the script
+ * is modified in any  way outside of the changes made to the version of this script on dev wiki it will cease to
+ * become supported by the script's original author.
  */
 
 /*global
@@ -106,7 +133,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         // we need custom modules after this point
         // so declare our dependencies and run the rest of the script
         // in the callback
-        mw.loader.using( [ 'dev.colors', 'jquery.textareahelper', 'mediawiki.api' ], function () {
+        mw.loader.using( [ 'dev.colors', 'jquery.textareahelper' ], function () {
             module.load( selector );
         } );
 
@@ -290,9 +317,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         }
 
         css = [
-            '#minicomplete-wrapper{border:1px solid $border;background-color:$page;color:$text;position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
-            '#minicomplete-list{margin:0;}',
-            '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}',
+            '#minicomplete-wrapper{border:1px solid $border;background-color:$page;color:$text;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
             '.minicomplete-option:hover,.minicomplete-option.selected{background-color:$mix;}'
         ];
 
