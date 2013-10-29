@@ -9,7 +9,7 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.0.2
+ * @version 1.0.3
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
@@ -27,7 +27,7 @@
     forin:true, immed:true, indent:4, latedef:true, newcap:true,
     noarg:true, noempty:true, nonew:true, plusplus:true, quotmark:single,
     undef:true, unused:true, strict:true, trailing:true,
-    browser:true, jquery:true,
+    browser:true, devel:false, jquery:true,
     onevar:true
 */
 
@@ -43,7 +43,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
     'use strict';
 
     /**
-     * Checks for correct environment
+     * Checks for correct environment and implements custom ResourceLoader modules
      */
     module.init =  function () {
 
@@ -119,7 +119,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         $( selector ).on( 'input', function () {
             // hide menu
             $( '#minicomplete-wrapper' ).hide();
-            $( '#minicomplete-lest' ).empty();
+            $( '#minicomplete-list' ).empty();
 
             // store node for later use
             module.elem = this;
@@ -322,7 +322,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
     module.findTerm = function ( elem ) {
 
             // text to search for
-        var searchText = $( elem ).val().substring( 0, module.getCaretPos() ),
+        var searchText = elem.value.substring( 0, module.getCaretPos() ),
             // for separating search term
             linkCheck = searchText.lastIndexOf( '[['),
             templateCheck = searchText.lastIndexOf( '{{' ),
@@ -499,7 +499,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         var i,
             options = [],
             coords,
-            offset;
+            offset,
+            $options;
 
         for ( i = 0; i < result.length; i += 1 ) {
             options.push( '<li class="minicomplete-option">' + result[i].title + '</li>' );
@@ -533,16 +534,21 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         // as the won't fire if they aren't created when you try to bind
         // events to them
 
+        // cache options
+        $options = $( '.minicomplete-option' );
+
         // add onclick handler for inserting the option
-        $( '.minicomplete-option' ).on( 'click', function () {
+        $options.on( 'click', function () {
             module.insertComplete( $( this ).text() );
         } );
 
         // clear .selected class on hover
         // css :hover pseudo-class does hover colour change instead
-        $( '.minicomplete-option' ).on( 'mouseover', function () {
+        $options.on( 'mouseover', function () {
             if ( $( '.minicomplete-option.selected' ).length ) {
-                $( '.minicomplete-option' ).removeClass( 'selected' );
+                // don't use this here as it refers to the hovered element
+                // we want to strip the selected class as soon as we enter the menu
+                $options.removeClass( 'selected' );
             }
         } );
 
@@ -556,7 +562,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
     module.insertComplete = function ( complete ) {
 
         var caret = module.getCaretPos(),
-            val = $( module.elem ).val(),
+            val = module.elem.value,
             text = val.substring( 0, caret ),
             open = module.type,
             close = open === '[[' ? ']]' : '}}',
@@ -573,9 +579,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         }
 
         // insert search term
-        $( module.elem ).val(
-            before + open + complete + close + val.substring( caret )
-        );
+        module.elem.value = before + open + complete + close + val.substring( caret );
         
         // hide options
         $( '#minicomplete-wrapper' ).hide();
