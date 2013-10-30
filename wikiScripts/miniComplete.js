@@ -4,7 +4,9 @@
  *
  * Adds autocomplete to certain form elements.
  * - Special:Upload description
+ * - Special:MultipleUpload description
  * - Message Wall comments
+ * - Article comments
  * - Blog comments
  * - Special:Forum posts
  *
@@ -12,10 +14,10 @@
  * @version 1.0.3
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
- * Jshint warning messages: <https://github.com/jshint/jshint/blob/master/src/messages.js>
- *
- * Colors library docs: <http://dev.wikia.com/wiki/Colors>
- * Textarea-helper docs: <https://github.com/Codecademy/textarea-helper>
+ * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
+ * @link <https://github.com/jshint/jshint/blob/master/src/messages.js> Jshint warning messages
+ * @link <http://dev.wikia.com/wiki/Colors> Color library documentation
+ * @link <https://github.com/Codecademy/textarea-helper> Textarea-helper documentation
  */
 
 /*global
@@ -84,6 +86,16 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         case !!( config.wgNamespaceNumber === 2000 ):
             selector = '.wikiaEditor';
             break;
+        // demo on <http://dev.wikia.com/wiki/MiniComplete#Demo>
+        case !!( $( '#minicomplete-demo' ).length ):
+            $( '#minicomplete-demo' ).append(
+                $( '<textarea>' ).attr( {
+                    id: 'minicomplete-demo-textarea'
+                } );
+                
+                selector = '#minicomplete-demo-textarea';
+                break;
+            );
         }
         /*jshint +W018 */
 
