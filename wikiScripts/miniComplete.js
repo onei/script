@@ -11,13 +11,19 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.0.3
+ * @version 1.1
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
  * @link <https://github.com/jshint/jshint/blob/master/src/messages.js> Jshint warning messages
  * @link <http://dev.wikia.com/wiki/Colors> Color library documentation
  * @link <https://github.com/Codecademy/textarea-helper> Textarea-helper documentation
+ * 
+ * @todo Add some kind of opt out setting for sitewide installations
+ * @todo Add support for custom CSS styling of the autocomplete menu
+ * @todo Check shorthand namespaces in redirects work
+ * @todo Make sure this can be used in other scripts and add docs
+ * @todo Add demo on doc page
  */
 
 /*global
@@ -39,96 +45,87 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
 // disable indent warning
 /*jshint -W015 */
-;( function ( document, $, mw, module ) {
+;( function ( document, $, mw, dev ) {
 /*jshint +W015 */
 
     'use strict';
 
-    /**
-     * Checks for correct environment and implements custom ResourceLoader modules
-     */
-    module.init =  function () {
+    dev.minicomplete = {
 
-        var selector = false,
-            config = mw.config.get( [
-                'wgCanonicalSpecialPageName',
-                'wgNamespaceNumber'
-            ] );
+        /**
+         * Checks for correct environment and implements custom ResourceLoader modules
+         */
+        init: function () {
 
-        if ( $( '#minicomplete-options' ).length ) {
-            return;
-        }
+            var selector = false,
+                config = mw.config.get( [
+                    'wgCanonicalSpecialPageName',
+                    'wgNamespaceNumber'
+                ] );
 
-        // prevent loading twice
-        if ( module.loaded ) {
-            return;
-        }
+            if ( $( '#minicomplete-options' ).length ) {
+                return;
+            }
 
-        module.loaded = true;
+            // prevent loading twice
+            if ( dev.minicomplete.loaded ) {
+                return;
+            }
 
-        // disable !! warnings (convert to boolean)
-        // because this is a bit prettier than a staggered if statement/ternary
-        /*jshint -W018 */
-        switch ( true ) {
-        // Special:Upload
-        case !!( config.wgCanonicalSpecialPageName === 'Upload' ):
-        // Special:MultipleUpload (is there a right associated with using this?)
-        case !!( config.wgCanonicalSpecialPageName === 'MultipleUpload' ):
-            selector = '#wpUploadDescription';
-            break;
-        // Article and Blog comments
-        case !!( $( '#WikiaArticleComments' ).length ):
-        // Message wall comments
-        case !!( config.wgNamespaceNumber === 1200 ):
-        // Special:Forum posts (Thread namespace)
-        case !!( config.wgNamespaceNumber === 1201 ):
-        // Special:Forum posts (Board namespace)
-        case !!( config.wgNamespaceNumber === 2000 ):
-            selector = '.wikiaEditor';
-            break;
-        // demo on <http://dev.wikia.com/wiki/MiniComplete#Demo>
-        case !!( $( '#minicomplete-demo' ).length ):
-            $( '#minicomplete-demo' ).append(
-                $( '<textarea>' ).attr( {
-                    id: 'minicomplete-demo-textarea'
-                } );
-                
-                selector = '#minicomplete-demo-textarea';
+            dev.minicomplete.loaded = true;
+
+            // disable !! warnings (convert to boolean)
+            // because this is a bit prettier than a staggered if statement/ternary
+            /*jshint -W018 */
+            switch ( true ) {
+            // Special:Upload
+            case !!( config.wgCanonicalSpecialPageName === 'Upload' ):
+            // Special:MultipleUpload (is there a right associated with using this?)
+            case !!( config.wgCanonicalSpecialPageName === 'MultipleUpload' ):
+                selector = '#wpUploadDescription';
                 break;
-            );
-        }
-        /*jshint +W018 */
+            // Article and Blog comments
+            case !!( $( '#WikiaArticleComments' ).length ):
+            // Message wall comments
+            case !!( config.wgNamespaceNumber === 1200 ):
+            // Special:Forum posts (Thread namespace)
+            case !!( config.wgNamespaceNumber === 1201 ):
+            // Special:Forum posts (Board namespace)
+            case !!( config.wgNamespaceNumber === 2000 ):
+                selector = '.wikiaEditor';
+                break;
+            }
+            /*jshint +W018 */
 
-        if ( !selector ) {
-            return;
-        }
+            if ( !selector ) {
+                return;
+            }
 
-        // by this point we know this can run
-        // so create our custom resourceloader modules
-        // combined into a single http request and minified
-        // courtesy of ResourceLoader
-        mw.loader.implement( 'minicomplete.dependencies', [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ], {}, {} );
-    
+            // by this point we know this can run
+            // so create our custom resourceloader modules
+            // combined into a single http request and minified
+            // courtesy of ResourceLoader
+            mw.loader.implement( 'minicomplete.dependencies', [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ], {}, {} );
 
-        // we need custom module after this point
-        // so declare our dependencies and run the rest of the script
-        // in the callback
-        mw.loader.using( [ 'minicomplete.dependencies', 'mediawiki.api' ], function () {
-            module.load( selector );
-        } );
+            // we need custom module after this point
+            // so declare our dependencies and run the rest of the script
+            // in the callback
+            mw.loader.using( [ 'minicomplete.dependencies', 'mediawiki.api' ], function () {
+                dev.minicomplete.load( selector );
+            } );
 
-    };
+        },
 
     /**
      * Loads the rest of the functions
      *
      * @param selector {string} Selector to bind events in textarea to
      */
-    module.load = function ( selector ) {
+    load: function ( selector ) {
 
-        module.insertCSS();
-        module.insertMenu();
-        module.bindEvents();
+        dev.minicomplete.insertCSS();
+        dev.minicomplete.insertMenu();
+        dev.minicomplete.bindEvents();
 
         $( selector ).on( 'input', function () {
             // hide menu
@@ -136,18 +133,18 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             $( '#minicomplete-list' ).empty();
 
             // store node for later use
-            module.elem = this;
+            dev.minicomplete.elem = this;
 
             // run api query
-            module.findTerm( module.elem );
+            dev.minicomplete.findTerm( dev.minicomplete.elem );
         } );
 
-    };
+    },
 
     /**
      * Binds events related to navigating through menu with up/down keys
      */
-    module.bindEvents = function () {
+    bindEvents: function () {
 
         $( document ).on( 'keydown', function ( e ) {
 
@@ -226,12 +223,12 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             if ( e.keyCode === 13 ) {
                 if ( $select.length ) {
                     e.preventDefault();
-                    module.insertComplete( $select.text() );
+                    dev.minicomplete.insertComplete( $select.text() );
                 }
             }
         } );
 
-    };
+    },
 
     /**
      * Gets caret position for detecting search term and inserting autocomplete term.
@@ -241,9 +238,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
      *                  If browser does not support caret position methods
      *                  returns 0 to prevent syntax errors
      */
-    module.getCaretPos = function () {
+    getCaretPos: function () {
 
-        var elem = module.elem,
+        var elem = dev.minicomplete.elem,
             caretPos = 0,
             sel;
 
@@ -263,7 +260,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         return ( caretPos );
 
-    };
+    },
 
     /**
      * Insert stylesheet using colours set by ThemeDesigner
@@ -273,18 +270,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
      * @todo Allow custom colours for when there's non-themedesigner colours
      *       or custom monobook theme
      */
-    module.insertCSS = function () {
-
-        /*
-        // example mcCols object
-        window.mcCols = {
-            border: '#000',
-            text: '#000',
-            background: '#fff',
-            hoverText: '#000',
-            hoverBackground: '#aaa'
-        }
-        */
+    insertCSS: function () {
 
         var pagebground = dev.colors.parse( dev.colors.wikia.page ),
             buttons = dev.colors.parse( dev.colors.wikia.menu ),
@@ -308,13 +294,13 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             shadow: shadow
         } );
 
-    };
+    },
 
     /**
      * Inserts options div container and ul
      * So it's ready for populating with li elements when required
      */
-    module.insertMenu = function () {
+    insertMenu: function () {
 
         var container = document.createElement( 'div' ),
             list = document.createElement( 'ul' );
@@ -326,17 +312,17 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         document.getElementsByTagName( 'body' )[0].appendChild( container );
 
-    };
+    },
 
     /**
      * Counts back from caret position looking for unclosed {{ or [[
      *
      * @param elem {node} Element to look for search term within
      */
-    module.findTerm = function ( elem ) {
+    findTerm: function ( elem ) {
 
             // text to search for
-        var searchText = elem.value.substring( 0, module.getCaretPos() ),
+        var searchText = elem.value.substring( 0, dev.minicomplete.getCaretPos() ),
             // for separating search term
             linkCheck = searchText.lastIndexOf( '[['),
             templateCheck = searchText.lastIndexOf( '{{' ),
@@ -385,8 +371,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
                 // set type here as it's easier than
                 // passing it through all the functions
-                module.type = '[[';
-                module.getSuggestions( term, 0 );
+                dev.minicomplete.type = '[[';
+                dev.minicomplete.getSuggestions( term, 0 );
 
             }
 
@@ -427,14 +413,14 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
                 // set type here as it's easier than
                 // passing it through all the functions
-                module.type = '{{';
-                module.getSuggestions( term, ns );
+                dev.minicomplete.type = '{{';
+                dev.minicomplete.getSuggestions( term, ns );
 
             }
 
         }
 
-    };
+    },
 
     /**
      * Queries mw api for possible suggestions
@@ -443,7 +429,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
      * @param term {string} Page title to search for
      * @param ns {integer} Namespace to search in
      */
-    module.getSuggestions = function ( term, ns ) {
+    getSuggestions: function ( term, ns ) {
 
         var query = {
                 action: 'query',
@@ -494,21 +480,21 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                                 return;
                             }
 
-                            module.showSuggestions( data.query.allpages );
+                            dev.minicomplete.showSuggestions( data.query.allpages );
 
                         } )
                         .error( function ( error ) {
                             mw.log( 'API error: (', error );
                         } );
 
-    };
+    },
 
     /**
      * Inserts list of options to select from
      *
      * @param result {array} Result from API
      */
-    module.showSuggestions = function ( result ) {
+    showSuggestions: function ( result ) {
 
         var i,
             options = [],
@@ -529,8 +515,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         $( '#minicomplete-wrapper' ).show();
 
         // position option list
-        coords = $( module.elem ).textareaHelper( 'caretPos' );
-        offset = $( module.elem ).offset();
+        coords = $( dev.minicomplete.elem ).textareaHelper( 'caretPos' );
+        offset = $( dev.minicomplete.elem ).offset();
 
         $( '#minicomplete-wrapper' ).css( {
             top: offset.top + coords.top - $( '#minicomplete-wrapper').height(),
@@ -553,7 +539,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         // add onclick handler for inserting the option
         $options.on( 'click', function () {
-            module.insertComplete( $( this ).text() );
+            dev.minicomplete.insertComplete( $( this ).text() );
         } );
 
         // clear .selected class on hover
@@ -566,24 +552,24 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             }
         } );
 
-    };
+    },
 
     /**
      * Inserts selected suggestion
      *
      * @param complete {string} Search suggestion to insert
      */
-    module.insertComplete = function ( complete ) {
+    insertComplete: function ( complete ) {
 
-        var caret = module.getCaretPos(),
-            val = module.elem.value,
+        var caret = dev.minicomplete.getCaretPos(),
+            val = dev.minicomplete.elem.value,
             text = val.substring( 0, caret ),
-            open = module.type,
+            open = dev.minicomplete.type,
             close = open === '[[' ? ']]' : '}}',
             before = text.substring( 0, text.lastIndexOf( open ) );
 
         // strip template namespace for template transclusion
-        if ( module.type === '{{' && complete.split( ':' )[0] === 'Template' ) {
+        if ( open === '{{' && complete.split( ':' )[0] === 'Template' ) {
             complete = complete.split( ':' )[1];
         }
 
@@ -593,16 +579,17 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         }
 
         // insert search term
-        module.elem.value = before + open + complete + close + val.substring( caret );
+        dev.minicomplete.elem.value = before + open + complete + close + val.substring( caret );
         
         // hide options
         $( '#minicomplete-wrapper' ).hide();
         $( '#minicomplete-list' ).empty();
 
+    }
     };
 
-    $( module.init );
+    $( dev.minicomplete.init );
 
-}( document, jQuery, mediaWiki, dev.miniComplete ) );
+}( document, jQuery, mediaWiki, dev ) );
 
 // </syntaxhighlight> __NOWYSIWYG__
