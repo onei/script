@@ -105,13 +105,15 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
         // by this point we know this can run
         // so create our custom resourceloader modules
-        mw.loader.implement( 'dev.colors', [ 'http://dev.wikia.com/wiki/Colors/code.js?action=raw&ctype=text/javascript' ], {}, {} );
-        mw.loader.implement( 'jquery.textareahelper', [ 'http://camtest.wikia.com/index.php?title=MediaWiki:TextareaHelper.js&action=raw&ctype=text/javascript' ], {}, {} );
+        // combined into a single http request and minified
+        // courtesy of ResourceLoader
+        mw.loader.implement( 'minicomplete.dependencies', [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ], {}, {} );
+    
 
-        // we need custom modules after this point
+        // we need custom module after this point
         // so declare our dependencies and run the rest of the script
         // in the callback
-        mw.loader.using( [ 'dev.colors', 'jquery.textareahelper', 'mediawiki.api' ], function () {
+        mw.loader.using( [ 'minicomplete.dependencies', 'mediawiki.api' ], function () {
             module.load( selector );
         } );
 
