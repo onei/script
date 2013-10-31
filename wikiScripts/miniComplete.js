@@ -21,7 +21,6 @@
  * 
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
- * @todo Check shorthand namespaces in redirects work
  * @todo Make sure this can be used in other scripts and add docs
  * @todo Add demo on doc page
  */
