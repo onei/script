@@ -11,18 +11,17 @@
  * - Special:Forum posts
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.1
+ * @version 1.1.1
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
  * @link <https://github.com/jshint/jshint/blob/master/src/messages.js> Jshint warning messages
  * @link <http://dev.wikia.com/wiki/Colors> Color library documentation
  * @link <https://github.com/Codecademy/textarea-helper> Textarea-helper documentation
- * 
+ *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
- * @todo Make sure this can be used in other scripts and add docs
- * @todo Add demo on doc page
+ * @todo remove outer <div>, just use <ul> like normal autocomplete
  */
 
 /*global
@@ -52,7 +51,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
     dev.minicomplete = {
 
         /**
-         * Checks for correct environment and implements custom ResourceLoader modules
+         * Checks for correct environment and implements custom ResourceLoader module
          */
         init: function () {
 
@@ -61,10 +60,6 @@ this.dev.miniComplete = this.dev.miniComplete || {};
                     'wgCanonicalSpecialPageName',
                     'wgNamespaceNumber'
                 ] );
-
-            if ( $( '#minicomplete-options' ).length ) {
-                return;
-            }
 
             // prevent loading twice
             if ( dev.minicomplete.loaded ) {
@@ -109,7 +104,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             // we need custom module after this point
             // so declare our dependencies and run the rest of the script
             // in the callback
-            mw.loader.using( [ 'minicomplete.dependencies', 'mediawiki.api' ], function () {
+            mw.loader.using( [ 'mediawiki.api', 'minicomplete.dependencies' ], function () {
                 dev.minicomplete.load( selector );
             } );
 
