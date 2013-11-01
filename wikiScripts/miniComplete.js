@@ -277,7 +277,8 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             }
 
             css = [
-                '#minicomplete-wrapper{border:1px solid $border;background-color:$page;color:$text;position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
+                '#minicomplete-wrapper{position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;}',
+                '#minicomplete-wrapper{border:1px solid $border;background-color:$page;color:$text;;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
                 '#minicomplete-list{margin:0;}',
                 '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}',
                 '.minicomplete-option:hover,.minicomplete-option.selected{background-color:$mix;}'
