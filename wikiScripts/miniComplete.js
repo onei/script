@@ -37,9 +37,8 @@
     onevar:true
 */
 
-// create globals
+// create global dev object
 this.dev = this.dev || {};
-this.dev.miniComplete = this.dev.miniComplete || {};
 
 // disable indent warning
 /*jshint -W015 */
@@ -123,7 +122,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
             $( selector ).on( 'input', function () {
                 // hide menu
-                $( '#minicomplete-wrapper' ).hide();
+                $( '#minicomplete-list' ).hide();
                 $( '#minicomplete-list' ).empty();
 
                 // store node for later use
@@ -148,7 +147,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
 
                 // hide options menu on esc keydown
                 if ( e.keyCode === 27 ) {
-                    $( '#minicomplete-wrapper' ).hide();
+                    $( '#minicomplete-list' ).hide();
                     $( '#minicomplete-list' ).empty();
                 }
 
@@ -227,11 +226,11 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         /**
          * Gets caret position for detecting search term and inserting autocomplete term.
          * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
-        *
-        * @return {number} Caret position in string.
-        *                  If browser does not support caret position methods
-        *                  returns 0 to prevent syntax errors
-        */
+         *
+         * @return {number} Caret position in string.
+         *                  If browser does not support caret position methods
+         *                  returns 0 to prevent syntax errors
+         */
         getCaretPos: function () {
 
             var elem = dev.minicomplete.elem,
@@ -261,9 +260,9 @@ this.dev.miniComplete = this.dev.miniComplete || {};
          *
          * For documentation on Colors library, see <http://dev.wikia.com/wiki/Colors>
          *
-        * @todo Allow custom colours for when there's non-themedesigner colours
-        *       or custom monobook theme
-        */
+         * @todo Allow custom colours for when there's non-themedesigner colours
+         *       or custom monobook theme
+         */
         insertCSS: function () {
 
             var pagebground = dev.colors.parse( dev.colors.wikia.page ),
@@ -277,10 +276,13 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             }
 
             css = [
-                '#minicomplete-wrapper{position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;}',
-                '#minicomplete-wrapper{border:1px solid $border;background-color:$page;color:$text;;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
-                '#minicomplete-list{margin:0;}',
+                // constant css for container
+                '#minicomplete-list{position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;margin:0;}',
+                // variable css for container
+                '#minicomplete-list{border:1px solid $border;background-color:$page;color:$text;;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
+                // constant css for options
                 '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}',
+                // variable css for options
                 '.minicomplete-option:hover,.minicomplete-option.selected{background-color:$mix;}'
             ];
 
@@ -292,20 +294,16 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         },
 
         /**
-         * Inserts options div container and ul
-         * So it's ready for populating with li elements when required
-        */
+         * Create ul element ready for populating with li options
+         * @todo merge back into main load function
+         */
         insertMenu: function () {
 
-            var container = document.createElement( 'div' ),
-                list = document.createElement( 'ul' );
+            var ul = document.createElement( 'ul' );
 
-            container.id = 'minicomplete-wrapper';
-            list.id = 'minicomplete-list';
+            ul.id = 'minicomplete-list';
 
-            container.appendChild( list );
-
-            document.getElementsByTagName( 'body' )[0].appendChild( container );
+            document.getElementsByTagName( 'body' )[0].appendChild( ul );
 
         },
 
@@ -313,7 +311,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
          * Counts back from caret position looking for unclosed {{ or [[
          *
          * @param elem {node} Element to look for search term within
-        */
+         */
         findTerm: function ( elem ) {
 
                 // text to search for
@@ -420,10 +418,10 @@ this.dev.miniComplete = this.dev.miniComplete || {};
         /**
          * Queries mw api for possible suggestions
          *
-        * @link <https://www.mediawiki.org/wiki/API:Allpages> Allpages API docs
-        * @param term {string} Page title to search for
-        * @param ns {integer} Namespace to search in
-        */
+         * @link <https://www.mediawiki.org/wiki/API:Allpages> Allpages API docs
+         * @param term {string} Page title to search for
+         * @param ns {integer} Namespace to search in
+         */
         getSuggestions: function ( term, ns ) {
 
             var query = {
@@ -488,17 +486,23 @@ this.dev.miniComplete = this.dev.miniComplete || {};
          * Inserts list of options to select from
          *
          * @param result {array} Result from API
-        */
+         */
         showSuggestions: function ( result ) {
 
             var i,
+                li,
                 options = [],
                 coords,
                 offset,
                 $options;
 
             for ( i = 0; i < result.length; i += 1 ) {
-                options.push( '<li class="minicomplete-option">' + result[i].title + '</li>' );
+                // @todo test this
+                li = document.createElement( 'li' );
+                li.className = 'minicomplete-option';
+                li.innerHTML = result[i].title;
+                
+                options[options.length] = li;
             }
 
             // append options to container
@@ -507,14 +511,14 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             );
 
             // show option list
-            $( '#minicomplete-wrapper' ).show();
+            $( '#minicomplete-list' ).show();
 
             // position option list
             coords = $( dev.minicomplete.elem ).textareaHelper( 'caretPos' );
             offset = $( dev.minicomplete.elem ).offset();
 
-            $( '#minicomplete-wrapper' ).css( {
-                top: offset.top + coords.top - $( '#minicomplete-wrapper').height(),
+            $( '#minicomplete-list' ).css( {
+                top: offset.top + coords.top - $( '#minicomplete-list').height(),
                 left: offset.left + coords.left
             } );
 
@@ -577,7 +581,7 @@ this.dev.miniComplete = this.dev.miniComplete || {};
             dev.minicomplete.elem.value = before + open + complete + close + val.substring( caret );
         
             // hide options
-            $( '#minicomplete-wrapper' ).hide();
+            $( '#minicomplete-list' ).hide();
             $( '#minicomplete-list' ).empty();
 
         }
