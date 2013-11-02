@@ -16,12 +16,11 @@
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
  * @link <https://github.com/jshint/jshint/blob/master/src/messages.js> Jshint warning messages
- * @link <http://dev.wikia.com/wiki/Colors> Color library documentation
+ * @link <http://dev.wikia.com/wiki/Colors> Colors documentation
  * @link <https://github.com/Codecademy/textarea-helper> Textarea-helper documentation
  *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
- * @todo remove outer <div>, just use <ul> like normal autocomplete
  */
 
 /*global
