@@ -57,8 +57,7 @@ this.dev = this.dev || {};
                 config = mw.config.get( [
                     'wgCanonicalSpecialPageName',
                     'wgNamespaceNumber'
-                ] ),
-                css;
+                ] );
 
             // prevent loading twice
             if ( dev.minicomplete.loaded ) {
@@ -98,12 +97,7 @@ this.dev = this.dev || {};
             // so create our custom resourceloader modules
             // combined into a single http request and minified
             // courtesy of ResourceLoader
-            css = dev.minicomplete.insertCSS();
-            
-            mw.loader.implement( 'minicomplete.dependencies',
-                [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
-                    {'css': css},
-                        {} );
+            mw.loader.implement( 'minicomplete.dependencies', [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ], {}, {} );
 
             // we need custom module after this point
             // so declare our dependencies and run the rest of the script
@@ -121,15 +115,19 @@ this.dev = this.dev || {};
          */
         load: function ( selector ) {
 
+            // load css
+            dev.minicomplete.insertCSS();
+            
             // create wrapper
             var ul = document.createElement( 'ul' );
             ul.setAttribute( 'id', 'minicomplete-list' );
             document.getElementsByTagName( 'body' )[0].appendChild( ul );
-
+            
+            // bind required event listeners to document
             dev.minicomplete.bindEvents();
 
             $( selector ).on( 'input', function () {
-                // hide and empty menu of child nodes
+                // hide and empty menu
                 $( '#minicomplete-list' ).hide().empty();
 
                 // store node for later use
@@ -137,6 +135,44 @@ this.dev = this.dev || {};
 
                 // run api query
                 dev.minicomplete.findTerm( dev.minicomplete.elem );
+            } );
+
+        },
+
+        /**
+         * Insert stylesheet using colours set by ThemeDesigner
+         *
+         * For documentation on Colors library, see <http://dev.wikia.com/wiki/Colors>
+         *
+         * @todo Allow custom colours for when there's non-themedesigner colours
+         *       or custom monobook theme
+         */
+        insertCSS: function () {
+
+            var page = dev.colors.parse( dev.colors.wikia.page ),
+                buttons = dev.colors.parse( dev.colors.wikia.menu ),
+                mix = buttons.mix( page, 20 ),
+                shadow = page.lighten( -8 ),
+                css;
+
+            if ( !page.isBright() ){
+                mix = mix.lighten( 8 );
+            }
+
+            css = [
+                // constant css for container
+                '#minicomplete-list{position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;margin:0;}',
+                // variable css for container
+                '#minicomplete-list{border:1px solid $border;background-color:$page;color:$link;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
+                // constant css for options
+                '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}',
+                // variable css for options
+                '.minicomplete-option:hover,.minicomplete-option.selected{background-color:$mix;}'
+            ];
+
+            dev.colors.css( css.join( '' ), {
+                mix: mix,
+                shadow: shadow
             } );
 
         },
@@ -226,82 +262,6 @@ this.dev = this.dev || {};
                     }
                 }
             } );
-
-        },
-
-        /**
-         * Gets caret position for detecting search term and inserting autocomplete term.
-         * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
-         *
-         * @return {number} Caret position in string.
-         *                  If browser does not support caret position methods
-         *                  returns 0 to prevent syntax errors
-         */
-        getCaretPos: function () {
-
-            var elem = dev.minicomplete.elem,
-                caretPos = 0,
-                sel;
-
-            // IE9 support
-            // may need to exclude IE10 from this
-            // Earlier versions of IE aren't supported so don't worry about them
-            if ( document.selection ) {
-                elem.focus();
-                sel = document.selection.createRange();
-                sel.moveStart( 'character', -elem.value.length );
-                caretPos = sel.text.length;
-
-            // Normal browsers
-            } else if ( elem.selectionStart || elem.selectionStart === '0' ) {
-                caretPos = elem.selectionStart;
-            }
-
-            return ( caretPos );
-
-        },
-
-        /**
-         * Insert stylesheet using colours set by ThemeDesigner
-         *
-         * For documentation on Colors library, see <http://dev.wikia.com/wiki/Colors>
-         *
-         * @todo Allow custom colours for when there's non-themedesigner colours
-         *       or custom monobook theme
-         * @return {string} CSS to load in custom mw modules
-         */
-        insertCSS: function () {
-
-            var page = dev.colors.parse( dev.colors.wikia.page ),
-                buttons = dev.colors.parse( dev.colors.wikia.menu ),
-                border = dev.colors.wikia.border,
-                link = dev.colors.wikia.link,
-                mix = buttons.mix( page, 20 ),
-                shadow = page.lighten( -8 ).toString(),
-
-            // adjust if on a light colour-scheme
-            if ( !page.isBright() ){
-                mix = mix.lighten( 8 );
-            }
-            
-            // convert objects back to hex colour codes where needed
-            mix = mix.toString();
-            page = page.toString();
-
-            return [
-                // constant css for container
-                '#minicomplete-list{position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;margin:0;}',
-                // variable css for container
-                '#minicomplete-list{border:1px solid ', $border,
-                ';background-color:', $page,
-                ';color:' + $link,
-                ';-webkit-box-shadow:3px 3px 6px 0 ', $shadow
-                ';box-shadow:3px 3px 6px 0 ', $shadow, ';}',
-                // constant css for options
-                '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}',
-                // variable css for options
-                '.minicomplete-option:hover,.minicomplete-option.selected{background-color:', mix, ';}'
-            ].join( '' );
 
         },
 
@@ -410,6 +370,38 @@ this.dev = this.dev || {};
                 }
 
             }
+
+        },
+
+        /**
+         * Gets caret position for detecting search term and inserting autocomplete term.
+         * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
+         *
+         * @return {number} Caret position in string.
+         *                  If browser does not support caret position methods
+         *                  returns 0 to prevent syntax errors
+         */
+        getCaretPos: function () {
+
+            var elem = dev.minicomplete.elem,
+                caretPos = 0,
+                sel;
+
+            // IE9 support
+            // may need to exclude IE10 from this
+            // Earlier versions of IE aren't supported so don't worry about them
+            if ( document.selection ) {
+                elem.focus();
+                sel = document.selection.createRange();
+                sel.moveStart( 'character', -elem.value.length );
+                caretPos = sel.text.length;
+
+            // Normal browsers
+            } else if ( elem.selectionStart || elem.selectionStart === '0' ) {
+                caretPos = elem.selectionStart;
+            }
+
+            return ( caretPos );
 
         },
 
