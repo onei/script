@@ -57,7 +57,8 @@ this.dev = this.dev || {};
                 config = mw.config.get( [
                     'wgCanonicalSpecialPageName',
                     'wgNamespaceNumber'
-                ] );
+                ] ),
+                css;
 
             // prevent loading twice
             if ( dev.minicomplete.loaded ) {
@@ -97,9 +98,11 @@ this.dev = this.dev || {};
             // so create our custom resourceloader modules
             // combined into a single http request and minified
             // courtesy of ResourceLoader
+            css = dev.minicomplete.insertCSS();
+            
             mw.loader.implement( 'minicomplete.dependencies',
                 [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
-                    {'css': ''},
+                    {'css': css},
                         {} );
 
             // we need custom module after this point
@@ -118,14 +121,16 @@ this.dev = this.dev || {};
          */
         load: function ( selector ) {
 
-            dev.minicomplete.insertCSS();
-            dev.minicomplete.insertMenu();
+            // create wrapper
+            var ul = document.createElement( 'ul' );
+            ul.setAttribute( 'id', 'minicomplete-list' );
+            document.getElementsByTagName( 'body' )[0].appendChild( ul );
+
             dev.minicomplete.bindEvents();
 
             $( selector ).on( 'input', function () {
-                // hide menu
-                $( '#minicomplete-list' ).hide();
-                $( '#minicomplete-list' ).empty();
+                // hide and empty menu of child nodes
+                $( '#minicomplete-list' ).hide().empty();
 
                 // store node for later use
                 dev.minicomplete.elem = this;
@@ -149,8 +154,7 @@ this.dev = this.dev || {};
 
                 // hide options menu on esc keydown
                 if ( e.keyCode === 27 ) {
-                    $( '#minicomplete-list' ).hide();
-                    $( '#minicomplete-list' ).empty();
+                    $( '#minicomplete-list' ).hide().empty();
                 }
 
                 // select option using up key
@@ -264,49 +268,40 @@ this.dev = this.dev || {};
          *
          * @todo Allow custom colours for when there's non-themedesigner colours
          *       or custom monobook theme
-         * @todo Find a way to return a string from this and load with mw.loader.implement
+         * @return {string} CSS to load in custom mw modules
          */
         insertCSS: function () {
 
-            var pagebground = dev.colors.parse( dev.colors.wikia.page ),
+            var page = dev.colors.parse( dev.colors.wikia.page ),
                 buttons = dev.colors.parse( dev.colors.wikia.menu ),
-                mix = buttons.mix( pagebground, 20 ),
-                shadow = pagebground.lighten( -8 ),
-                css;
+                border = dev.colors.wikia.border,
+                link = dev.colors.wikia.link,
+                mix = buttons.mix( page, 20 ),
+                shadow = page.lighten( -8 ).toString(),
 
-            if ( !pagebground.isBright() ){
+            // adjust if on a light colour-scheme
+            if ( !page.isBright() ){
                 mix = mix.lighten( 8 );
             }
+            
+            // convert objects back to hex colour codes where needed
+            mix = mix.toString();
+            page = page.toString();
 
-            css = [
+            return [
                 // constant css for container
                 '#minicomplete-list{position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;margin:0;}',
                 // variable css for container
-                '#minicomplete-list{border:1px solid $border;background-color:$page;color:$text;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
+                '#minicomplete-list{border:1px solid ', $border,
+                ';background-color:', $page,
+                ';color:' + $link,
+                ';-webkit-box-shadow:3px 3px 6px 0 ', $shadow
+                ';box-shadow:3px 3px 6px 0 ', $shadow, ';}',
                 // constant css for options
                 '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}',
                 // variable css for options
-                '.minicomplete-option:hover,.minicomplete-option.selected{background-color:$mix;}'
-            ];
-
-            dev.colors.css( css.join( '' ), {
-                mix: mix,
-                shadow: shadow
-            } );
-
-        },
-
-        /**
-         * Create ul element ready for populating with li options
-         * @todo merge back into main load function
-         */
-        insertMenu: function () {
-
-            var ul = document.createElement( 'ul' );
-
-            ul.id = 'minicomplete-list';
-
-            document.getElementsByTagName( 'body' )[0].appendChild( ul );
+                '.minicomplete-option:hover,.minicomplete-option.selected{background-color:', mix, ';}'
+            ].join( '' );
 
         },
 
@@ -583,9 +578,8 @@ this.dev = this.dev || {};
             // insert search term
             dev.minicomplete.elem.value = before + open + complete + close + val.substring( caret );
         
-            // hide options
-            $( '#minicomplete-list' ).hide();
-            $( '#minicomplete-list' ).empty();
+            // hide and empty options
+            $( '#minicomplete-list' ).hide().empty();
 
         }
     };
