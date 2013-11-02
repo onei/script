@@ -9,9 +9,12 @@
  * - Article comments
  * - Blog comments
  * - Special:Forum posts
+ * 
+ * Can also be used in other scripts that require an autocomplete
+ * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.1.1
+ * @version 1.1.2
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -97,7 +100,11 @@ this.dev = this.dev || {};
             // so create our custom resourceloader modules
             // combined into a single http request and minified
             // courtesy of ResourceLoader
-            mw.loader.implement( 'minicomplete.dependencies', [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ], {}, {} );
+            // this may need fixing when Wikia upgrades mw version
+            mw.loader.implement( 'minicomplete.dependencies',
+               [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
+                   {},
+                       {} );
 
             // we need custom module after this point
             // so declare our dependencies and run the rest of the script
@@ -141,8 +148,6 @@ this.dev = this.dev || {};
 
         /**
          * Insert stylesheet using colours set by ThemeDesigner
-         *
-         * For documentation on Colors library, see <http://dev.wikia.com/wiki/Colors>
          *
          * @todo Allow custom colours for when there's non-themedesigner colours
          *       or custom monobook theme
