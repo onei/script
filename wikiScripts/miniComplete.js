@@ -97,7 +97,10 @@ this.dev = this.dev || {};
             // so create our custom resourceloader modules
             // combined into a single http request and minified
             // courtesy of ResourceLoader
-            mw.loader.implement( 'minicomplete.dependencies', [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ], {}, {} );
+            mw.loader.implement( 'minicomplete.dependencies',
+                [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
+                    {'css': ''},
+                        {} );
 
             // we need custom module after this point
             // so declare our dependencies and run the rest of the script
@@ -261,6 +264,7 @@ this.dev = this.dev || {};
          *
          * @todo Allow custom colours for when there's non-themedesigner colours
          *       or custom monobook theme
+         * @todo Find a way to return a string from this and load with mw.loader.implement
          */
         insertCSS: function () {
 
@@ -278,7 +282,7 @@ this.dev = this.dev || {};
                 // constant css for container
                 '#minicomplete-list{position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;margin:0;}',
                 // variable css for container
-                '#minicomplete-list{border:1px solid $border;background-color:$page;color:$text;;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
+                '#minicomplete-list{border:1px solid $border;background-color:$page;color:$text;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
                 // constant css for options
                 '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}',
                 // variable css for options
