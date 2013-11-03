@@ -22,8 +22,8 @@
  * @link <http://dev.wikia.com/wiki/Colors> Colors documentation
  * @link <https://github.com/Codecademy/textarea-helper> Textarea-helper documentation
  * 
- * @notes There are various calls to mw.log() to help with debugging
- *        To see these append ?debug=true to your url
+ * @notes There are various calls to mw.log() to help with debugging if you are using
+ *        this within another script. To see these append ?debug=true to your url.
  *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
@@ -136,7 +136,7 @@ this.dev = this.dev || {};
             // bind required event listeners to document
             dev.minicomplete.bindEvents();
 
-            $( selector ).on( 'input', function ( e ) {
+            $( selector ).on( 'input', function () {
                 // hide and empty menu
                 $( '#minicomplete-list' ).hide().empty();
 
