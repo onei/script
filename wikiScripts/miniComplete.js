@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.1.3
+ * @version 1.1.4
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -47,7 +47,7 @@ this.dev = this.dev || {};
 
 // disable indent warning
 /*jshint -W015 */
-;( function ( document, $, mw, dev ) {
+;( function ( document, $, mw, dev, undefined ) {
 /*jshint +W015 */
 
     'use strict';
@@ -136,9 +136,13 @@ this.dev = this.dev || {};
             // bind required event listeners to document
             dev.minicomplete.bindEvents();
 
-            $( selector ).on( 'input', function () {
+            $( selector ).on( 'input', function ( e ) {
                 // hide and empty menu
                 $( '#minicomplete-list' ).hide().empty();
+
+                // debug event bubbling
+                mw.log( 'event bubbling:', e.bubbles );
+                // e.stopPropagation();
 
                 // store node for later use
                 dev.minicomplete.elem = this;
@@ -283,6 +287,13 @@ this.dev = this.dev || {};
          * @param elem {node} Element to look for search term within
          */
         findTerm: function ( elem ) {
+            
+            // compare against undefined
+            // to stop empty strings triggering this too
+            if ( elem.value === undefined ) {
+                mw.log( 'element does not support value attribute' );
+                return;
+            }
 
                 // text to search for
             var searchText = elem.value.substring( 0, dev.minicomplete.getCaretPos() ),
