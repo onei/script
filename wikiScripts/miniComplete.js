@@ -492,11 +492,7 @@ this.dev = this.dev || {};
                 $options;
 
             for ( i = 0; i < result.length; i += 1 ) {
-                li = document.createElement( 'li' );
-                li.className = 'minicomplete-option';
-                li.innerHTML = result[i].title;
-                
-                options[options.length] = li;
+                options[options.length] = '<li class="minicomplete-option">' + result[i].title + '</li>'; 
             }
 
             // append options to container
