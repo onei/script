@@ -193,8 +193,11 @@ this.dev = this.dev || {};
                     $select = $( '.minicomplete-option.selected' ),
                     i;
 
-                // hide options menu on esc keydown
-                if ( e.keyCode === 27 ) {
+                // hide options menu on esc same as normal autocomplete
+                // hide options menu on left or right arrow
+                // as it suggests the user is editing what we're searching for
+                // keycodes in order of above comments
+                if ( e.keyCode === 27 || e.keyDown === 37 || e.keyDown === 39 ) {
                     $( '#minicomplete-list' ).hide().empty();
                 }
 
