@@ -14,13 +14,16 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.1.2
+ * @version 1.1.3
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
  * @link <https://github.com/jshint/jshint/blob/master/src/messages.js> Jshint warning messages
  * @link <http://dev.wikia.com/wiki/Colors> Colors documentation
  * @link <https://github.com/Codecademy/textarea-helper> Textarea-helper documentation
+ * 
+ * @notes There are various calls to mw.log() to help with debugging
+ *        To see these append ?debug=true to your url
  *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
@@ -139,9 +142,10 @@ this.dev = this.dev || {};
 
                 // store node for later use
                 dev.minicomplete.elem = this;
+                mw.log( this );
 
                 // run api query
-                dev.minicomplete.findTerm( dev.minicomplete.elem );
+                dev.minicomplete.findTerm( this );
             } );
 
         },
@@ -433,6 +437,8 @@ this.dev = this.dev || {};
                 termSplit,
                 namespaceId,
                 title;
+                
+            mw.log( term );
 
             if ( term.indexOf( ':' ) > -1 ) {
 
@@ -493,6 +499,8 @@ this.dev = this.dev || {};
                 coords,
                 offset,
                 $options;
+                
+            mw.log( results );
 
             for ( i = 0; i < result.length; i += 1 ) {
                 options[options.length] = '<li class="minicomplete-option">' + result[i].title + '</li>'; 
