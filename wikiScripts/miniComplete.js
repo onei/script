@@ -492,7 +492,6 @@ this.dev = this.dev || {};
                 $options;
 
             for ( i = 0; i < result.length; i += 1 ) {
-                // @todo test this
                 li = document.createElement( 'li' );
                 li.className = 'minicomplete-option';
                 li.innerHTML = result[i].title;
@@ -520,12 +519,11 @@ this.dev = this.dev || {};
             // I haven't added any behaviour for if the menu is outside of the window
             // as if I moved it down it would obscure text
             // and if I moved it up chances are the user can't see the textarea in the first place
-
             // may possibly need right/left repositioning for monobook
             // see what feedback says
 
             // add event handlers for .minicomplete-option here
-            // as the won't fire if they aren't created when you try to bind
+            // as they won't fire if they aren't created when you try to bind
             // events to them
 
             // cache options
