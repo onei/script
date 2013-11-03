@@ -494,16 +494,15 @@ this.dev = this.dev || {};
         showSuggestions: function ( result ) {
 
             var i,
-                li,
                 options = [],
                 coords,
                 offset,
                 $options;
                 
-            mw.log( results );
+            mw.log( result );
 
             for ( i = 0; i < result.length; i += 1 ) {
-                options[options.length] = '<li class="minicomplete-option">' + result[i].title + '</li>'; 
+                options[options.length] = '<li class="minicomplete-option">' + result[i].title + '</li>';
             }
 
             // append options to container
