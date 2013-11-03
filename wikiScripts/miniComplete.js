@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.1.4
+ * @version 1.1.5
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -498,6 +498,7 @@ this.dev = this.dev || {};
          * Inserts list of options to select from
          *
          * @param result {array} Result from API
+         * @todo cache jquery objects
          */
         showSuggestions: function ( result ) {
 
@@ -505,6 +506,7 @@ this.dev = this.dev || {};
                 options = [],
                 coords,
                 offset,
+                leftpos,
                 $options;
                 
             mw.log( result );
@@ -524,17 +526,23 @@ this.dev = this.dev || {};
             // position option list
             coords = $( dev.minicomplete.elem ).textareaHelper( 'caretPos' );
             offset = $( dev.minicomplete.elem ).offset();
+            
+            leftpos = offset.left + coords.left;
+            
+            // realign against right side of page if overflowing
+            // monobook issue on Special:Upload
+            if ( leftpos + $('#minicomplete-list' ).width() > $( 'body' ).width() ) {
+                leftpos = $( 'body' ).width() - $( '#minicomplete-list' ).width();
+            }
+
+            // I haven't added any behaviour for if the menu is outside the vertical
+            // limits of the window as if I moved it down it would obscure text
+            // and if I moved it up chances are the user can't see the textarea in the first place
 
             $( '#minicomplete-list' ).css( {
-                top: offset.top + coords.top - $( '#minicomplete-list').height(),
-                left: offset.left + coords.left
+                top: offset.top + coords.top - $( '#minicomplete-list' ).height(),
+                left: leftpos
             } );
-
-            // I haven't added any behaviour for if the menu is outside of the window
-            // as if I moved it down it would obscure text
-            // and if I moved it up chances are the user can't see the textarea in the first place
-            // may possibly need right/left repositioning for monobook
-            // see what feedback says
 
             // add event handlers for .minicomplete-option here
             // as they won't fire if they aren't created when you try to bind
