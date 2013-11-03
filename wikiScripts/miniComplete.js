@@ -140,10 +140,6 @@ this.dev = this.dev || {};
                 // hide and empty menu
                 $( '#minicomplete-list' ).hide().empty();
 
-                // debug event bubbling
-                mw.log( 'event bubbling:', e.bubbles );
-                // e.stopPropagation();
-
                 // store node for later use
                 dev.minicomplete.elem = this;
                 mw.log( this );
@@ -290,6 +286,7 @@ this.dev = this.dev || {};
             
             // compare against undefined
             // to stop empty strings triggering this too
+            // stops errors when input event in bound to the wrong element
             if ( elem.value === undefined ) {
                 mw.log( 'element does not support value attribute' );
                 return;
