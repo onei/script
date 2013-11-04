@@ -30,10 +30,6 @@
  * @todo Add support for custom CSS styling of the autocomplete menu
  */
 
-/*global
-    mediaWiki:true, dev:true
-*/
-
 /*jshint
     bitwise:true, camelcase:true, curly:true, eqeqeq:true, es3:false,
     forin:true, immed:true, indent:4, latedef:true, newcap:true,
@@ -43,10 +39,10 @@
     onevar:true
 */
 
-// create global dev object
-this.dev = this.dev || {};
-
-( function ( document, $, mw, dev, undefined ) {
+// disable indent warning
+/*jshint -W015 */
+;( function ( document, $, mw, dev, undefined ) {
+/*jshint +W015 */
 
     'use strict';
 
@@ -500,7 +496,6 @@ this.dev = this.dev || {};
          * Inserts list of options to select from
          *
          * @param result {array} Result from API
-         * @todo cache jquery objects
          */
         showSuggestions: function ( result ) {
 
@@ -508,6 +503,8 @@ this.dev = this.dev || {};
                 options = [],
                 coords,
                 offset,
+                $list,
+                $body = $( 'body' ).width(),
                 leftpos,
                 $options;
                 
@@ -522,8 +519,12 @@ this.dev = this.dev || {};
                 options.join( '' )
             );
 
+            // cache list
+            // do this after it's been populated to stop errors
+            $list = $( '#minicomplete-list' );
+
             // show option list
-            $( '#minicomplete-list' ).show();
+            $list.show();
 
             // position option list
             coords = $( dev.minicomplete.elem ).textareaHelper( 'caretPos' );
@@ -533,16 +534,17 @@ this.dev = this.dev || {};
             
             // realign against right side of page if overflowing
             // monobook issue on Special:Upload
-            if ( leftpos + $('#minicomplete-list' ).width() > $( 'body' ).width() ) {
-                leftpos = $( 'body' ).width() - $( '#minicomplete-list' ).width();
+            // this won't work if someone's extended the body past the limits of the window
+            if ( leftpos + $list.width() > $body ) {
+                leftpos = $body - $list.width();
             }
 
-            // I haven't added any behaviour for if the menu is outside the vertical
-            // limits of the window as if I moved it down it would obscure text
-            // and if I moved it up chances are the user can't see the textarea in the first place
+            // No fix has been added for if the menu is outside the vertical
+            // limits of the window as if it moved down it would obscure text
+            // and if it moved up chances are the user can't see the textarea in the first place
 
-            $( '#minicomplete-list' ).css( {
-                top: offset.top + coords.top - $( '#minicomplete-list' ).height(),
+            $list.css( {
+                top: offset.top + coords.top - $list.height(),
                 left: leftpos
             } );
 
@@ -606,6 +608,6 @@ this.dev = this.dev || {};
 
     $( dev.minicomplete.init );
 
-}( document, jQuery, mediaWiki, dev ) );
+}( this.document, this.jQuery, this.mediaWiki, this.dev = this.dev || {} ) );
 
 // </syntaxhighlight> __NOWYSIWYG__
