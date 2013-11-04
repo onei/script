@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.1.5.1
+ * @version 1.1.6
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -86,14 +86,37 @@
                 // who thought this was a great idea for a class name?
                 selector = '.body';
                 break;
-            // Article and Blog comments
-            case !!( $( '#WikiaArticleComments' ).length ):
             // Special:Forum posts (Thread namespace)
             case !!( config.wgNamespaceNumber === 1201 ):
-                selector = '.wikiaEditor';
+                selector = '.replyBody';
+                break;
+            // Article and Blog comments
+            case !!( $( '#WikiaArticleComments' ).length ):
+                selector = '#article-comm';
                 break;
             }
             /*jshint +W018 */
+            
+            // FIXME: When editing already posted comments/OP in Special:Forum
+            //        textarea is inserted onclick of edit not on pageload
+            //        then hidden until required at some point later
+            //        Will require some event listening for node insertion on '.editarea'
+            //        This happens when editing any post so do check remember to detach
+            //        event listeners when event is fired
+            //        maybe there's a wikia event I can listen for?
+            
+            // fix here
+            
+            // same issue exists when relying to article/blog comments (textarea is inserted when required)
+            // to make it extra hard, comments are lazy loaded
+            // oh, the joys
+            /*
+            $( '.speech-bubble-message' ).on( 'DOMNodeInserted', function () {
+                if ( $('.wikiaEditor' ).length ) {
+                    console.log( 'editor ready' );
+                }
+            } );
+            */
 
             if ( !selector ) {
                 return;
