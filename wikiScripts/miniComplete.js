@@ -91,6 +91,7 @@
                 selector = '.replyBody';
                 break;
             // Article and Blog comments
+            // FIXME: comments are lazy-loaded for extra fun scripting
             case !!( $( '#WikiaArticleComments' ).length ):
                 selector = '#article-comm';
                 break;
