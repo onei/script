@@ -22,8 +22,9 @@
  * @link <http://dev.wikia.com/wiki/Colors> Colors documentation
  * @link <https://github.com/Codecademy/textarea-helper> Textarea-helper documentation
  * 
- * @notes There are various calls to mw.log() to help with debugging if you are using
- *        this within another script. To see these append ?debug=true to your url.
+ * @notes There are various calls to mw.log() to help with debugging if you are
+ *        using this within another script. To see these append ?debug=true to
+ *        your url.
  *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
@@ -55,7 +56,8 @@ this.dev = this.dev || {};
     dev.minicomplete = {
 
         /**
-         * Checks for correct environment and implements custom ResourceLoader module
+         * Checks for correct environment and implements custom
+         * ResourceLoader module
          */
         init: function () {
 
@@ -78,7 +80,7 @@ this.dev = this.dev || {};
             switch ( true ) {
             // Special:Upload
             case !!( config.wgCanonicalSpecialPageName === 'Upload' ):
-            // Special:MultipleUpload (is there a right associated with using this?)
+            // Special:MultipleUpload
             case !!( config.wgCanonicalSpecialPageName === 'MultipleUpload' ):
                 selector = '#wpUploadDescription';
                 break;
@@ -188,6 +190,7 @@ this.dev = this.dev || {};
 
         /**
          * Binds events related to navigating through menu with up/down keys
+         * and what to do when pressing esc or left/right keys
          */
         bindEvents: function () {
 
@@ -300,7 +303,8 @@ this.dev = this.dev || {};
                 // disallows certain characters in search terms
                 // based on $wgLegalTitleChars <http://www.mediawiki.org/wiki/Manual:$wgLegalTitleChars>
                 // and to prevent searches for terms that don't need it
-                // such as those with pipes as they signal template params or link display changes
+                // such as those with pipes as they signal template params or
+                // link display changes
                 // or if the user is closing the link/template themselves
                 illegalChars = /[\{\}\[\]\|#<>%\+\?\\]/,
                 term,
@@ -394,9 +398,10 @@ this.dev = this.dev || {};
         },
 
         /**
-         * Gets caret position for detecting search term and inserting autocomplete term.
-         * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
+         * Gets caret position for detecting search term and inserting
+         * autocomplete term.
          *
+         * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
          * @return {number} Caret position in string.
          *                  If browser does not support caret position methods
          *                  returns 0 to prevent syntax errors
@@ -561,7 +566,8 @@ this.dev = this.dev || {};
             $options.on( 'mouseover', function () {
                 if ( $( '.minicomplete-option.selected' ).length ) {
                     // don't use this here as it refers to the hovered element
-                    // we want to strip the selected class as soon as we enter the menu
+                    // we want to strip the selected class as soon as we enter
+                    // the menu
                     $options.removeClass( 'selected' );
                 }
             } );
