@@ -193,82 +193,84 @@
                     $select = $( '.minicomplete-option.selected' ),
                     i;
 
-                // hide options menu on esc same as normal autocomplete
-                // hide options menu on left or right arrow
-                // as it suggests the user is editing what we're searching for
-                // keycodes in order of above comments
-                if ( e.keyCode === 27 || e.keyDown === 37 || e.keyDown === 39 ) {
+                switch ( e.keyCode ) {
+                // hide options on esc keydown
+                case 27:
+                // hide optons on left/right keydown
+                // as it suggests the user is moving through to edit the text
+                case 37:
+                case 39:
                     $( '#minicomplete-list' ).hide().empty();
-                }
+                    break;
+                // navigate through menu using up keydown
+                case 38:
+                    if ( !$option.length ) {
+                        return;
+                    }
+                    
+                    // stop caret moving
+                    e.preventDefault();
 
-                // select option using up key
-                if ( e.keyCode === 38 ) {
-
-                    if ( $option.length ) {
-                        // stop caret moving
-                        e.preventDefault();
-
-                        if ( !$select.length ) {
-                            $( $option[$option.length - 1] ).addClass( 'selected' );
-                        } else {
-                            for ( i = 0; i < $option.length; i += 1 ) {
-                                if ( $( $option[i] ).hasClass( 'selected' ) ) {
-
-                                    // remove class
-                                    $( $option[i] ).removeClass( 'selected' );
-
-                                    // if at top of list jump to bottom
-                                    if ( i === 0 ) {
-                                        $( $option[$option.length - 1] ).addClass( 'selected' );
-                                    // else move up list
-                                    } else {
-                                        $( $option[i - 1] ).addClass( 'selected' );
-                                    }
-
-                                    return;
+                    if ( !$select.length ) {
+                        $( $option[$option.length - 1] ).addClass( 'selected' );
+                    } else {
+                        for ( i = 0; i < $option.length; i += 1 ) {
+                            if ( $( $option[i] ).hasClass( 'selected' ) ) {
+                                // remove class
+                                $( $option[i] ).removeClass( 'selected' );
+                                // if at top of list jump to bottom
+                                if ( i === 0 ) {
+                                    $( $option[$option.length - 1] ).addClass( 'selected' );
+                                // else move up list
+                                } else {
+                                    $( $option[i - 1] ).addClass( 'selected' );
                                 }
+
+                                return;
                             }
                         }
                     }
-                }
+                    break;
+                // navigate through menu using down keydown
+                case 40:
+                    if ( !$option.length ) {
+                        return;
+                    }
+                    
+                    // stop caret moving
+                    e.preventDefault();
 
-                // select option using down key
-                if ( e.keyCode === 40 ) {
-
-                    if ( $option.length ) {
-                        // stop caret moving
-                        e.preventDefault();
-
-                        if ( !$select.length ) {
-                            $( $option[0] ).addClass( 'selected' );
-                        } else {
-                            for ( i = 0; i < $option.length; i += 1 ) {
-                                if ( $( $option[i] ).hasClass( 'selected' ) ) {
-                                    // remove selected class
-                                    $( $option[i] ).removeClass( 'selected' );
-
-                                    // if at bottom of list jump to top
-                                    if ( i === ( $option.length - 1 ) ) {
-                                        $( $option[0] ).addClass( 'selected' );
-                                    // else move down list
-                                    } else {
-                                        $( $option[i + 1] ).addClass( 'selected' );
-                                    }
-
-                                    return;
+                    if ( !$select.length ) {
+                        $( $option[0] ).addClass( 'selected' );
+                    } else {
+                        for ( i = 0; i < $option.length; i += 1 ) {
+                            if ( $( $option[i] ).hasClass( 'selected' ) ) {
+                                // remove selected class
+                                $( $option[i] ).removeClass( 'selected' );
+                                // if at bottom of list jump to top
+                                if ( i === ( $option.length - 1 ) ) {
+                                    $( $option[0] ).addClass( 'selected' );
+                                // else move down list
+                                } else {
+                                    $( $option[i + 1] ).addClass( 'selected' );
                                 }
+
+                                return;
                             }
                         }
                     }
+                    break;
+                // insert selected option on enter keydown
+                case 13:
+                    if ( !$select.length ) {
+                        return;
+                    }
+                    
+                    e.preventDefault();
+                    dev.minicomplete.insertComplete( $select.text() );
+                    break;
                 }
 
-                // insert selected option using enter key
-                if ( e.keyCode === 13 ) {
-                    if ( $select.length ) {
-                        e.preventDefault();
-                        dev.minicomplete.insertComplete( $select.text() );
-                    }
-                }
             } );
 
         },
