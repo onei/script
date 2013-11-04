@@ -81,12 +81,15 @@
             case !!( config.wgNamespaceNumber === 1200 ):
                 selector = '#WallMessageBody';
                 break;
+            // Special:Forum posts (Board namespace)
+            case !!( config.wgNamespaceNumber === 2000 ):
+                // who thought this was a great idea for a class name?
+                selector = '.body';
+                break;
             // Article and Blog comments
             case !!( $( '#WikiaArticleComments' ).length ):
             // Special:Forum posts (Thread namespace)
             case !!( config.wgNamespaceNumber === 1201 ):
-            // Special:Forum posts (Board namespace)
-            case !!( config.wgNamespaceNumber === 2000 ):
                 selector = '.wikiaEditor';
                 break;
             }
