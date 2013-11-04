@@ -77,10 +77,12 @@
             case !!( config.wgCanonicalSpecialPageName === 'MultipleUpload' ):
                 selector = '#wpUploadDescription';
                 break;
-            // Article and Blog comments
-            case !!( $( '#WikiaArticleComments' ).length ):
             // Message wall comments
             case !!( config.wgNamespaceNumber === 1200 ):
+                selector = '#WallMessageBody';
+                break;
+            // Article and Blog comments
+            case !!( $( '#WikiaArticleComments' ).length ):
             // Special:Forum posts (Thread namespace)
             case !!( config.wgNamespaceNumber === 1201 ):
             // Special:Forum posts (Board namespace)
