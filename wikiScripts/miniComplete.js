@@ -46,10 +46,7 @@
 // create global dev object
 this.dev = this.dev || {};
 
-// disable indent warning
-/*jshint -W015 */
-;( function ( document, $, mw, dev, undefined ) {
-/*jshint +W015 */
+( function ( document, $, mw, dev, undefined ) {
 
     'use strict';
 
