@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.2.0
+ * @version 1.2.1
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -153,7 +153,7 @@
         },
       
         /**
-         * Checks if Article comments are loaded
+         * Checks if Article comments are loaded and run autocomplete when done
          */
         commentsLoaded: function () {
             if ( window.ArticleComments.initCompleted ) {
@@ -162,6 +162,27 @@
                 dev.minicomplete.load( '#article-comm' );
             }
         },
+        
+        /**
+         * Looks for new .wikiaEditor textareas to run script on
+         * 
+         * @param editors {number} Number of editor at start of check
+         */
+        editorInserted: function ( editors ) {
+            
+            if ( $( '.wikiAeditor' ).length === editors ) {
+                return;
+            }
+            
+            // new editor has been inserted
+            
+            // unbind old event listening for input on textareas
+            // to prevent multiple events being fired
+            
+            // and bind a fresh event to the textarea
+            dev.minicomplete.load( '.wikiaEditor' );
+            
+        }
 
         /**
          * Loads the rest of the functions
@@ -181,6 +202,7 @@
             // bind required event listeners to document
             dev.minicomplete.bindEvents();
 
+            // @todo check if naming this allows me to unbind it when desired
             $( selector ).on( 'input', function () {
                 // hide and empty menu
                 $( '#minicomplete-list' ).hide().empty();
