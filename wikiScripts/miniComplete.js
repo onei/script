@@ -38,7 +38,7 @@
     forin:true, immed:true, indent:4, latedef:true, newcap:true,
     noarg:true, noempty:true, nonew:true, plusplus:true, quotmark:single,
     undef:true, unused:true, strict:true, trailing:true,
-    browser:true, devel:false, jquery:true,
+    browser:true, devel:true, jquery:true,
     onevar:true
 */
 
@@ -116,6 +116,7 @@
                     var miniEditors =  $( '.wikiaEditor' ).length;
                     
                     // add some kind of setInterval check here
+                    console.log( miniEditors );
                     
                 } );
             }
@@ -151,7 +152,7 @@
          */
         commentsLoaded: function () {
             if ( window.ArticleComments.initCompleted ) {
-                mw.log( 'Article comments loaded' );
+                console.log( 'Article comments loaded' );
                 window.clearInterval( dev.minicomplete.checkComments );
                 dev.minicomplete.load( '#article-comm' );
             }
