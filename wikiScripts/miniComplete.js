@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.1.6
+ * @version 1.2.0
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -28,6 +28,9 @@
  *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
+ * @todo Split init into initial loading stuff for normal pageloads and deferred
+ *       loading stuff for article comments and editing comments/Special:Forum
+ *       posts. 
  */
 
 /*jshint
@@ -66,6 +69,9 @@
             }
 
             dev.minicomplete.loaded = true;
+          
+            // set to false to be modified later if needed
+            dev.minicomplete.checkComments = false;
 
             // disable !! warnings (convert to boolean)
             // because this is a bit prettier than a staggered if statement/ternary
@@ -90,34 +96,32 @@
             case !!( config.wgNamespaceNumber === 1201 ):
                 selector = '.replyBody';
                 break;
-            // Article and Blog comments
-            // FIXME: comments are lazy-loaded for extra fun scripting
-            case !!( $( '#WikiaArticleComments' ).length ):
-                selector = '#article-comm';
-                break;
             }
             /*jshint +W018 */
             
-            // FIXME: When editing already posted comments/OP in Special:Forum
-            //        textarea is inserted onclick of edit not on pageload
-            //        then hidden until required at some point later
-            //        Will require some event listening for node insertion on '.editarea'
-            //        This happens when editing any post so do check remember to detach
-            //        event listeners when event is fired
-            //        maybe there's a wikia event I can listen for?
+            // the above switch statement only works for nodes that exist on pageload
+            // the below functions are for when they exist at some point after
+            // normally through lazy loading of if the nodes are inserted when needed by the miniEditor
             
-            // fix here
+            // Article and Blog comments
+            // this will only work for the new comment textarea
+            // editing comments or replying to existing comments requires another method
+            // as the textarea is inserted as needed, not by default
+            if ( $( '#WikiaArticleComments' ).length ) {
+                // @todo check custom module is working correctly here
+                dev.minicomplete.checkComments = window.setInterval( dev.minicomplete.commentsLoaded, 500 );
+                
+                $( $( '.article-comm-reply' ) ).on( 'click', function () {
+                    // use this value for reference
+                    var miniEditors =  $( '.wikiaEditor' ).length;
+                    
+                    // add some kind of setInterval check here
+                    
+                } );
+            }
             
-            // same issue exists when relying to article/blog comments (textarea is inserted when required)
-            // to make it extra hard, comments are lazy loaded
-            // oh, the joys
-            /*
-            $( '.speech-bubble-message' ).on( 'DOMNodeInserted', function () {
-                if ( $('.wikiaEditor' ).length ) {
-                    console.log( 'editor ready' );
-                }
-            } );
-            */
+            // FIXME: Fix for editing comments/forum posts
+            // maybe check for classes being added/removed?
 
             if ( !selector ) {
                 return;
@@ -140,6 +144,17 @@
                 dev.minicomplete.load( selector );
             } );
 
+        },
+      
+        /**
+         * Checks if Article comments are loaded
+         */
+        commentsLoaded: function () {
+            if ( window.ArticleComments.initCompleted ) {
+                mw.log( 'Article comments loaded' );
+                window.clearInterval( dev.minicomplete.checkComments );
+                dev.minicomplete.load( '#article-comm' );
+            }
         },
 
         /**
