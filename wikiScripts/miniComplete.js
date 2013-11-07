@@ -108,16 +108,25 @@
             // editing comments or replying to existing comments requires another method
             // as the textarea is inserted as needed, not by default
             if ( $( '#WikiaArticleComments' ).length ) {
-                // @todo check custom module is working correctly here
-                dev.minicomplete.checkComments = window.setInterval( dev.minicomplete.commentsLoaded, 500 );
+
+                // create custom ResourceLoader module
+                mw.loader.implement( 'minicomplete.dependencies',
+                   [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
+                       {},
+                           {} );
+
+                mw.loader.using( 'minicomplete.dependencies', function () {
+
+                    dev.minicomplete.checkComments = window.setInterval( dev.minicomplete.commentsLoaded, 500 );
                 
-                $( $( '.article-comm-reply' ) ).on( 'click', function () {
-                    // use this value for reference
-                    var miniEditors =  $( '.wikiaEditor' ).length;
+                    $( $( '.article-comm-reply' ) ).on( 'click', function () {
+                        // use this value for reference
+                        var miniEditors =  $( '.wikiaEditor' ).length;
                     
-                    // add some kind of setInterval check here
-                    console.log( miniEditors );
+                        // add some kind of setInterval check here
+                        console.log( miniEditors );
                     
+                    } );
                 } );
             }
             
@@ -128,11 +137,7 @@
                 return;
             }
 
-            // by this point we know this can run
-            // so create our custom resourceloader modules
-            // combined into a single http request and minified
-            // courtesy of ResourceLoader
-            // this may need fixing when Wikia upgrades mw version
+            // create custom ResourceLoader module
             mw.loader.implement( 'minicomplete.dependencies',
                [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
                    {},
