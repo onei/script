@@ -75,6 +75,8 @@
 
             // disable !! warnings (convert to boolean)
             // because this is a bit prettier than a staggered if statement/ternary
+            // @todo rewrite this to use object proprty checks
+            // @see Lunarity's checks for edit/submit on AntiUnicruft
             /*jshint -W018 */
             switch ( true ) {
             // Special:Upload
