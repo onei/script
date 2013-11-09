@@ -111,7 +111,7 @@
             if ( namespace[config.wgNamespaceNumber] === '.replyBody' ) {
                 $( '.edit-message' ).on( 'click', function () {
                     
-                    console.log( 'editing forum post' );
+                    mw.log( 'editing forum post' );
                     
                     // look for new instances of .body
                     var editors = $( '.body' ).length;
