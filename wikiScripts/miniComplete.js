@@ -168,7 +168,7 @@
 
                     dev.minicomplete.checkEditors = window.setInterval( function () {
                         dev.minicomplete.editorInserted( miniEditors );
-                    } );
+                    }, 500 );
                     
                 } );
             }
