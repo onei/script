@@ -187,7 +187,8 @@
             
             window.clearInterval( dev.minicomplete.checkEditors );
             
-            $( '.wikiaEditor' ).off( 'input', 'autocomplete' );
+            // this isn't unbinding or some reason
+            $( '.wikiaEditor' ).off( 'input' );
             dev.minicomplete.load( '.wikiaEditor' );
             
         },
