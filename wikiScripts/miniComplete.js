@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.2.4
+ * @version 1.2.5
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -108,7 +108,9 @@
                 } );
             }
             
-            if ( namespace[config.wgNamespaceNumber] === '.replyBody' ) {
+            // fix when editing special:forum posts and message wall comments
+            // don't run on special:forum (board)
+            if ( namespace[config.wgNamespaceNumber] !== undefined && config.wgNamespaceNumber !== 2000 ) {
                 $( '.edit-message' ).on( 'click', function () {
                     
                     mw.log( 'editing forum post' );
