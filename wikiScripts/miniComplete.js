@@ -35,7 +35,7 @@
     forin:true, immed:true, indent:4, latedef:true, newcap:true,
     noarg:true, noempty:true, nonew:true, plusplus:true, quotmark:single,
     undef:true, unused:true, strict:true, trailing:true,
-    browser:true, devel:true, jquery:true,
+    browser:true, devel:false, jquery:true,
     onevar:true
 */
 
@@ -135,7 +135,7 @@
          */
         commentsLoaded: function () {
             if ( window.ArticleComments.initCompleted ) {
-                console.log( 'Article comments loaded' );
+                mw.log( 'Article comments loaded' );
                 window.clearInterval( dev.minicomplete.checkComments );
                 dev.minicomplete.load( '#article-comm' );
                 
