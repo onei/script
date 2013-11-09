@@ -161,7 +161,7 @@
                     // use this value for reference
                     var miniEditors =  $( '.wikiaEditor' ).length;
 
-                    dev.miniComplete.checkEditors = window.setInterval( function () {
+                    dev.minicomplete.checkEditors = window.setInterval( function () {
                         dev.minicomplete.editorInserted( miniEditors );
                     } );
                     
