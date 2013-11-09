@@ -157,6 +157,7 @@
                     console.log( 'reply detected' );
                         
                     if ( $( this ).parent().parent().next().find( 'wikiaEditor' ).length ) {
+                        // is this firing?
                         console.log( 'editor already present' );
                         return;
                     }
@@ -180,15 +181,17 @@
         editorInserted: function ( editors ) {
             
             if ( $( '.wikiaEditor' ).length === editors ) {
+                console.log( 'no new editor detected, repeating...' );
                 return;
             }
             
-            console.log( 'new editor inserted' );
+            mw.log( 'new editor inserted' );
             
             window.clearInterval( dev.minicomplete.checkEditors );
             
-            // this isn't unbinding or some reason
+            // remove previous event listeners to stop multiple ajax requests
             $( '.wikiaEditor' ).off( 'input' );
+            // and add fresh event listeners through .load()
             dev.minicomplete.load( '.wikiaEditor' );
             
         },
