@@ -206,16 +206,24 @@
          */
         load: function ( selector ) {
 
-            // load css
-            dev.minicomplete.insertCSS();
+            // only do this once
+            // problems caused by readding event listeners to
+            // textareas with editing comments/posts
+            if ( !document.getElementById( 'minicomplete-list' ) ) {
+                // load css
+                dev.minicomplete.insertCSS();
             
-            // create wrapper
-            var ul = document.createElement( 'ul' );
-            ul.setAttribute( 'id', 'minicomplete-list' );
-            document.getElementsByTagName( 'body' )[0].appendChild( ul );
+                // create wrapper
+                var ul = document.createElement( 'ul' );
+                ul.setAttribute( 'id', 'minicomplete-list' );
+                document.getElementsByTagName( 'body' )[0].appendChild( ul );
             
-            // bind required event listeners to document
-            dev.minicomplete.bindEvents();
+                // bind required event listeners to document
+                dev.minicomplete.bindEvents();
+            // make sure the options are removed when moving between textareas
+            } else {
+                $( '#minicomplete-list' ).hide().empty();
+            }
 
             $( selector ).on( 'input', function () {
                 // hide and empty menu
