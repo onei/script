@@ -154,9 +154,10 @@
                 dev.minicomplete.load( '#article-comm' );
                 
                 $( $( '.article-comm-reply' ) ).on( 'click', function () {
-                    console.log( 'reply detected' );
+                    
+                    mw.log( 'reply detected' );
                         
-                    if ( $( this ).parent().parent().next().find( 'wikiaEditor' ).length ) {
+                    if ( $( this ).parent().parent().next().find( '.wikiaEditor' ).length ) {
                         // is this firing?
                         console.log( 'editor already present' );
                         return;
