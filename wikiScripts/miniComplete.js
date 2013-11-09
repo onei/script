@@ -110,7 +110,7 @@
             
             // fix when editing special:forum posts and message wall comments
             // don't run on special:forum (board)
-            if ( namespace[config.wgNamespaceNumber] !== undefined && config.wgNamespaceNumber !== 2000 ) {
+            if ( config.wgNamespaceNumber === 1200 || config.wgNamespaceNumber === 1202 ) {
                 $( '.edit-message' ).on( 'click', function () {
                     
                     mw.log( 'editing forum post' );
