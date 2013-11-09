@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.2.1
+ * @version 1.2.2
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -122,11 +122,16 @@
                     dev.minicomplete.checkComments = window.setInterval( dev.minicomplete.commentsLoaded, 500 );
                 
                     $( $( '.article-comm-reply' ) ).on( 'click', function () {
+                        console.log( 'reply detected' );
+                        
+                        // if textarea already exists abort here
+                        
                         // use this value for reference
                         var miniEditors =  $( '.wikiaEditor' ).length;
-                    
-                        // add some kind of setInterval check here
-                        console.log( miniEditors );
+
+                        dev.miniComplete.checkEditors = window.setInterval( function () {
+                            dev.minicomplete.editorInserted( miniEditors );
+                        } );
                     
                     } );
                 } );
@@ -172,19 +177,16 @@
          */
         editorInserted: function ( editors ) {
             
-            if ( $( '.wikiAeditor' ).length === editors ) {
+            if ( $( '.wikiaEditor' ).length === editors ) {
                 return;
             }
             
-            // new editor has been inserted
+            window.clearInterval( dev.minicomplete.checkEditors );
             
-            // unbind old event listening for input on textareas
-            // to prevent multiple events being fired
-            
-            // and bind a fresh event to the textarea
+            $( '.wikiaEditor' ).off( 'input', 'autocomplete' );
             dev.minicomplete.load( '.wikiaEditor' );
             
-        }
+        },
 
         /**
          * Loads the rest of the functions
@@ -205,7 +207,7 @@
             dev.minicomplete.bindEvents();
 
             // @todo check if naming this allows me to unbind it when desired
-            $( selector ).on( 'input', function () {
+            $( selector ).on( 'input', function autocomplete() {
                 // hide and empty menu
                 $( '#minicomplete-list' ).hide().empty();
 
