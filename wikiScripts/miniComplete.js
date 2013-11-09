@@ -118,22 +118,7 @@
                            {} );
 
                 mw.loader.using( 'minicomplete.dependencies', function () {
-
                     dev.minicomplete.checkComments = window.setInterval( dev.minicomplete.commentsLoaded, 500 );
-                
-                    $( $( '.article-comm-reply' ) ).on( 'click', function () {
-                        console.log( 'reply detected' );
-                        
-                        // if textarea already exists abort here
-                        
-                        // use this value for reference
-                        var miniEditors =  $( '.wikiaEditor' ).length;
-
-                        dev.miniComplete.checkEditors = window.setInterval( function () {
-                            dev.minicomplete.editorInserted( miniEditors );
-                        } );
-                    
-                    } );
                 } );
             }
             
@@ -167,6 +152,20 @@
                 console.log( 'Article comments loaded' );
                 window.clearInterval( dev.minicomplete.checkComments );
                 dev.minicomplete.load( '#article-comm' );
+                
+                $( $( '.article-comm-reply' ) ).on( 'click', function () {
+                    console.log( 'reply detected' );
+                        
+                    // if textarea already exists abort here
+                        
+                    // use this value for reference
+                    var miniEditors =  $( '.wikiaEditor' ).length;
+
+                    dev.miniComplete.checkEditors = window.setInterval( function () {
+                        dev.minicomplete.editorInserted( miniEditors );
+                    } );
+                    
+                } );
             }
         },
         
@@ -180,6 +179,8 @@
             if ( $( '.wikiaEditor' ).length === editors ) {
                 return;
             }
+            
+            console.log( 'new editor inserted' );
             
             window.clearInterval( dev.minicomplete.checkEditors );
             
