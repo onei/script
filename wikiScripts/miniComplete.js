@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.2.3
+ * @version 1.2.4
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
