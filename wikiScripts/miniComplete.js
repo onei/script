@@ -156,7 +156,10 @@
                 $( $( '.article-comm-reply' ) ).on( 'click', function () {
                     console.log( 'reply detected' );
                         
-                    // if textarea already exists abort here
+                    if ( $( this ).parent().parent().next().find( 'wikiaEditor' ).length ) {
+                        console.log( 'editor already present' );
+                        return;
+                    }
                         
                     // use this value for reference
                     var miniEditors =  $( '.wikiaEditor' ).length;
