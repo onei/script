@@ -108,7 +108,7 @@
                 } );
             }
             
-            if ( namespace[config.wgNamespaceNumber] === '.body' ) {
+            if ( namespace[config.wgNamespaceNumber] === '.replyBody' ) {
                 $( '.edit-message' ).on( 'click', function () {
                     
                     console.log( 'editing forum post' );
