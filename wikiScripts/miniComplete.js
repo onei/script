@@ -108,8 +108,20 @@
                 } );
             }
             
-            // FIXME: Fix for editing comments/forum posts
-            // maybe check for classes being added/removed?
+            if ( namespace[config.wgNamespaceNumber] === '.body' ) {
+                $( '.edit-message' ).on( 'click ', function () {
+                    
+                    console.log( 'editing forum post' );
+                    
+                    // look for new instances of .body
+                    var editors = $( '.body' ).length;
+                    
+                    dev.minicomplete.checkEditors = window.setInterval( function () {
+                        dev.minicomplete.editorInserted( editors, '.body' );
+                    }, 500 );
+                    
+                } );
+            }
 
             if ( !selector ) {
                 return;
@@ -156,7 +168,7 @@
                     var miniEditors =  $( '.wikiaEditor' ).length;
 
                     dev.minicomplete.checkEditors = window.setInterval( function () {
-                        dev.minicomplete.editorInserted( miniEditors );
+                        dev.minicomplete.editorInserted( miniEditors, '.wikiaEditor' );
                     }, 500 );
                     
                 } );
@@ -164,14 +176,15 @@
         },
         
         /**
-         * Looks for new .wikiaEditor textareas to run script on
+         * Looks for new textareas to run script on
          * 
          * @param editors {number} Number of editor at start of check
+         * @param selector {string} Selector of editor to track
          */
-        editorInserted: function ( editors ) {
+        editorInserted: function ( editors, selector ) {
             
             // if there's no editor yet stop and repeat again
-            if ( $( '.wikiaEditor' ).length === editors ) {
+            if ( $( selector ).length === editors ) {
                 return;
             }
             
@@ -180,9 +193,9 @@
             window.clearInterval( dev.minicomplete.checkEditors );
             
             // remove previous event listeners to stop multiple ajax requests
-            $( '.wikiaEditor' ).off( 'input' );
+            $( selector ).off( 'input' );
             // and add fresh event listeners through .load()
-            dev.minicomplete.load( '.wikiaEditor' );
+            dev.minicomplete.load( selector );
             
         },
 
