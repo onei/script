@@ -47,6 +47,14 @@
     'use strict';
 
     dev.minicomplete = {
+        
+        // properties that set throughout the script for later use
+        // list them here to keep track easier
+        loaded: dev.minicomplete.loaded || false,
+        checkComments: false,
+        checkEditors: false,
+        elem: false,
+        type: false,
 
         /**
          * Checks for correct environment and implements custom
@@ -78,9 +86,6 @@
             }
 
             dev.minicomplete.loaded = true;
-          
-            // set to false to be modified later if needed
-            dev.minicomplete.checkComments = false;
 
             // Special:Upload and Special:MultipleUpload
             if ( special[config.wgCanonicalSpecialPageName] === 1 ) {
