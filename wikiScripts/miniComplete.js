@@ -109,7 +109,7 @@
             }
             
             if ( namespace[config.wgNamespaceNumber] === '.body' ) {
-                $( '.edit-message' ).on( 'click ', function () {
+                $( '.edit-message' ).on( 'click', function () {
                     
                     console.log( 'editing forum post' );
                     
