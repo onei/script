@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.2.2
+ * @version 1.2.3
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -28,9 +28,6 @@
  *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
- * @todo Split init into initial loading stuff for normal pageloads and deferred
- *       loading stuff for article comments and editing comments/Special:Forum
- *       posts. 
  */
 
 /*jshint
@@ -61,7 +58,19 @@
                 config = mw.config.get( [
                     'wgCanonicalSpecialPageName',
                     'wgNamespaceNumber'
-                ] );
+                ] ),
+                special = {
+                    Upload: 1,
+                    MultipleUpload: 1
+                },
+                namespace = {
+                    // message wall
+                    '1200': '#WallMessageBody',
+                    // Special:Forum (Thread)
+                    '1201': '.replyBody',
+                    // Special:Forum (Board)
+                    '2000': '.body'
+                };
 
             // prevent loading twice
             if ( dev.minicomplete.loaded ) {
@@ -73,38 +82,18 @@
             // set to false to be modified later if needed
             dev.minicomplete.checkComments = false;
 
-            // disable !! warnings (convert to boolean)
-            // because this is a bit prettier than a staggered if statement/ternary
-            // @todo rewrite this to use object proprty checks
-            // @see Lunarity's checks for edit/submit on AntiUnicruft
-            /*jshint -W018 */
-            switch ( true ) {
-            // Special:Upload
-            case !!( config.wgCanonicalSpecialPageName === 'Upload' ):
-            // Special:MultipleUpload
-            case !!( config.wgCanonicalSpecialPageName === 'MultipleUpload' ):
+            // Special:Upload and Special:MultipleUpload
+            if ( special[config.wgCanonicalSpecialPageName] === 1 ) {
                 selector = '#wpUploadDescription';
-                break;
-            // Message wall comments
-            case !!( config.wgNamespaceNumber === 1200 ):
-                selector = '#WallMessageBody';
-                break;
-            // Special:Forum posts (Board namespace)
-            case !!( config.wgNamespaceNumber === 2000 ):
-                // who thought this was a great idea for a class name?
-                selector = '.body';
-                break;
-            // Special:Forum posts (Thread namespace)
-            case !!( config.wgNamespaceNumber === 1201 ):
-                selector = '.replyBody';
-                break;
             }
-            /*jshint +W018 */
-            
-            // the above switch statement only works for nodes that exist on pageload
-            // the below functions are for when they exist at some point after
-            // normally through lazy loading of if the nodes are inserted when needed by the miniEditor
-            
+
+            // Message Wall and Special:Forum
+            // will not work for Special:Forum replies
+            // or editing existing posts on either
+            if (namespace[config.wgNamespaceNumber] !== undefined ) {
+                selector = namespace[config.wgNamespaceNumber];
+            }
+
             // Article and Blog comments
             if ( $( '#WikiaArticleComments' ).length ) {
 
@@ -215,8 +204,7 @@
             // bind required event listeners to document
             dev.minicomplete.bindEvents();
 
-            // @todo check if naming this allows me to unbind it when desired
-            $( selector ).on( 'input', function autocomplete() {
+            $( selector ).on( 'input', function () {
                 // hide and empty menu
                 $( '#minicomplete-list' ).hide().empty();
 
