@@ -106,9 +106,6 @@
             // normally through lazy loading of if the nodes are inserted when needed by the miniEditor
             
             // Article and Blog comments
-            // this will only work for the new comment textarea
-            // editing comments or replying to existing comments requires another method
-            // as the textarea is inserted as needed, not by default
             if ( $( '#WikiaArticleComments' ).length ) {
 
                 // create custom ResourceLoader module
@@ -153,13 +150,16 @@
                 window.clearInterval( dev.minicomplete.checkComments );
                 dev.minicomplete.load( '#article-comm' );
                 
+                // this is where we detect replies being added
+                // as the textareas used aren't inserted when the comments are loaded
+                // but when someone actually wants to reply
                 $( $( '.article-comm-reply' ) ).on( 'click', function () {
                     
                     mw.log( 'reply detected' );
-                        
+                    
+                    // don't continue if there is already an editor present
+                    // which is leftover from making a reply previously
                     if ( $( this ).parent().parent().next().find( '.wikiaEditor' ).length ) {
-                        // is this firing?
-                        console.log( 'editor already present' );
                         return;
                     }
                         
@@ -181,8 +181,8 @@
          */
         editorInserted: function ( editors ) {
             
+            // if there's no editor yet stop and repeat again
             if ( $( '.wikiaEditor' ).length === editors ) {
-                console.log( 'no new editor detected, repeating...' );
                 return;
             }
             
