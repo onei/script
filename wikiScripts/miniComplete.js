@@ -57,8 +57,8 @@
         type: false,
 
         /**
-         * Checks for correct environment and implements custom
-         * ResourceLoader module
+         * @desc Checks for correct environment and implements custom
+         *       ResourceLoader module
          */
         init: function () {
 
@@ -88,15 +88,15 @@
             dev.minicomplete.loaded = true;
 
             // Special:Upload and Special:MultipleUpload
-            if ( special[config.wgCanonicalSpecialPageName] === 1 ) {
+            if ( special[ config.wgCanonicalSpecialPageName ] === 1 ) {
                 selector = '#wpUploadDescription';
             }
 
             // Message Wall and Special:Forum
             // will not work for Special:Forum replies
             // or editing existing posts on either
-            if (namespace[config.wgNamespaceNumber] !== undefined ) {
-                selector = namespace[config.wgNamespaceNumber];
+            if (namespace[ config.wgNamespaceNumber ] !== undefined ) {
+                selector = namespace[ config.wgNamespaceNumber ];
             }
 
             // Article and Blog comments
@@ -150,7 +150,7 @@
         },
       
         /**
-         * Checks if Article comments are loaded and run autocomplete when done
+         * @desc Checks if Article comments are loaded and run autocomplete when done
          */
         commentsLoaded: function () {
             if ( window.ArticleComments.initCompleted ) {
@@ -183,10 +183,9 @@
         },
         
         /**
-         * Looks for new textareas to run script on
-         * 
-         * @param editors {number} Number of editor at start of check
-         * @param selector {string} Selector of editor to track
+         * @desc Looks for new textareas to run script on
+         * @param {number} editors Number of editor at start of check
+         * @param {string} selector Selector of editor to track
          */
         editorInserted: function ( editors, selector ) {
             
@@ -207,8 +206,7 @@
         },
 
         /**
-         * Loads the rest of the functions
-         *
+         * @desc Loads the rest of the functions
          * @param selector {string} Selector to bind events in textarea to
          */
         load: function ( selector ) {
@@ -247,8 +245,7 @@
         },
 
         /**
-         * Insert stylesheet using colours set by ThemeDesigner
-         *
+         * @desc Insert stylesheet using colours set by ThemeDesigner
          * @todo Allow custom colours for when there's non-themedesigner colours
          *       or custom monobook theme
          */
@@ -283,93 +280,103 @@
         },
 
         /**
-         * Binds events related to navigating through menu with up/down keys
-         * and what to do when pressing esc or left/right keys
+         * @desc Binds events related to navigating through menu with up/down keys
+         *       and what to do when pressing esc or left/right keys
          */
         bindEvents: function () {
+            
+            var i,
+                $option = [],
+                $select = [],
+                e,
+                keycode = {
+                    // Esc key - hide options
+                    '27': function () {
+                        $( '#minicomplete-list' ).hide().empty();
+                    },
+                    // left arrow key - hide options
+                    '37': function () {
+                        $( '#minicomplete-list' ).hide().empty();
+                    },
+                    // right arrow key - hide options
+                    '39': function () {
+                        $( '#minicomplete-list' ).hide().empty();
+                    },
+                    // up arrow key - navigate upwards through menu
+                    '38': function () {
+                        if ( !$option.length ) {
+                            return;
+                        }
+                    
+                        // stop caret moving
+                        e.preventDefault();
+
+                        if ( !$select.length ) {
+                            $( $option[ $option.length - 1 ] ).addClass( 'selected' );
+                        } else {
+                            for ( i = 0; i < $option.length; i += 1 ) {
+                                if ( $( $option[ i ] ).hasClass( 'selected' ) ) {
+                                    // remove class
+                                    $( $option[ i ] ).removeClass( 'selected' );
+                                    // if at top of list jump to bottom
+                                    if ( i === 0 ) {
+                                        $( $option[ $option.length - 1 ] ).addClass( 'selected' );
+                                    // else move up list
+                                    } else {
+                                        $( $option[ i - 1 ] ).addClass( 'selected' );
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+                    },
+                    // down arrow key - navigate downwards through menu
+                    '40': function () {
+                        if ( !$option.length ) {
+                            return;
+                        }
+
+                        // stop caret moving
+                        e.preventDefault();
+
+                        if ( !$select.length ) {
+                            $( $option[0] ).addClass( 'selected' );
+                        } else {
+                            for ( i = 0; i < $option.length; i += 1 ) {
+                                if ( $( $option[ i ] ).hasClass( 'selected' ) ) {
+                                    // remove selected class
+                                    $( $option[ i ] ).removeClass( 'selected' );
+                                    // if at bottom of list jump to top
+                                    if ( i === ( $option.length - 1 ) ) {
+                                        $( $option[ 0 ] ).addClass( 'selected' );
+                                    // else move down list
+                                    } else {
+                                        $( $option[ i + 1 ] ).addClass( 'selected' );
+                                    }
+
+                                    return;
+                                }
+                            }
+                        }
+                    },
+                    // return key - insert selected option
+                    '13': function () {
+                        if ( !$select.length ) {
+                            return;
+                        }
+                    
+                        e.preventDefault();
+                        dev.minicomplete.insertComplete( $select.text() );
+                    }
+                };
 
             $( document ).on( 'keydown', function ( e ) {
 
-                var $option = $( '.minicomplete-option' ),
-                    $select = $( '.minicomplete-option.selected' ),
-                    i;
-
-                switch ( e.keyCode ) {
-                // hide options on esc keydown
-                case 27:
-                // hide optons on left/right keydown
-                // as it suggests the user is moving through to edit the text
-                case 37:
-                case 39:
-                    $( '#minicomplete-list' ).hide().empty();
-                    break;
-                // navigate through menu using up keydown
-                case 38:
-                    if ( !$option.length ) {
-                        return;
-                    }
+                $option = $( '.minicomplete-option' );
+                $select = $( '.minicomplete-option.selected' );
                     
-                    // stop caret moving
-                    e.preventDefault();
-
-                    if ( !$select.length ) {
-                        $( $option[$option.length - 1] ).addClass( 'selected' );
-                    } else {
-                        for ( i = 0; i < $option.length; i += 1 ) {
-                            if ( $( $option[i] ).hasClass( 'selected' ) ) {
-                                // remove class
-                                $( $option[i] ).removeClass( 'selected' );
-                                // if at top of list jump to bottom
-                                if ( i === 0 ) {
-                                    $( $option[$option.length - 1] ).addClass( 'selected' );
-                                // else move up list
-                                } else {
-                                    $( $option[i - 1] ).addClass( 'selected' );
-                                }
-
-                                return;
-                            }
-                        }
-                    }
-                    break;
-                // navigate through menu using down keydown
-                case 40:
-                    if ( !$option.length ) {
-                        return;
-                    }
-                    
-                    // stop caret moving
-                    e.preventDefault();
-
-                    if ( !$select.length ) {
-                        $( $option[0] ).addClass( 'selected' );
-                    } else {
-                        for ( i = 0; i < $option.length; i += 1 ) {
-                            if ( $( $option[i] ).hasClass( 'selected' ) ) {
-                                // remove selected class
-                                $( $option[i] ).removeClass( 'selected' );
-                                // if at bottom of list jump to top
-                                if ( i === ( $option.length - 1 ) ) {
-                                    $( $option[0] ).addClass( 'selected' );
-                                // else move down list
-                                } else {
-                                    $( $option[i + 1] ).addClass( 'selected' );
-                                }
-
-                                return;
-                            }
-                        }
-                    }
-                    break;
-                // insert selected option on enter keydown
-                case 13:
-                    if ( !$select.length ) {
-                        return;
-                    }
-                    
-                    e.preventDefault();
-                    dev.minicomplete.insertComplete( $select.text() );
-                    break;
+                if ( keycode[ e.keyCode ] !== undefined ) {
+                    keycode[ e.keyCode ]();
                 }
 
             } );
@@ -377,9 +384,8 @@
         },
 
         /**
-         * Counts back from caret position looking for unclosed {{ or [[
-         *
-         * @param elem {node} Element to look for search term within
+         * @desc Counts back from caret position looking for unclosed {{ or [[
+         * @param {node} elem Element to look for search term within
          */
         findTerm: function ( elem ) {
             
@@ -494,13 +500,12 @@
         },
 
         /**
-         * Gets caret position for detecting search term and inserting
-         * autocomplete term.
-         *
+         * @desc Gets caret position for detecting search term and inserting
+         *       autocomplete term.
          * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
-         * @return {number} Caret position in string.
-         *                  If browser does not support caret position methods
-         *                  returns 0 to prevent syntax errors
+         * @returns {number} Caret position in string.
+         *                   If browser does not support caret position methods
+         *                   returns 0 to prevent syntax errors
          */
         getCaretPos: function () {
 
@@ -527,8 +532,7 @@
         },
 
         /**
-         * Queries mw api for possible suggestions
-         *
+         * @desc Queries mw api for possible suggestions
          * @link <https://www.mediawiki.org/wiki/API:Allpages> Allpages API docs
          * @param term {string} Page title to search for
          * @param ns {integer} Namespace to search in
@@ -596,9 +600,8 @@
         },
 
         /**
-         * Inserts list of options to select from
-         *
-         * @param result {array} Result from API
+         * @desc Inserts list of options to select from
+         * @param {array} result Result from API
          */
         showSuggestions: function ( result ) {
 
@@ -677,9 +680,8 @@
         },
 
         /**
-         * Inserts selected suggestion
-         *
-         * @param complete {string} Search suggestion to insert
+         * @desc Inserts selected suggestion
+         * @param {string} complete Search suggestion to insert
          */
         insertComplete: function ( complete ) {
 
