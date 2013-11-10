@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.2.5
+ * @version 1.2.6
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -28,6 +28,7 @@
  *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
+ * @todo Add support for Special pages
  */
 
 /*jshint
@@ -556,7 +557,7 @@
             if ( term.indexOf( ':' ) > -1 ) {
 
                 termSplit = term.split( ':' );
-                title = termSplit[1];
+                title = termSplit[ 1 ];
 
                 // make sure there's only the namespace and the page title
                 if ( termSplit.length > 2 ) {
@@ -565,13 +566,22 @@
 
                 namespaceId = mw.config.get( 'wgNamespaceIds' )[
                     // wgNamespaceIds uses underscores and lower case
-                    termSplit[0].replace( / /g, '_' )
-                                .toLowerCase()
+                    termSplit[ 0 ].replace( / /g, '_' )
+                                  .toLowerCase()
                 ];
 
                 if ( namespaceId ) {
                     query.apnamespace = namespaceId;
                     query.apprefix = title;
+                }
+                
+                if ( termSplit[ 0 ].toLowerCase() === 'special' ) {
+                    // load a predefined list of special pages here
+                    // load from API during init perhaps?
+                    // pass the options directly to showSuggestions
+                    // @todo find a way of getting a list of these
+                    // monobook's search clearly supports it
+                    return;
                 }
 
             }
@@ -612,18 +622,16 @@
                 $list,
                 $body = $( 'body' ).width(),
                 leftpos,
-                $options;
+                $options = '';
                 
             mw.log( result );
 
             for ( i = 0; i < result.length; i += 1 ) {
-                options[options.length] = '<li class="minicomplete-option">' + result[i].title + '</li>';
+                options += '<li class="minicomplete-option">' + result[i].title + '</li>';
             }
 
-            // append options to container
-            $( '#minicomplete-list' ).html(
-                options.join( '' )
-            );
+            // insert options into container
+            $( '#minicomplete-list' ).html( options );
 
             // cache list
             // do this after it's been populated to stop errors
