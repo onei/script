@@ -1,34 +1,15 @@
-// <syntaxhighlight lang="javascript">
-/**
+/** <nowiki>
  * Minieditor Autocomplete (MiniComplete)
  *
  * Adds autocomplete to certain form elements.
  * - Special:Upload description
  * - Special:MultipleUpload description
- * - Message Wall comments
- * - Article comments
- * - Blog comments
- * - Special:Forum posts
  * 
- * Can also be used in other scripts that require an autocomplete
- * See documentation page for details
+ * Stripped out version of the main script found on dev wiki
+ * @link <http://dev.wikia.com/wiki/MiniComplete>
  *
- * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.2.6
+ * @author Cqm
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
- *
- * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
- * @link <https://github.com/jshint/jshint/blob/master/src/messages.js> Jshint warning messages
- * @link <http://dev.wikia.com/wiki/Colors> Colors documentation
- * @link <https://github.com/Codecademy/textarea-helper> Textarea-helper documentation
- * 
- * @notes There are various calls to mw.log() to help with debugging if you are
- *        using this within another script. To see these append ?debug=true to
- *        your url.
- *
- * @todo Add some kind of opt out setting for sitewide installations
- * @todo Add support for custom CSS styling of the autocomplete menu
- * @todo Add support for Special pages
  */
 
 /*jshint
@@ -42,18 +23,16 @@
 
 // disable indent warning
 /*jshint -W015 */
-;( function ( document, $, mw, dev, undefined ) {
+;( function ( document, $, mw, rswiki, dev, undefined ) {
 /*jshint +W015 */
 
     'use strict';
 
-    dev.minicomplete = {
+    rswiki.minicomplete = {
         
         // properties that set throughout the script for later use
         // list them here to keep track easier
-        loaded: ( dev.minicomplete || {} ).loaded || false,
-        checkComments: false,
-        checkEditors: false,
+        loaded: ( rswiki.minicomplete || {} ).loaded || false,
         elem: false,
         type: false,
 
@@ -63,75 +42,23 @@
          */
         init: function () {
 
-            var selector = false,
-                config = mw.config.get( [
-                    'wgCanonicalSpecialPageName',
-                    'wgNamespaceNumber'
-                ] ),
+            var selector,
                 special = {
                     Upload: 1,
                     MultipleUpload: 1
-                },
-                namespace = {
-                    // message wall
-                    '1200': '#WallMessageBody',
-                    // Special:Forum (Thread)
-                    '1201': '.replyBody',
-                    // Special:Forum (Board)
-                    '2000': '.body'
                 };
 
             // prevent loading twice
-            if ( dev.minicomplete.loaded ) {
+            if ( rswiki.minicomplete.loaded ) {
                 return;
             }
 
-            dev.minicomplete.loaded = true;
+            rswiki.minicomplete.loaded = true;
 
             // Special:Upload and Special:MultipleUpload
-            if ( special[ config.wgCanonicalSpecialPageName ] === 1 ) {
+            if ( special[ mw.config.get( 'wgCanonicalSpecialPageName' ) ] === 1 ) {
                 selector = '#wpUploadDescription';
-            }
-
-            // Message Wall and Special:Forum
-            // will not work for Special:Forum replies
-            // or editing existing posts on either
-            if (namespace[ config.wgNamespaceNumber ] !== undefined ) {
-                selector = namespace[ config.wgNamespaceNumber ];
-            }
-
-            // Article and Blog comments
-            if ( $( '#WikiaArticleComments' ).length ) {
-
-                // create custom ResourceLoader module
-                mw.loader.implement( 'minicomplete.dependencies',
-                   [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
-                       {},
-                           {} );
-
-                mw.loader.using( 'minicomplete.dependencies', function () {
-                    dev.minicomplete.checkComments = window.setInterval( dev.minicomplete.commentsLoaded, 500 );
-                } );
-            }
-            
-            // fix when editing special:forum posts and message wall comments
-            // don't run on special:forum (board)
-            if ( config.wgNamespaceNumber === 1200 || config.wgNamespaceNumber === 1202 ) {
-                $( '.edit-message' ).on( 'click', function () {
-                    
-                    mw.log( 'editing forum post' );
-                    
-                    // look for new instances of .body
-                    var editors = $( '.body' ).length;
-                    
-                    dev.minicomplete.checkEditors = window.setInterval( function () {
-                        dev.minicomplete.editorInserted( editors, '.body' );
-                    }, 500 );
-                    
-                } );
-            }
-
-            if ( !selector ) {
+            } else {
                 return;
             }
 
@@ -145,102 +72,38 @@
             // so declare our dependencies and run the rest of the script
             // in the callback
             mw.loader.using( [ 'mediawiki.api', 'minicomplete.dependencies' ], function () {
-                dev.minicomplete.load( selector );
+                rswiki.minicomplete.load( selector );
             } );
 
         },
       
-        /**
-         * @desc Checks if Article comments are loaded and run autocomplete when done
-         */
-        commentsLoaded: function () {
-            if ( window.ArticleComments.initCompleted ) {
-                mw.log( 'Article comments loaded' );
-                window.clearInterval( dev.minicomplete.checkComments );
-                dev.minicomplete.load( '#article-comm' );
-                
-                // this is where we detect replies being added
-                // as the textareas used aren't inserted when the comments are loaded
-                // but when someone actually wants to reply
-                $( $( '.article-comm-reply' ) ).on( 'click', function () {
-                    
-                    mw.log( 'reply detected' );
-                    
-                    // don't continue if there is already an editor present
-                    // which is leftover from making a reply previously
-                    if ( $( this ).parent().parent().next().find( '.wikiaEditor' ).length ) {
-                        return;
-                    }
-                        
-                    // use this value for reference
-                    var miniEditors =  $( '.wikiaEditor' ).length;
-
-                    dev.minicomplete.checkEditors = window.setInterval( function () {
-                        dev.minicomplete.editorInserted( miniEditors, '.wikiaEditor' );
-                    }, 500 );
-                    
-                } );
-            }
-        },
-        
-        /**
-         * @desc Looks for new textareas to run script on
-         * @param {number} editors Number of editor at start of check
-         * @param {string} selector Selector of editor to track
-         */
-        editorInserted: function ( editors, selector ) {
-            
-            // if there's no editor yet stop and repeat again
-            if ( $( selector ).length === editors ) {
-                return;
-            }
-            
-            mw.log( 'new editor inserted' );
-            
-            window.clearInterval( dev.minicomplete.checkEditors );
-            
-            // remove previous event listeners to stop multiple ajax requests
-            $( selector ).off( 'input' );
-            // and add fresh event listeners through .load()
-            dev.minicomplete.load( selector );
-            
-        },
-
         /**
          * @desc Loads the rest of the functions
          * @param selector {string} Selector to bind events in textarea to
          */
         load: function ( selector ) {
 
-            // only do this once
-            // problems caused by readding event listeners to
-            // textareas with editing comments/posts
-            if ( !document.getElementById( 'minicomplete-list' ) ) {
-                // load css
-                dev.minicomplete.insertCSS();
+            // load css
+            rswiki.minicomplete.insertCSS();
             
-                // create wrapper
-                var ul = document.createElement( 'ul' );
-                ul.setAttribute( 'id', 'minicomplete-list' );
-                document.getElementsByTagName( 'body' )[0].appendChild( ul );
+            // create wrapper
+            var ul = document.createElement( 'ul' );
+            ul.setAttribute( 'id', 'minicomplete-list' );
+            document.getElementsByTagName( 'body' )[0].appendChild( ul );
             
-                // bind required event listeners to document
-                dev.minicomplete.bindEvents();
-            // make sure the options are removed when moving between textareas
-            } else {
-                $( '#minicomplete-list' ).hide().empty();
-            }
+            // bind required event listeners to document
+            rswiki.minicomplete.bindEvents();
 
             $( selector ).on( 'input', function () {
                 // hide and empty menu
                 $( '#minicomplete-list' ).hide().empty();
 
                 // store node for later use
-                dev.minicomplete.elem = this;
+                rswiki.minicomplete.elem = this;
                 mw.log( this );
 
                 // run api query
-                dev.minicomplete.findTerm( this );
+                rswiki.minicomplete.findTerm( this );
             } );
 
         },
@@ -263,12 +126,8 @@
             }
 
             css = [
-                // constant css for container
-                '#minicomplete-list{position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;margin:0;}',
                 // variable css for container
                 '#minicomplete-list{border:1px solid $border;background-color:$page;color:$link;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
-                // constant css for options
-                '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}',
                 // variable css for options
                 '.minicomplete-option:hover,.minicomplete-option.selected{background-color:$mix;}'
             ];
@@ -367,7 +226,7 @@
                         }
                     
                         e.preventDefault();
-                        dev.minicomplete.insertComplete( $select.text() );
+                        rswiki.minicomplete.insertComplete( $select.text() );
                     }
                 };
 
@@ -399,7 +258,7 @@
             }
 
                 // text to search for
-            var searchText = elem.value.substring( 0, dev.minicomplete.getCaretPos() ),
+            var searchText = elem.value.substring( 0, rswiki.minicomplete.getCaretPos() ),
                 // for separating search term
                 linkCheck = searchText.lastIndexOf( '[['),
                 templateCheck = searchText.lastIndexOf( '{{' ),
@@ -449,8 +308,8 @@
 
                     // set type here as it's easier than
                     // passing it through all the functions
-                    dev.minicomplete.type = '[[';
-                    dev.minicomplete.getSuggestions( term, 0 );
+                    rswiki.minicomplete.type = '[[';
+                    rswiki.minicomplete.getSuggestions( term, 0 );
 
                 }
 
@@ -491,8 +350,8 @@
 
                     // set type here as it's easier than
                     // passing it through all the functions
-                    dev.minicomplete.type = '{{';
-                    dev.minicomplete.getSuggestions( term, ns );
+                    rswiki.minicomplete.type = '{{';
+                    rswiki.minicomplete.getSuggestions( term, ns );
 
                 }
 
@@ -510,7 +369,7 @@
          */
         getCaretPos: function () {
 
-            var elem = dev.minicomplete.elem,
+            var elem = rswiki.minicomplete.elem,
                 caretPos = 0,
                 sel;
 
@@ -600,7 +459,7 @@
                                     return;
                                 }
 
-                                dev.minicomplete.showSuggestions( data.query.allpages );
+                                rswiki.minicomplete.showSuggestions( data.query.allpages );
 
                             } )
                             .error( function ( error ) {
@@ -641,8 +500,8 @@
             $list.show();
 
             // position option list
-            coords = $( dev.minicomplete.elem ).textareaHelper( 'caretPos' );
-            offset = $( dev.minicomplete.elem ).offset();
+            coords = $( rswiki.minicomplete.elem ).textareaHelper( 'caretPos' );
+            offset = $( rswiki.minicomplete.elem ).offset();
             
             leftpos = offset.left + coords.left;
             
@@ -671,7 +530,7 @@
 
             // add onclick handler for inserting the option
             $options.on( 'click', function () {
-                dev.minicomplete.insertComplete( $( this ).text() );
+                rswiki.minicomplete.insertComplete( $( this ).text() );
             } );
 
             // clear .selected class on hover
@@ -693,10 +552,10 @@
          */
         insertComplete: function ( complete ) {
 
-            var caret = dev.minicomplete.getCaretPos(),
-                val = dev.minicomplete.elem.value,
+            var caret = rswiki.minicomplete.getCaretPos(),
+                val = rswiki.minicomplete.elem.value,
                 text = val.substring( 0, caret ),
-                open = dev.minicomplete.type,
+                open = rswiki.minicomplete.type,
                 close = open === '[[' ? ']]' : '}}',
                 before = text.substring( 0, text.lastIndexOf( open ) );
 
@@ -711,7 +570,7 @@
             }
 
             // insert search term
-            dev.minicomplete.elem.value = before + open + complete + close + val.substring( caret );
+            rswiki.minicomplete.elem.value = before + open + complete + close + val.substring( caret );
         
             // hide and empty options
             $( '#minicomplete-list' ).hide().empty();
@@ -719,8 +578,8 @@
         }
     };
 
-    $( dev.minicomplete.init );
+    $( rswiki.minicomplete.init );
 
-}( this.document, this.jQuery, this.mediaWiki, this.dev = this.dev || {} ) );
+}( this.document, this.jQuery, this.mediaWiki, this.rswiki = this.rswiki || {}, this.dev = this.dev || {} ) );
 
-// </syntaxhighlight> __NOWYSIWYG__
+/* </nowiki> */
