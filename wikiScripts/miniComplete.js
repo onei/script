@@ -50,7 +50,7 @@
         
         // properties that set throughout the script for later use
         // list them here to keep track easier
-        loaded: dev.minicomplete.loaded || false,
+        loaded: ( dev.minicomplete || {} ).loaded || false,
         checkComments: false,
         checkEditors: false,
         elem: false,
