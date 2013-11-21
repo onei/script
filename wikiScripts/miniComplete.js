@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.2.6
+ * @version 2.0.1
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -626,6 +626,8 @@
              * 
              */
             init: function () {
+                
+                console.log( 'init loaded' );
                 
                 var selector = false,
                     config = mw.config.get( [
