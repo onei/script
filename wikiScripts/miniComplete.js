@@ -47,7 +47,7 @@
 
     'use strict';
 
-    dev.minicomplete = function () {
+    dev.minicomplete = ( function () {
 
         // properties that set throughout the script for later use
         // list them here to keep track easier
@@ -712,7 +712,7 @@
                 } );
             }
         };
-    };
+    } );
 
     $( dev.minicomplete.init );
 
