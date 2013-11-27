@@ -493,7 +493,7 @@
             // IE9 support
             // may need to exclude IE10 from this
             // Earlier versions of IE aren't supported so don't worry about them
-            if ( document.selection ) {
+            if ( document.selection && !elem.selectionStart ) {
                 elem.focus();
                 sel = document.selection.createRange();
                 sel.moveStart( 'character', -elem.value.length );
