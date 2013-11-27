@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 2.0.1
+ * @version 1.2.5
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -28,7 +28,6 @@
  *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
- * @todo Add support for Special pages
  */
 
 /*jshint
@@ -47,18 +46,111 @@
 
     'use strict';
 
-    dev.minicomplete = ( function () {
-
-        // properties that set throughout the script for later use
-        // list them here to keep track easier
-        var type = false;
+    dev.minicomplete = {
 
         /**
-         * @desc Checks if Article comments are loaded and run autocomplete when done
+         * Checks for correct environment and implements custom
+         * ResourceLoader module
          */
-        function commentsLoaded() {
+        init: function () {
+
+            var selector = false,
+                config = mw.config.get( [
+                    'wgCanonicalSpecialPageName',
+                    'wgNamespaceNumber'
+                ] ),
+                special = {
+                    Upload: 1,
+                    MultipleUpload: 1
+                },
+                namespace = {
+                    // message wall
+                    '1200': '#WallMessageBody',
+                    // Special:Forum (Thread)
+                    '1201': '.replyBody',
+                    // Special:Forum (Board)
+                    '2000': '.body'
+                };
+
+            // prevent loading twice
+            if ( dev.minicomplete.loaded ) {
+                return;
+            }
+
+            dev.minicomplete.loaded = true;
+          
+            // set to false to be modified later if needed
+            dev.minicomplete.checkComments = false;
+
+            // Special:Upload and Special:MultipleUpload
+            if ( special[config.wgCanonicalSpecialPageName] === 1 ) {
+                selector = '#wpUploadDescription';
+            }
+
+            // Message Wall and Special:Forum
+            // will not work for Special:Forum replies
+            // or editing existing posts on either
+            if (namespace[config.wgNamespaceNumber] !== undefined ) {
+                selector = namespace[config.wgNamespaceNumber];
+            }
+
+            // Article and Blog comments
+            if ( $( '#WikiaArticleComments' ).length ) {
+
+                // create custom ResourceLoader module
+                mw.loader.implement( 'minicomplete.dependencies',
+                   [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
+                       {},
+                           {} );
+
+                mw.loader.using( 'minicomplete.dependencies', function () {
+                    dev.minicomplete.checkComments = window.setInterval( dev.minicomplete.commentsLoaded, 500 );
+                } );
+            }
+            
+            // fix when editing special:forum posts and message wall comments
+            // don't run on special:forum (board)
+            if ( config.wgNamespaceNumber === 1200 || config.wgNamespaceNumber === 1202 ) {
+                $( '.edit-message' ).on( 'click', function () {
+                    
+                    mw.log( 'editing forum post' );
+                    
+                    // look for new instances of .body
+                    var editors = $( '.body' ).length;
+                    
+                    dev.minicomplete.checkEditors = window.setInterval( function () {
+                        dev.minicomplete.editorInserted( editors, '.body' );
+                    }, 500 );
+                    
+                } );
+            }
+
+            if ( !selector ) {
+                return;
+            }
+
+            // create custom ResourceLoader module
+            mw.loader.implement( 'minicomplete.dependencies',
+               [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
+                   {},
+                       {} );
+
+            // we need custom module after this point
+            // so declare our dependencies and run the rest of the script
+            // in the callback
+            mw.loader.using( [ 'mediawiki.api', 'minicomplete.dependencies' ], function () {
+                dev.minicomplete.load( selector );
+            } );
+
+        },
+      
+        /**
+         * Checks if Article comments are loaded and run autocomplete when done
+         */
+        commentsLoaded: function () {
             if ( window.ArticleComments.initCompleted ) {
                 mw.log( 'Article comments loaded' );
+                window.clearInterval( dev.minicomplete.checkComments );
                 dev.minicomplete.load( '#article-comm' );
                 
                 // this is where we detect replies being added
@@ -77,40 +169,85 @@
                     // use this value for reference
                     var miniEditors =  $( '.wikiaEditor' ).length;
 
-                    editorInserted( miniEditors, '.wikiaEditor' );
+                    dev.minicomplete.checkEditors = window.setInterval( function () {
+                        dev.minicomplete.editorInserted( miniEditors, '.wikiaEditor' );
+                    }, 500 );
                     
                 } );
-            } else {
-                setTimeout( commentsLoaded, 500 );
             }
-        }
+        },
         
         /**
-         * @desc Looks for new textareas to run script on
-         * @param {number} editors Number of editor at start of check
-         * @param {string} selector Selector of editor to track
+         * Looks for new textareas to run script on
+         * 
+         * @param editors {number} Number of editor at start of check
+         * @param selector {string} Selector of editor to track
          */
-        function editorInserted( editors, selector ) {
+        editorInserted: function ( editors, selector ) {
             
             // if there's no editor yet stop and repeat again
             if ( $( selector ).length === editors ) {
-                setTimeout( function () {
-                    editorInserted( editors, selector );
-                }, 500 );
                 return;
             }
             
             mw.log( 'new editor inserted' );
+            
+            window.clearInterval( dev.minicomplete.checkEditors );
+            
+            // remove previous event listeners to stop multiple ajax requests
+            $( selector ).off( 'input' );
+            // and add fresh event listeners through .load()
             dev.minicomplete.load( selector );
             
-        }
+        },
 
         /**
-         * @desc Insert stylesheet using colours set by ThemeDesigner
+         * Loads the rest of the functions
+         *
+         * @param selector {string} Selector to bind events in textarea to
+         */
+        load: function ( selector ) {
+
+            // only do this once
+            // problems caused by readding event listeners to
+            // textareas with editing comments/posts
+            if ( !document.getElementById( 'minicomplete-list' ) ) {
+                // load css
+                dev.minicomplete.insertCSS();
+            
+                // create wrapper
+                var ul = document.createElement( 'ul' );
+                ul.setAttribute( 'id', 'minicomplete-list' );
+                document.getElementsByTagName( 'body' )[0].appendChild( ul );
+            
+                // bind required event listeners to document
+                dev.minicomplete.bindEvents();
+            // make sure the options are removed when moving between textareas
+            } else {
+                $( '#minicomplete-list' ).hide().empty();
+            }
+
+            $( selector ).on( 'input', function () {
+                // hide and empty menu
+                $( '#minicomplete-list' ).hide().empty();
+
+                // store node for later use
+                dev.minicomplete.elem = this;
+                mw.log( this );
+
+                // run api query
+                dev.minicomplete.findTerm( this );
+            } );
+
+        },
+
+        /**
+         * Insert stylesheet using colours set by ThemeDesigner
+         *
          * @todo Allow custom colours for when there's non-themedesigner colours
          *       or custom monobook theme
          */
-        function insertCSS() {
+        insertCSS: function () {
 
             var page = dev.colors.parse( dev.colors.wikia.page ),
                 buttons = dev.colors.parse( dev.colors.wikia.menu ),
@@ -138,117 +275,108 @@
                 shadow: shadow
             } );
 
-        }
+        },
 
         /**
-         * @desc Binds events related to navigating through menu with up/down keys
-         *       and what to do when pressing esc or left/right keys
+         * Binds events related to navigating through menu with up/down keys
+         * and what to do when pressing esc or left/right keys
          */
-        function bindEvents() {
-            
-            var i,
-                $option = [],
-                $select = [],
-                e,
-                keycode = {
-                    // Esc key - hide options
-                    '27': function () {
-                        $( '#minicomplete-list' ).hide().empty();
-                    },
-                    // left arrow key - hide options
-                    '37': function () {
-                        $( '#minicomplete-list' ).hide().empty();
-                    },
-                    // right arrow key - hide options
-                    '39': function () {
-                        $( '#minicomplete-list' ).hide().empty();
-                    },
-                    // up arrow key - navigate upwards through menu
-                    '38': function () {
-                        if ( !$option.length ) {
-                            return;
-                        }
-                    
-                        // stop caret moving
-                        e.preventDefault();
-
-                        if ( !$select.length ) {
-                            $( $option[ $option.length - 1 ] ).addClass( 'selected' );
-                        } else {
-                            for ( i = 0; i < $option.length; i += 1 ) {
-                                if ( $( $option[ i ] ).hasClass( 'selected' ) ) {
-                                    // remove class
-                                    $( $option[ i ] ).removeClass( 'selected' );
-                                    // if at top of list jump to bottom
-                                    if ( i === 0 ) {
-                                        $( $option[ $option.length - 1 ] ).addClass( 'selected' );
-                                    // else move up list
-                                    } else {
-                                        $( $option[ i - 1 ] ).addClass( 'selected' );
-                                    }
-                                    return;
-                                }
-                            }
-                        }
-                    },
-                    // down arrow key - navigate downwards through menu
-                    '40': function () {
-                        if ( !$option.length ) {
-                            return;
-                        }
-
-                        // stop caret moving
-                        e.preventDefault();
-
-                        if ( !$select.length ) {
-                            $( $option[0] ).addClass( 'selected' );
-                        } else {
-                            for ( i = 0; i < $option.length; i += 1 ) {
-                                if ( $( $option[ i ] ).hasClass( 'selected' ) ) {
-                                    // remove selected class
-                                    $( $option[ i ] ).removeClass( 'selected' );
-                                    // if at bottom of list jump to top
-                                    if ( i === ( $option.length - 1 ) ) {
-                                        $( $option[ 0 ] ).addClass( 'selected' );
-                                    // else move down list
-                                    } else {
-                                        $( $option[ i + 1 ] ).addClass( 'selected' );
-                                    }
-
-                                    return;
-                                }
-                            }
-                        }
-                    },
-                    // return key - insert selected option
-                    '13': function () {
-                        if ( !$select.length ) {
-                            return;
-                        }
-                    
-                        e.preventDefault();
-                        insertComplete( $select.text() );
-                    }
-                };
+        bindEvents: function () {
 
             $( document ).on( 'keydown', function ( e ) {
 
-                $option = $( '.minicomplete-option' );
-                $select = $( '.minicomplete-option.selected' );
+                var $option = $( '.minicomplete-option' ),
+                    $select = $( '.minicomplete-option.selected' ),
+                    i;
+
+                switch ( e.keyCode ) {
+                // hide options on esc keydown
+                case 27:
+                // hide optons on left/right keydown
+                // as it suggests the user is moving through to edit the text
+                case 37:
+                case 39:
+                    $( '#minicomplete-list' ).hide().empty();
+                    break;
+                // navigate through menu using up keydown
+                case 38:
+                    if ( !$option.length ) {
+                        return;
+                    }
                     
-                if ( keycode[ e.keyCode ] !== undefined ) {
-                    keycode[ e.keyCode ]();
+                    // stop caret moving
+                    e.preventDefault();
+
+                    if ( !$select.length ) {
+                        $( $option[$option.length - 1] ).addClass( 'selected' );
+                    } else {
+                        for ( i = 0; i < $option.length; i += 1 ) {
+                            if ( $( $option[i] ).hasClass( 'selected' ) ) {
+                                // remove class
+                                $( $option[i] ).removeClass( 'selected' );
+                                // if at top of list jump to bottom
+                                if ( i === 0 ) {
+                                    $( $option[$option.length - 1] ).addClass( 'selected' );
+                                // else move up list
+                                } else {
+                                    $( $option[i - 1] ).addClass( 'selected' );
+                                }
+
+                                return;
+                            }
+                        }
+                    }
+                    break;
+                // navigate through menu using down keydown
+                case 40:
+                    if ( !$option.length ) {
+                        return;
+                    }
+                    
+                    // stop caret moving
+                    e.preventDefault();
+
+                    if ( !$select.length ) {
+                        $( $option[0] ).addClass( 'selected' );
+                    } else {
+                        for ( i = 0; i < $option.length; i += 1 ) {
+                            if ( $( $option[i] ).hasClass( 'selected' ) ) {
+                                // remove selected class
+                                $( $option[i] ).removeClass( 'selected' );
+                                // if at bottom of list jump to top
+                                if ( i === ( $option.length - 1 ) ) {
+                                    $( $option[0] ).addClass( 'selected' );
+                                // else move down list
+                                } else {
+                                    $( $option[i + 1] ).addClass( 'selected' );
+                                }
+
+                                return;
+                            }
+                        }
+                    }
+                    break;
+                // insert selected option on enter keydown
+                case 13:
+                    if ( !$select.length ) {
+                        return;
+                    }
+                    
+                    e.preventDefault();
+                    dev.minicomplete.insertComplete( $select.text() );
+                    break;
                 }
 
             } );
 
-        }
+        },
 
         /**
-         * @desc Counts back from caret position looking for unclosed {{ or [[
-         * @param {node} elem Element to look for search term within
+         * Counts back from caret position looking for unclosed {{ or [[
+         *
+         * @param elem {node} Element to look for search term within
          */
-        function findTerm( elem ) {
+        findTerm: function ( elem ) {
             
             // compare against undefined
             // to stop empty strings triggering this too
@@ -309,8 +437,8 @@
 
                     // set type here as it's easier than
                     // passing it through all the functions
-                    type = '[[';
-                    getSuggestions( term, 0 );
+                    dev.minicomplete.type = '[[';
+                    dev.minicomplete.getSuggestions( term, 0 );
 
                 }
 
@@ -351,24 +479,25 @@
 
                     // set type here as it's easier than
                     // passing it through all the functions
-                    type = '{{';
-                    getSuggestions( term, ns );
+                    dev.minicomplete.type = '{{';
+                    dev.minicomplete.getSuggestions( term, ns );
 
                 }
 
             }
 
-        }
+        },
 
         /**
-         * @desc Gets caret position for detecting search term and inserting
-         *       autocomplete term.
+         * Gets caret position for detecting search term and inserting
+         * autocomplete term.
+         *
          * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
-         * @returns {number} Caret position in string.
-         *                   If browser does not support caret position methods
-         *                   returns 0 to prevent syntax errors
+         * @return {number} Caret position in string.
+         *                  If browser does not support caret position methods
+         *                  returns 0 to prevent syntax errors
          */
-        function getCaretPos() {
+        getCaretPos: function () {
 
             var elem = dev.minicomplete.elem,
                 caretPos = 0,
@@ -390,15 +519,16 @@
 
             return ( caretPos );
 
-        }
+        },
 
         /**
-         * @desc Queries mw api for possible suggestions
+         * Queries mw api for possible suggestions
+         *
          * @link <https://www.mediawiki.org/wiki/API:Allpages> Allpages API docs
          * @param term {string} Page title to search for
          * @param ns {integer} Namespace to search in
          */
-        function getSuggestions( term, ns ) {
+        getSuggestions: function ( term, ns ) {
 
             var query = {
                     action: 'query',
@@ -417,7 +547,7 @@
             if ( term.indexOf( ':' ) > -1 ) {
 
                 termSplit = term.split( ':' );
-                title = termSplit[ 1 ];
+                title = termSplit[1];
 
                 // make sure there's only the namespace and the page title
                 if ( termSplit.length > 2 ) {
@@ -426,22 +556,13 @@
 
                 namespaceId = mw.config.get( 'wgNamespaceIds' )[
                     // wgNamespaceIds uses underscores and lower case
-                    termSplit[ 0 ].replace( / /g, '_' )
-                                  .toLowerCase()
+                    termSplit[0].replace( / /g, '_' )
+                                .toLowerCase()
                 ];
 
                 if ( namespaceId ) {
                     query.apnamespace = namespaceId;
                     query.apprefix = title;
-                }
-                
-                if ( termSplit[ 0 ].toLowerCase() === 'special' ) {
-                    // load a predefined list of special pages here
-                    // load from API during init perhaps?
-                    // pass the options directly to showSuggestions
-                    // @todo find a way of getting a list of these
-                    // monobook's search clearly supports it
-                    return;
                 }
 
             }
@@ -460,20 +581,21 @@
                                     return;
                                 }
 
-                                showSuggestions( data.query.allpages );
+                                dev.minicomplete.showSuggestions( data.query.allpages );
 
                             } )
                             .error( function ( error ) {
                                 mw.log( 'API error: (', error );
                             } );
 
-        }
+        },
 
         /**
-         * @desc Inserts list of options to select from
-         * @param {array} result Result from API
+         * Inserts list of options to select from
+         *
+         * @param result {array} Result from API
          */
-        function showSuggestions( result ) {
+        showSuggestions: function ( result ) {
 
             var i,
                 options = [],
@@ -482,16 +604,18 @@
                 $list,
                 $body = $( 'body' ).width(),
                 leftpos,
-                $options = '';
+                $options;
                 
             mw.log( result );
 
             for ( i = 0; i < result.length; i += 1 ) {
-                options += '<li class="minicomplete-option">' + result[i].title + '</li>';
+                options[options.length] = '<li class="minicomplete-option">' + result[i].title + '</li>';
             }
 
-            // insert options into container
-            $( '#minicomplete-list' ).html( options );
+            // append options to container
+            $( '#minicomplete-list' ).html(
+                options.join( '' )
+            );
 
             // cache list
             // do this after it's been populated to stop errors
@@ -531,7 +655,7 @@
 
             // add onclick handler for inserting the option
             $options.on( 'click', function () {
-                insertComplete( $( this ).text() );
+                dev.minicomplete.insertComplete( $( this ).text() );
             } );
 
             // clear .selected class on hover
@@ -545,15 +669,16 @@
                 }
             } );
 
-        }
+        },
 
         /**
-         * @desc Inserts selected suggestion
-         * @param {string} complete Search suggestion to insert
+         * Inserts selected suggestion
+         *
+         * @param complete {string} Search suggestion to insert
          */
-        function insertComplete( complete ) {
+        insertComplete: function ( complete ) {
 
-            var caret = getCaretPos(),
+            var caret = dev.minicomplete.getCaretPos(),
                 val = dev.minicomplete.elem.value,
                 text = val.substring( 0, caret ),
                 open = dev.minicomplete.type,
@@ -577,142 +702,7 @@
             $( '#minicomplete-list' ).hide().empty();
 
         }
-        
-        return {
-            /**
-             * 
-             */
-            loaded: false,
-            elem: false,
-
-            /**
-             * 
-             */
-            load: function ( selector ) {
-                // only do this once
-                // problems caused by readding event listeners to
-                // textareas with editing comments/posts
-                if ( !document.getElementById( 'minicomplete-list' ) ) {
-                    // load css
-                    insertCSS();
-            
-                    // create wrapper
-                    var ul = document.createElement( 'ul' );
-                    ul.setAttribute( 'id', 'minicomplete-list' );
-                    document.getElementsByTagName( 'body' )[0].appendChild( ul );
-            
-                    // bind required event listeners to document
-                    bindEvents();
-                // make sure the options are removed when moving between textareas
-                } else {
-                    $( '#minicomplete-list' ).hide().empty();
-                }
-
-                $( selector ).off( 'input' );
-                $( selector ).on( 'input', function () {
-                    // hide and empty menu
-                    $( '#minicomplete-list' ).hide().empty();
-
-                    // store node for later use
-                    dev.minicomplete.elem = this;
-                    mw.log( this );
-
-                    // run api query
-                    findTerm( this );
-                } );
-            },
-
-            /**
-             * 
-             */
-            init: function () {
-                
-                console.log( 'init loaded' );
-                
-                var selector = false,
-                    config = mw.config.get( [
-                        'wgCanonicalSpecialPageName',
-                        'wgNamespaceNumber'
-                    ] ),
-                    special = {
-                        Upload: 1,
-                        MultipleUpload: 1
-                    },
-                    namespace = {
-                        // message wall
-                        '1200': '#WallMessageBody',
-                        // Special:Forum (Thread)
-                        '1201': '.replyBody',
-                        // Special:Forum (Board)
-                        '2000': '.body'
-                    };
-
-                // prevent loading twice
-                if ( dev.minicomplete.loaded ) {
-                    return;
-                }
-
-                dev.minicomplete.loaded = true;
-
-                // Special:Upload and Special:MultipleUpload
-                if ( special[ config.wgCanonicalSpecialPageName ] === 1 ) {
-                    selector = '#wpUploadDescription';
-                }
-
-                // Message Wall and Special:Forum
-                // will not work for Special:Forum replies
-                // or editing existing posts on either
-                if (namespace[ config.wgNamespaceNumber ] !== undefined ) {
-                    selector = namespace[ config.wgNamespaceNumber ];
-                }
-
-                // Article and Blog comments
-                if ( $( '#WikiaArticleComments' ).length ) {
-
-                    // create custom ResourceLoader module
-                    mw.loader.implement( 'minicomplete.dependencies',
-                        [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
-                            {},
-                                {} );
-
-                    mw.loader.using( 'minicomplete.dependencies', commentsLoaded );
-                  
-                }
-              
-                // fix when editing special:forum posts and message wall comments
-                // don't run on special:forum (board)
-                if ( config.wgNamespaceNumber === 1200 || config.wgNamespaceNumber === 1202 ) {
-                    $( '.edit-message' ).on( 'click', function () {
-                    
-                        mw.log( 'editing forum post' );
-                    
-                        // look for new instances of .body
-                        var editors = $( '.body' ).length;
-                    
-                        editorInserted( editors, '.body' );
-                    
-                    } );
-                }
-
-                if ( !selector ) {
-                    return;
-                }
-
-                // create custom ResourceLoader module
-                mw.loader.implement( 'minicomplete.dependencies',
-                   [ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
-                       {},
-                           {} );
-
-                // we need custom module after this point
-                // so declare our dependencies and run the rest of the script
-                // in the callback
-                mw.loader.using( [ 'mediawiki.api', 'minicomplete.dependencies' ], function () {
-                    dev.minicomplete.load( selector );
-                } );
-            }
-        };
-    } );
+    };
 
     $( dev.minicomplete.init );
 
