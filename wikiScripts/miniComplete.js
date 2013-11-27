@@ -41,7 +41,7 @@
 
 // disable indent warning
 /*jshint -W015 */
-;( function ( document, $, mw, dev, undefined ) {
+;( function ( window, document, setTimeout, $, mw, dev, undefined ) {
 /*jshint +W015 */
 
     'use strict';
@@ -78,20 +78,17 @@
             }
 
             dev.minicomplete.loaded = true;
-          
-            // set to false to be modified later if needed
-            dev.minicomplete.checkComments = false;
 
             // Special:Upload and Special:MultipleUpload
-            if ( special[config.wgCanonicalSpecialPageName] === 1 ) {
+            if ( special[ config.wgCanonicalSpecialPageName ] === 1 ) {
                 selector = '#wpUploadDescription';
             }
 
             // Message Wall and Special:Forum
             // will not work for Special:Forum replies
             // or editing existing posts on either
-            if (namespace[config.wgNamespaceNumber] !== undefined ) {
-                selector = namespace[config.wgNamespaceNumber];
+            if ( namespace[ config.wgNamespaceNumber ] !== undefined ) {
+                selector = namespace[ config.wgNamespaceNumber ];
             }
 
             // Article and Blog comments
@@ -103,24 +100,16 @@
                        {},
                            {} );
 
-                mw.loader.using( 'minicomplete.dependencies', function () {
-                    dev.minicomplete.checkComments = window.setInterval( dev.minicomplete.commentsLoaded, 500 );
-                } );
+                mw.loader.using( 'minicomplete.dependencies', dev.minicomplete.commentsLoaded );
             }
             
             // fix when editing special:forum posts and message wall comments
             // don't run on special:forum (board)
-            if ( config.wgNamespaceNumber === 1200 || config.wgNamespaceNumber === 1202 ) {
+            if ( { 1200: 1, 1201: 1 }[ config.wgNamespaceNumber ] === 1 ) {
                 $( '.edit-message' ).on( 'click', function () {
                     
                     mw.log( 'editing forum post' );
-                    
-                    // look for new instances of .body
-                    var editors = $( '.body' ).length;
-                    
-                    dev.minicomplete.checkEditors = window.setInterval( function () {
-                        dev.minicomplete.editorInserted( editors, '.body' );
-                    }, 500 );
+                    dev.minicomplete.editorInserted( $( '.body' ).length, '.body' );
                     
                 } );
             }
@@ -149,8 +138,8 @@
          */
         commentsLoaded: function () {
             if ( window.ArticleComments.initCompleted ) {
+
                 mw.log( 'Article comments loaded' );
-                window.clearInterval( dev.minicomplete.checkComments );
                 dev.minicomplete.load( '#article-comm' );
                 
                 // this is where we detect replies being added
@@ -165,15 +154,12 @@
                     if ( $( this ).parent().parent().next().find( '.wikiaEditor' ).length ) {
                         return;
                     }
-                        
-                    // use this value for reference
-                    var miniEditors =  $( '.wikiaEditor' ).length;
 
-                    dev.minicomplete.checkEditors = window.setInterval( function () {
-                        dev.minicomplete.editorInserted( miniEditors, '.wikiaEditor' );
-                    }, 500 );
+                    dev.minicomplete.editorInserted( $( '.wikiaEditor' ).length, '.wikiaEditor' );
                     
                 } );
+            } else {
+                setTimeout( dev.minicomplete.commentsLoaded, 500 );
             }
         },
         
@@ -187,16 +173,13 @@
             
             // if there's no editor yet stop and repeat again
             if ( $( selector ).length === editors ) {
+                setTimeout( function () {
+                    dev.minicomplete.editorInserted( editors, selector );
+                }, 500 );
                 return;
             }
             
             mw.log( 'new editor inserted' );
-            
-            window.clearInterval( dev.minicomplete.checkEditors );
-            
-            // remove previous event listeners to stop multiple ajax requests
-            $( selector ).off( 'input' );
-            // and add fresh event listeners through .load()
             dev.minicomplete.load( selector );
             
         },
@@ -218,7 +201,7 @@
                 // create wrapper
                 var ul = document.createElement( 'ul' );
                 ul.setAttribute( 'id', 'minicomplete-list' );
-                document.getElementsByTagName( 'body' )[0].appendChild( ul );
+                document.getElementsByTagName( 'body' )[ 0 ].appendChild( ul );
             
                 // bind required event listeners to document
                 dev.minicomplete.bindEvents();
@@ -227,6 +210,10 @@
                 $( '#minicomplete-list' ).hide().empty();
             }
 
+            // remove any existing event listeners
+            // caused by running this function when new .wikiaEditor textareas
+            // are added
+            $( selector ).off( 'input' );
             $( selector ).on( 'input', function () {
                 // hide and empty menu
                 $( '#minicomplete-list' ).hide().empty();
@@ -308,18 +295,18 @@
                     e.preventDefault();
 
                     if ( !$select.length ) {
-                        $( $option[$option.length - 1] ).addClass( 'selected' );
+                        $( $option[ $option.length - 1 ] ).addClass( 'selected' );
                     } else {
                         for ( i = 0; i < $option.length; i += 1 ) {
-                            if ( $( $option[i] ).hasClass( 'selected' ) ) {
+                            if ( $( $option[ i ] ).hasClass( 'selected' ) ) {
                                 // remove class
-                                $( $option[i] ).removeClass( 'selected' );
+                                $( $option[ i ] ).removeClass( 'selected' );
                                 // if at top of list jump to bottom
                                 if ( i === 0 ) {
-                                    $( $option[$option.length - 1] ).addClass( 'selected' );
+                                    $( $option[ $option.length - 1 ] ).addClass( 'selected' );
                                 // else move up list
                                 } else {
-                                    $( $option[i - 1] ).addClass( 'selected' );
+                                    $( $option[ i - 1 ] ).addClass( 'selected' );
                                 }
 
                                 return;
@@ -337,18 +324,18 @@
                     e.preventDefault();
 
                     if ( !$select.length ) {
-                        $( $option[0] ).addClass( 'selected' );
+                        $( $option[ 0 ] ).addClass( 'selected' );
                     } else {
                         for ( i = 0; i < $option.length; i += 1 ) {
-                            if ( $( $option[i] ).hasClass( 'selected' ) ) {
+                            if ( $( $option[ i ] ).hasClass( 'selected' ) ) {
                                 // remove selected class
-                                $( $option[i] ).removeClass( 'selected' );
+                                $( $option[ i ] ).removeClass( 'selected' );
                                 // if at bottom of list jump to top
                                 if ( i === ( $option.length - 1 ) ) {
-                                    $( $option[0] ).addClass( 'selected' );
+                                    $( $option[ 0 ] ).addClass( 'selected' );
                                 // else move down list
                                 } else {
-                                    $( $option[i + 1] ).addClass( 'selected' );
+                                    $( $option[ i + 1 ] ).addClass( 'selected' );
                                 }
 
                                 return;
@@ -547,7 +534,7 @@
             if ( term.indexOf( ':' ) > -1 ) {
 
                 termSplit = term.split( ':' );
-                title = termSplit[1];
+                title = termSplit[ 1 ];
 
                 // make sure there's only the namespace and the page title
                 if ( termSplit.length > 2 ) {
@@ -556,7 +543,7 @@
 
                 namespaceId = mw.config.get( 'wgNamespaceIds' )[
                     // wgNamespaceIds uses underscores and lower case
-                    termSplit[0].replace( / /g, '_' )
+                    termSplit[ 0 ].replace( / /g, '_' )
                                 .toLowerCase()
                 ];
 
@@ -609,7 +596,7 @@
             mw.log( result );
 
             for ( i = 0; i < result.length; i += 1 ) {
-                options[options.length] = '<li class="minicomplete-option">' + result[i].title + '</li>';
+                options[ options.length ] = '<li class="minicomplete-option">' + result[ i ].title + '</li>';
             }
 
             // append options to container
@@ -686,12 +673,12 @@
                 before = text.substring( 0, text.lastIndexOf( open ) );
 
             // strip template namespace for template transclusion
-            if ( open === '{{' && complete.split( ':' )[0] === 'Template' ) {
-                complete = complete.split( ':' )[1];
+            if ( open === '{{' && complete.split( ':' )[ 0 ] === 'Template' ) {
+                complete = complete.split( ':' )[ 1 ];
             }
 
             // check if a colon is after the opening brackets
-            if ( text[text.lastIndexOf( open ) + 2] === ':' ) {
+            if ( text[ text.lastIndexOf( open ) + 2 ] === ':' ) {
                 open += ':';
             }
 
@@ -706,6 +693,6 @@
 
     $( dev.minicomplete.init );
 
-}( this.document, this.jQuery, this.mediaWiki, this.dev = this.dev || {} ) );
+}( this, this.document, this.setTimeout, this.jQuery, this.mediaWiki, this.dev = this.dev || {} ) );
 
 // </syntaxhighlight> __NOWYSIWYG__
