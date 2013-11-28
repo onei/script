@@ -54,7 +54,7 @@
          */
         init: function () {
 
-            var selector = false,
+            var selector,
                 config = mw.config.get( [
                     'wgCanonicalSpecialPageName',
                     'wgNamespaceNumber'
@@ -87,7 +87,7 @@
             // Message Wall and Special:Forum
             // will not work for Special:Forum replies
             // or editing existing posts on either
-            if ( namespace[ config.wgNamespaceNumber ] !== undefined ) {
+            if ( namespace[ config.wgNamespaceNumber ] ) {
                 selector = namespace[ config.wgNamespaceNumber ];
             }
 
