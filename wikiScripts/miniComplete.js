@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.2.5
+ * @version 1.2.6
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -49,8 +49,8 @@
     dev.minicomplete = {
 
         /**
-         * Checks for correct environment and implements custom
-         * ResourceLoader module
+         * @desc Checks for correct environment and implements custom ResourceLoader
+         *       module.
          */
         init: function () {
 
@@ -134,7 +134,7 @@
         },
       
         /**
-         * Checks if Article comments are loaded and run autocomplete when done
+         * @desc Checks if Article comments are loaded and run autocomplete when done
          */
         commentsLoaded: function () {
             if ( window.ArticleComments.initCompleted ) {
@@ -164,8 +164,7 @@
         },
         
         /**
-         * Looks for new textareas to run script on
-         * 
+         * @desc Looks for new textareas to run script on
          * @param editors {number} Number of editor at start of check
          * @param selector {string} Selector of editor to track
          */
@@ -185,14 +184,13 @@
         },
 
         /**
-         * Loads the rest of the functions
-         *
+         * @desc Main loading function
          * @param selector {string} Selector to bind events in textarea to
          */
         load: function ( selector ) {
 
             // only do this once
-            // problems caused by readding event listeners to
+            // problems caused by re-adding event listeners to
             // textareas with editing comments/posts
             if ( !document.getElementById( 'minicomplete-list' ) ) {
                 // load css
@@ -229,8 +227,7 @@
         },
 
         /**
-         * Insert stylesheet using colours set by ThemeDesigner
-         *
+         * @desc Insert stylesheet using colours set by ThemeDesigner
          * @todo Allow custom colours for when there's non-themedesigner colours
          *       or custom monobook theme
          */
@@ -265,8 +262,8 @@
         },
 
         /**
-         * Binds events related to navigating through menu with up/down keys
-         * and what to do when pressing esc or left/right keys
+         * @desc Binds events related to navigating through menu with up/down keys
+         *       and what to do when pressing esc or left/right keys.
          */
         bindEvents: function () {
 
@@ -359,8 +356,7 @@
         },
 
         /**
-         * Counts back from caret position looking for unclosed {{ or [[
-         *
+         * @desc Counts back from caret position looking for unclosed {{ or [[
          * @param elem {node} Element to look for search term within
          */
         findTerm: function ( elem ) {
@@ -476,13 +472,13 @@
         },
 
         /**
-         * Gets caret position for detecting search term and inserting
-         * autocomplete term.
+         * @desc Gets caret position for detecting search term and inserting autocomplete
+         *       term.
          *
          * @source <http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/>
          * @return {number} Caret position in string.
-         *                  If browser does not support caret position methods
-         *                  returns 0 to prevent syntax errors
+         *                  If browser does not support caret position methods returns 0
+         *                  to prevent syntax errors
          */
         getCaretPos: function () {
 
@@ -490,16 +486,15 @@
                 caretPos = 0,
                 sel;
 
-            // IE9 support
-            // may need to exclude IE10 from this
-            // Earlier versions of IE aren't supported so don't worry about them
-            if ( document.selection && !elem.selectionStart ) {
+            // support for older versions of IE
+            // IE7-8? IE9 apparently supports selectionStart
+            if ( document.selection ) {
                 elem.focus();
                 sel = document.selection.createRange();
                 sel.moveStart( 'character', -elem.value.length );
                 caretPos = sel.text.length;
 
-            // Normal browsers
+            // normal browsers
             } else if ( elem.selectionStart || elem.selectionStart === '0' ) {
                 caretPos = elem.selectionStart;
             }
@@ -509,8 +504,7 @@
         },
 
         /**
-         * Queries mw api for possible suggestions
-         *
+         * @desc Queries mw api for possible suggestions
          * @link <https://www.mediawiki.org/wiki/API:Allpages> Allpages API docs
          * @param term {string} Page title to search for
          * @param ns {integer} Namespace to search in
@@ -578,8 +572,7 @@
         },
 
         /**
-         * Inserts list of options to select from
-         *
+         * @desc Inserts list of options to select from
          * @param result {array} Result from API
          */
         showSuggestions: function ( result ) {
@@ -659,8 +652,7 @@
         },
 
         /**
-         * Inserts selected suggestion
-         *
+         * @desc Inserts selected suggestion
          * @param complete {string} Search suggestion to insert
          */
         insertComplete: function ( complete ) {
