@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.2.6
+ * @version 1.2.7
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -59,10 +59,7 @@
                     'wgCanonicalSpecialPageName',
                     'wgNamespaceNumber'
                 ] ),
-                special = {
-                    Upload: 1,
-                    MultipleUpload: 1
-                },
+                special = [ 'Upload', 'MultipleUpload' ],
                 namespace = {
                     // message wall
                     '1200': '#WallMessageBody',
@@ -80,7 +77,7 @@
             dev.minicomplete.loaded = true;
 
             // Special:Upload and Special:MultipleUpload
-            if ( special[ config.wgCanonicalSpecialPageName ] === 1 ) {
+            if ( special.indexOf( config.wgCanonicalSpecialPageName ) > -1 ) {
                 selector = '#wpUploadDescription';
             }
 
@@ -105,7 +102,7 @@
             
             // fix when editing special:forum posts and message wall comments
             // don't run on special:forum (board)
-            if ( { 1200: 1, 1201: 1 }[ config.wgNamespaceNumber ] === 1 ) {
+            if ( [ 1200, 1201 ].indexOf( config.wgNamespaceNumber ) > -1 ) {
                 $( '.edit-message' ).on( 'click', function () {
                     
                     mw.log( 'editing forum post' );
@@ -243,18 +240,17 @@
                 mix = mix.lighten( 8 );
             }
 
-            css = [
+            css =
                 // constant css for container
-                '#minicomplete-list{position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;margin:0;}',
+                '#minicomplete-list{position:absolute;z-index:5;display:none;font-size:12px;cursor:pointer;width:245px;margin:0;}' +
                 // variable css for container
-                '#minicomplete-list{border:1px solid $border;background-color:$page;color:$link;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}',
+                '#minicomplete-list{border:1px solid $border;background-color:$page;color:$link;-webkit-box-shadow:3px 3px 6px 0 $shadow;box-shadow:3px 3px 6px 0 $shadow;}' +
                 // constant css for options
-                '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}',
+                '.minicomplete-option{padding:4px 9px;list-style:none;margin:0;line-height:25px;}' +
                 // variable css for options
-                '.minicomplete-option:hover,.minicomplete-option.selected{background-color:$mix;}'
-            ];
+                '.minicomplete-option:hover,.minicomplete-option.selected{background-color:$mix;}';
 
-            dev.colors.css( css.join( '' ), {
+            dev.colors.css( css, {
                 mix: mix,
                 shadow: shadow
             } );
@@ -381,8 +377,7 @@
                 // link display changes
                 // or if the user is closing the link/template themselves
                 illegalChars = /[\{\}\[\]\|#<>%\+\?\\]/,
-                term,
-                ns;
+                term, ns;
 
             // searchText will be empty if the browser does not support getCaretPos
             // which will probably cause errors/confusion
@@ -482,9 +477,7 @@
          */
         getCaretPos: function () {
 
-            var elem = dev.minicomplete.elem,
-                caretPos = 0,
-                sel;
+            var elem = dev.minicomplete.elem, caretPos = 0, sel;
 
             // support for older versions of IE
             // IE7-8? IE9 apparently supports selectionStart
@@ -519,9 +512,7 @@
                     apnamespace: ns,
                     apprefix: term
                 },
-                termSplit,
-                namespaceId,
-                title;
+                termSplit, namespaceId, title;
                 
             mw.log( term );
 
@@ -577,25 +568,18 @@
          */
         showSuggestions: function ( result ) {
 
-            var i,
-                options = [],
-                coords,
-                offset,
-                $list,
-                $body = $( 'body' ).width(),
-                leftpos,
-                $options;
+            var i, options = '', coords,
+                offset, $list, $body = $( 'body' ).width(),
+                leftpos, $options;
                 
             mw.log( result );
 
             for ( i = 0; i < result.length; i += 1 ) {
-                options[ options.length ] = '<li class="minicomplete-option">' + result[ i ].title + '</li>';
+                options += '<li class="minicomplete-option">' + result[ i ].title + '</li>';
             }
 
             // append options to container
-            $( '#minicomplete-list' ).html(
-                options.join( '' )
-            );
+            $( '#minicomplete-list' ).html( options );
 
             // cache list
             // do this after it's been populated to stop errors
