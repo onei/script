@@ -166,18 +166,16 @@
          * @param selector {string} Selector of editor to track
          */
         editorInserted: function ( editors, selector ) {
-            
-            // if there's no editor yet stop and repeat again
-            if ( $( selector ).length === editors ) {
+
+            if ( $( selector ).length !== editors ) {
+                mw.log( 'new editor inserted' );
+                dev.minicomplete.load( selector );
+            } else {
                 setTimeout( function () {
                     dev.minicomplete.editorInserted( editors, selector );
                 }, 500 );
-                return;
             }
-            
-            mw.log( 'new editor inserted' );
-            dev.minicomplete.load( selector );
-            
+
         },
 
         /**
@@ -189,6 +187,7 @@
             // only do this once
             // problems caused by re-adding event listeners to
             // textareas with editing comments/posts
+            // @todo maybe run this with init (would need separate function for use as module)?
             if ( !document.getElementById( 'minicomplete-list' ) ) {
                 // load css
                 dev.minicomplete.insertCSS();
