@@ -28,6 +28,11 @@
  *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
+ * @todo Find a way to implement case insensitive searching
+ *       The current standard search suggestions has this, but it could be
+ *       phased out at some point which would ultimately break this.
+ *       @example (needs page to query for) /index.php?action=ajax&rs=getLinkSuggest&format=json
+ *       @example /api/v1/Search/List/?query=foo&limit=5
  */
 
 /*jshint
