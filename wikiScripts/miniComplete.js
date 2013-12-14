@@ -50,6 +50,13 @@
 /*jshint +W015 */
 
     'use strict';
+    
+    // experimental config option
+    dev.mcoptions = $.extend( {
+        'mwapi': true,
+        'wikiaApiV1': false,
+        'getLinkSuggest': false
+    }, dev.mcoptions ||{} );
 
     dev.minicomplete = {
 
@@ -516,6 +523,10 @@
                     apnamespace: ns,
                     apprefix: term
                 },
+                config = mw.config.get( [
+                    'wgScript',
+                    'wgScriptPath'
+                ] ),
                 termSplit, namespaceId, title;
                 
             mw.log( term );
@@ -542,27 +553,30 @@
                 }
 
             }
+            
+            $.ajax( {
+                url: config.wgServer + config.wgScriptPath + '/api.php'
+                data: query,
+                dataType: 'json',
+                success: function ( data ) {
+                    // error handling
+                    if ( data.error ) {
+                        mw.log( 'API error: ', data.error.code, data.error.info );
+                        return;
+                    }
 
-            ( new mw.Api() ).get( query )
-                            .done( function ( data ) {
+                    // no suggestions
+                    if ( !data.query.allpages.length ) {
+                        return;
+                    }
 
-                                // error handling
-                                if ( data.error ) {
-                                    mw.log( data.error.code, data.error.info );
-                                    return;
-                                }
-
-                                // no suggestions
-                                if ( !data.query.allpages.length ) {
-                                    return;
-                                }
-
-                                dev.minicomplete.showSuggestions( data.query.allpages );
-
-                            } )
-                            .error( function ( error ) {
-                                mw.log( 'API error: (', error );
-                            } );
+                    dev.minicomplete.showSuggestions( data.query.allpages );
+                },
+                error: function ( xhr, error ) {
+                    mw.log( 'AJAX response: ' + xhr.responseText );
+                    mw.log( 'AJAX error: ' + error );
+                }
+            } );
 
         },
 
