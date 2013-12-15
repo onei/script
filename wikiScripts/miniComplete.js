@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.2.7
+ * @version 1.2.8
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -28,11 +28,19 @@
  *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
+ * @todo Split script into module and init & dependencies?
+ *       Maybe maintain another version for use as a module
  * @todo Find a way to implement case insensitive searching
  *       The current standard search suggestions has this, but it could be
  *       phased out at some point which would ultimately break this.
- *       @example (needs page to query for) /index.php?action=ajax&rs=getLinkSuggest&format=json
+ *       @example /index.php?action=ajax&rs=getLinkSuggest&format=json&query=foo
+ *                @notes Bug with redirects appearing in suggestions
+ *                       due to incorrect redirects object in returned JSON object
+ *                       @todo figure out where redirects comes from
+ *                             <https://github.com/Wikia/app/blob/dev/extensions/LinkSuggest/LinkSuggest.php#L217>
+ *                             (extended somewhere?)
  *       @example /api/v1/Search/List/?query=foo&limit=5
+ *                @link <http://api.wikia.com> Documentation
  */
 
 /*jshint
@@ -50,13 +58,6 @@
 /*jshint +W015 */
 
     'use strict';
-    
-    // experimental config option
-    dev.mcoptions = $.extend( {
-        'mwapi': true,
-        'wikiaApiV1': false,
-        'getLinkSuggest': false
-    }, dev.mcoptions ||{} );
 
     dev.minicomplete = {
 
@@ -195,6 +196,20 @@
          * @param selector {string} Selector to bind events in textarea to
          */
         load: function ( selector ) {
+            
+            // checks for when this is used in other scripts
+            if ( typeof selector !== string ) {
+                mw.log( 'Error: Incorrect type passed to dev.minicomplete.load');
+                return;
+            }
+            
+            // if the selector being used doesn't match anything
+            // it'll silently fail before being passed to the next function
+            // this is just to help with debugging
+            if ( !$( selector ).length ) {
+                mw.log( 'Error: No match for selector found' );
+                return;
+            }
 
             // only do this once
             // problems caused by re-adding event listeners to
@@ -209,7 +224,8 @@
                 ul.setAttribute( 'id', 'minicomplete-list' );
                 document.getElementsByTagName( 'body' )[ 0 ].appendChild( ul );
             
-                // bind required event listeners to document
+                // attach required event listeners to document
+                // don't attach listeners to options until it's populated
                 dev.minicomplete.bindEvents();
             // make sure the options are removed when moving between textareas
             } else {
@@ -372,7 +388,7 @@
             // to stop empty strings triggering this too
             // stops errors when input event in bound to the wrong element
             if ( elem.value === undefined ) {
-                mw.log( 'element does not support value attribute' );
+                mw.log( 'Error: Element does not support value attribute' );
                 return;
             }
 
@@ -512,6 +528,7 @@
          * @link <https://www.mediawiki.org/wiki/API:Allpages> Allpages API docs
          * @param term {string} Page title to search for
          * @param ns {integer} Namespace to search in
+         * @todo Test alternative api queries, see main code docs for details
          */
         getSuggestions: function ( term, ns ) {
 
@@ -544,7 +561,7 @@
                 namespaceId = mw.config.get( 'wgNamespaceIds' )[
                     // wgNamespaceIds uses underscores and lower case
                     termSplit[ 0 ].replace( / /g, '_' )
-                                .toLowerCase()
+                                  .toLowerCase()
                 ];
 
                 if ( namespaceId ) {
