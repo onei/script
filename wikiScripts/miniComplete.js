@@ -198,7 +198,7 @@
         load: function ( selector ) {
             
             // checks for when this is used in other scripts
-            if ( typeof selector !== string ) {
+            if ( typeof selector !== 'string' ) {
                 mw.log( 'Error: Incorrect type passed to dev.minicomplete.load');
                 return;
             }
@@ -572,7 +572,7 @@
             }
             
             $.ajax( {
-                url: config.wgServer + config.wgScriptPath + '/api.php'
+                url: config.wgServer + config.wgScriptPath + '/api.php',
                 data: query,
                 dataType: 'json',
                 success: function ( data ) {
