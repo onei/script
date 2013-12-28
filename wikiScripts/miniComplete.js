@@ -542,8 +542,8 @@
                     format: 'json'
                 },
                 config = mw.config.get( [
-                    'wgScript',
-                    'wgScriptPath'
+                    'wgScriptPath',
+                    'wgServer'
                 ] ),
                 termSplit, namespaceId, title;
                 
