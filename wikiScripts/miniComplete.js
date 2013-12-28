@@ -575,15 +575,13 @@
             $.ajax( {
                 url: config.wgServer + config.wgScriptPath + '/api.php',
                 data: query,
-                // dataType: 'json',
+                dataType: 'json',
                 success: function ( data ) {
                     // error handling
                     if ( data.error ) {
                         mw.log( 'API error: ', data.error.code, data.error.info );
                         return;
                     }
-                    
-                    mw.log( data );
 
                     // no suggestions
                     if ( !data.query.allpages.length ) {
