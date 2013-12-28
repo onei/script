@@ -582,6 +582,8 @@
                         mw.log( 'API error: ', data.error.code, data.error.info );
                         return;
                     }
+                    
+                    mw.log( data );
 
                     // no suggestions
                     if ( !data.query.allpages.length ) {
