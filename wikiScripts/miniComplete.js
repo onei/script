@@ -538,7 +538,8 @@
                     aplimit: '5',
                     apfilterredir: 'nonredirects',
                     apnamespace: ns,
-                    apprefix: term
+                    apprefix: term,
+                    format: 'json'
                 },
                 config = mw.config.get( [
                     'wgScript',
