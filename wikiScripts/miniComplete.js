@@ -590,9 +590,8 @@
 
                     dev.minicomplete.showSuggestions( data.query.allpages );
                 },
-                error: function ( xhr, error ) {
-                    mw.log( 'AJAX response: ' + xhr.responseText );
-                    mw.log( 'AJAX error: ' + error );
+                error: function ( xhr, error, desc ) {
+                    mw.log( 'AJAX error: ' + error + ' - ' + desc );
                 }
             } );
 
