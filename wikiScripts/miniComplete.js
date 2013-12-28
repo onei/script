@@ -575,7 +575,7 @@
             $.ajax( {
                 url: config.wgServer + config.wgScriptPath + '/api.php',
                 data: query,
-                dataType: 'json',
+                // dataType: 'json',
                 success: function ( data ) {
                     // error handling
                     if ( data.error ) {
