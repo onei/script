@@ -135,7 +135,7 @@
                     return $( '<button>' )
                                .attr( 'id', 'mw-update-less' )
                                .text( i18n.recompile )
-                               .click( dev.less.getStylesheet );
+                               .click( dev.less.modal );
                 };
 
             // stop if not viewing the page
