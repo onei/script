@@ -276,7 +276,7 @@
                             // not a property with a colour as the value
                             // @todo make this work
                             // currently causes line breaks when values are hex colours
-                            val.replace( /\n(?:[\.\w\-# ]+)(#.+?)(,|{)/g, '\n$1 $2' )
+                            .replace( /\n(?:[\.\w\-# ]+)(#.+?)(,|{)/g, '\n$1 $2' )
                             // indent to four spaces
                             // @todo make this configurable to use tabs
                             .replace( /\n {2}(.)/g, '\n    $1' )
