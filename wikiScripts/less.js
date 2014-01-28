@@ -48,63 +48,62 @@
             if ( $( '#less-modal-overlay' ).length ) {
                 $( '#less-modal' ).show();
             } else {
+            
+                // load css
+                // do the rest of this in a callback
+                // css currently located at <http://camtest.wikia.com/wiki/MediaWiki:Wikia.css>
 
                 // create nodes
-                var overlay = document.createElement( 'div' ),
-                    modal = document.createElement( 'div' ),
-                    header = document.createElement( 'div' ),
-                    headerTitle = document.createElement( 'span' ),
-                    headerClose = document.createElement( 'span' ),
+                var modal = $( '<div>' )
+                    .attr( 'id', 'less-modal-overlay' )
+                    .append(
+                        $( '<div>' )
+                            .attr( 'id', 'less-modal' )
+                            .append(
+                                $( '<div>' )
+                                    .attr( 'id', 'less-modal-header' )
+                                    .append(
+                                        $( '<span>' )
+                                            .attr( 'id', 'less-modal-title' )
+                                            .text( 'Title' ),
+                                        
+                                        $( '<span>' )
+                                            .attr( 'id', 'less-modal-close' )
+                                            .click( dev.less.closeModal )
+                                    ),
+                                    
+                                $( '<div>' )
+                                    .attr( 'id', 'less-modal-content' )
+                                    .append(),
+                                    
+                                $( '<div>' )
+                                    .attr( 'id', 'less-modal-footer' )
+                                    .append(
+                                        $( '<div>' )
+                                            .attr( 'id', 'less-modal-buttons' )
+                                            .append(
+                                                $( '<button>' )
+                                                    .attr( {
+                                                        'id': 'less-button-close',
+                                                        // wikia class
+                                                        'class': 'secondary'
+                                                    } )
+                                                    .text( 'Close' )
+                                                    .click( dev.less.closeModal ),
+                                                    
+                                                $( '<button>' )
+                                                    .attr( 'id', 'less-button-compile' )
+                                                    .text( 'Compile' )
+                                                    .click( dev.less.getStylesheet )
+                                            )
+                                    )
+                            )
+                    );
                     
-                    content = document.createElement( 'div' ),
-                    
-
-                    footer = document.createElement( 'div' ),
-                    footerButtons = document.createElement( 'div' ),
-                    buttonClose = document.createElement( 'button' ),
-                    buttonCompile = document.createElement( 'button' );
-
-                // add attributes
-                overlay.setAttribute( 'id', 'less-modal-overlay' );
-                modal.setAttribute( 'id', 'less-modal' );
-
-                header.setAttribute( 'id', 'less-modal-header' );
-                headerTitle.setAttribute( 'id', 'less-modal-title' );
-                headerClose.setAttribute( 'id', 'less-modal-close' );
-                
-                content.setAttribute( 'id', 'less-modal-content' );
-
-                footer.setAttribute( 'id', 'less-modal-footer' );
-                footerButtons.setAttribute( 'id', 'less-modal-buttons' );
-                buttonClose.setAttribute( 'id', 'less-buttons-close' );
-                buttonClose.setAttribute( 'class', 'secondary' );
-                buttonCompile.setAttribute( 'id', 'less-buttons-compile' );
-
-                // set innerhtml
-                buttonClose.innerHTML = 'Close';
-                buttonCompile.innerHTML = 'Compile';
-                
-                // event listeners
-                headerClose.addEventListener( 'click', dev.less.closeModal );
-                buttonClose.addEventListener( 'click', dev.less.closeModal );
-                buttonCompile.addEventListener( 'click', dev.less.getStylesheet );
-
-                // append nodes
-                header.appendChild( headerTitle );
-                header.appendChild( headerClose );
-                modal.appendChild( header );
-                
-                modal.appendChild( content );
-
-                footerButtons.appendChild( buttonClose );
-                footerButtons.appendChild( buttonCompile );
-                footer.appendChild( footerButtons );
-                modal.appendChild( footer );
-
-                overlay.appendChild( modal );
+                console.log( modal )
 
                 // append to body
-                document.getElementsByTagName( 'body' )[0].appendChild( overlay );
+                $( 'body' ).append( modal );
             }
 
         },
@@ -115,7 +114,7 @@
         closeModal: function () {
             $( '#less-modal-overlay' ).hide();
             return false;
-        }
+        },
 
         /**
          * Checks for correct environment and loads the rest of the functions
@@ -130,7 +129,7 @@
                 ] ),
                 i,
                 arr = dev.less.options,
-                i18n = dev.less.i18n[ config.wgUserLanguage ],
+                i18n = dev.less.i18n[ config.wgUserLanguage ] || dev.less.i18n.en,
                 $update = function () {
                     return $( '<button>' )
                                .attr( 'id', 'mw-update-less' )
@@ -226,6 +225,10 @@
             // define custom less module if not already defined
             // this throws an error in the console due to something in wikia's code
             // @todo find out if said error is bad before releasing this
+            // error thrown due to require function definition
+            // less.js thinks this is part of node.js (server side js) and overrides it for client side use
+            // except it is defined on wikia
+            // Grunny says should be fine as this is only loaded as required
             if ( !mw.loader.getState( 'less' ) ) {
                 mw.loader.implement( 'less',
                     [ 'https://raw.github.com/less/less.js/master/dist/less-1.6.0.js' ],
