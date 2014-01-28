@@ -279,7 +279,7 @@
 			    
             // indent by 4 spaces or tabs depending on config
 	    // indent with tabs
-	    if ( dev.less.config.useTabs ) {
+	    if ( dev.less.useTabs ) {
 	        result.replace( /\n {2}(.)/g, '\n\t$1' );
 	    // indent with 4 spaces
 	    } else {
