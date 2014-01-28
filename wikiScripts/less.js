@@ -39,6 +39,7 @@
         target: '',
         header: '',
         source: '',
+	useTabs: false,
 
         /**
          *
@@ -272,16 +273,18 @@
                             .replace( /\n\s*\n/g, '\n' )
                             // it's bad practice having more than one id in a selector
                             // this strips the selector down to the last id in the selector
-                            // needs check for { or , to make sure we're targeting a selector
-                            // not a property with a colour as the value
-                            // @todo make this work
-                            // currently causes line breaks when values are hex colours
                             .replace( /\n(?:[\.\w\-# ]+)(#.+?)(,|{)/g, '\n$1 $2' )
-                            // indent to four spaces
-                            // @todo make this configurable to use tabs
-                            .replace( /\n {2}(.)/g, '\n    $1' )
                             // add an extra newline between rules
                             .replace( /(\})\n(.)/g, '$1\n\n$2' );
+			    
+            // indent by 4 spaces or tabs depending on config
+	    // indent with tabs
+	    if ( dev.less.config.useTabs ) {
+	        result.replace( /\n {2}(.)/g, '\n\t$1' );
+	    // indent with 4 spaces
+	    } else {
+	        result = result.replace( /\n {2}(.)/g, '\n    $1' );
+	    }
 
             dev.less.addHeader( result );
 
