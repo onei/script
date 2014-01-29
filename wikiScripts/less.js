@@ -275,7 +275,10 @@
                             // this strips the selector down to the last id in the selector
                             .replace( /\n(?:[\.\w\-# ]+)(#.+?)(,|{)/g, '\n$1 $2' )
                             // add an extra newline between rules
-                            .replace( /(\})\n(.)/g, '$1\n\n$2' );
+                            .replace( /(\})\n(.)/g, '$1\n\n$2' )
+			    // fix position fixed spam filter problems
+			    // fix originally by User:Joeytje50
+			    .replace( /position:\s*fixed/g, 'position:/**/fixed' );
 			    
             // indent by 4 spaces or tabs depending on config
 	    // indent with tabs
