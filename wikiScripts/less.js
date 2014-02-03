@@ -57,6 +57,7 @@
                 // create nodes
                 var modal = $( '<div>' )
                     .attr( 'id', 'less-modal-overlay' )
+                    .click( dev.less.closeModal )
                     .append(
                         $( '<div>' )
                             .attr( 'id', 'less-modal' )
@@ -114,6 +115,7 @@
          */
         closeModal: function () {
             $( '#less-modal-overlay' ).hide();
+            return false;
         },
 
         /**
