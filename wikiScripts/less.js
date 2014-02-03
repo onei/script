@@ -57,8 +57,9 @@
                 // create nodes
                 var modal = $( '<div>' )
                     .attr( 'id', 'less-modal-overlay' )
-                    .click( function ( e ) {
-                        dev.less.closeModal( e );
+                    .click( function () {
+                        dev.less.closeModal();
+                        return false;
                     } )
                     .append(
                         $( '<div>' )
@@ -73,8 +74,9 @@
                                         
                                         $( '<span>' )
                                             .attr( 'id', 'less-modal-close' )
-                                            .click( function ( e ) {
-                                                dev.less.closeModal( e );
+                                            .click( function () {
+                                                dev.less.closeModal();
+                                                return false;
                                             } )
                                     ),
                                     
@@ -95,8 +97,9 @@
                                                         'class': 'secondary'
                                                     } )
                                                     .text( 'Close' )
-                                                    .click( function ( e ) {
-                                                        dev.less.closeModal( e );
+                                                    .click( function () {
+                                                        dev.less.closeModal();
+                                                        return false;
                                                     } ),
                                                     
                                                 $( '<button>' )
@@ -119,8 +122,7 @@
         /**
          * Close modal
          */
-        closeModal: function ( e ) {
-            e.stopPropagation()
+        closeModal: function () {
             $( '#less-modal-overlay' ).hide();
         },
 
