@@ -57,13 +57,7 @@
                 // create nodes
                 var modal = $( '<div>' )
                     .attr( 'id', 'less-modal-overlay' )
-                    
-                    .click( function ( e ) {
-                        e.stopPropagation();
-                        dev.less.closeModal();
-                        return false;
-                    } )
-                    
+                    .click( dev.less.closeModal )
                     .append(
                         $( '<div>' )
                             .attr( 'id', 'less-modal' )
@@ -81,11 +75,7 @@
                                         
                                         $( '<span>' )
                                             .attr( 'id', 'less-modal-close' )
-                                            .click( function ( e ) {
-                                                e.stopPropagation();
-                                                dev.less.closeModal();
-                                                return false;
-                                            } )
+                                            .click( dev.less.closeModal )
                                     ),
                                     
                                 $( '<div>' )
@@ -105,11 +95,7 @@
                                                         'class': 'secondary'
                                                     } )
                                                     .text( 'Close' )
-                                                    .click( function ( e ) {
-                                                        e.stopPropagation();
-                                                        dev.less.closeModal();
-                                                        return false;
-                                                    } ),
+                                                    .click( dev.less.closeModal ),
                                                     
                                                 $( '<button>' )
                                                     .attr( 'id', 'less-button-compile' )
@@ -133,6 +119,7 @@
          */
         closeModal: function () {
             $( '#less-modal-overlay' ).hide();
+            return false;
         },
 
         /**
