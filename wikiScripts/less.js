@@ -47,7 +47,7 @@
         modal: function () {
 
             if ( $( '#less-modal-overlay' ).length ) {
-                $( '#less-modal' ).show();
+                $( '#less-modal-overlay' ).show();
             } else {
             
                 // load css
