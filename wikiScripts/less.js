@@ -57,16 +57,20 @@
                 // create nodes
                 var modal = $( '<div>' )
                     .attr( 'id', 'less-modal-overlay' )
-                    /*
+                    
                     .click( function ( e ) {
                         e.stopPropagation();
                         dev.less.closeModal();
                         return false;
                     } )
-                    */
+                    
                     .append(
                         $( '<div>' )
                             .attr( 'id', 'less-modal' )
+                            // stop trigering parent events
+                            .click( function ( e ) {
+                                e.stopPropagation();
+                            } )
                             .append(
                                 $( '<div>' )
                                     .attr( 'id', 'less-modal-header' )
