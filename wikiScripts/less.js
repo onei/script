@@ -57,7 +57,8 @@
                 // create nodes
                 var modal = $( '<div>' )
                     .attr( 'id', 'less-modal-overlay' )
-                    .click( function () {
+                    .click( function ( e ) {
+                        e.stopPropagation();
                         dev.less.closeModal();
                         return false;
                     } )
@@ -74,7 +75,8 @@
                                         
                                         $( '<span>' )
                                             .attr( 'id', 'less-modal-close' )
-                                            .click( function () {
+                                            .click( function ( e ) {
+                                                e.stopPropagation();
                                                 dev.less.closeModal();
                                                 return false;
                                             } )
@@ -97,7 +99,8 @@
                                                         'class': 'secondary'
                                                     } )
                                                     .text( 'Close' )
-                                                    .click( function () {
+                                                    .click( function ( e ) {
+                                                        e.stopPropagation();
                                                         dev.less.closeModal();
                                                         return false;
                                                     } ),
