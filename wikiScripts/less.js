@@ -39,10 +39,10 @@
         target: '',
         header: '',
         source: '',
-	useTabs: false,
+        useTabs: false,
 
         /**
-         *
+         * Compiling interface
          */
         modal: function () {
 
@@ -66,7 +66,7 @@
                                     .append(
                                         $( '<span>' )
                                             .attr( 'id', 'less-modal-title' )
-                                            .text( 'Title' ),
+                                            .text( 'LESS Compiler Interface' ),
                                         
                                         $( '<span>' )
                                             .attr( 'id', 'less-modal-close' )
@@ -110,11 +110,10 @@
         },
         
         /**
-         *
+         * Close modal
          */
         closeModal: function () {
             $( '#less-modal-overlay' ).hide();
-            return false;
         },
 
         /**
@@ -275,19 +274,16 @@
                             // this strips the selector down to the last id in the selector
                             .replace( /\n(?:[\.\w\-# ]+)(#.+?)(,|{)/g, '\n$1 $2' )
                             // add an extra newline between rules
-                            .replace( /(\})\n(.)/g, '$1\n\n$2' )
-			    // fix position fixed spam filter problems
-			    // fix originally by User:Joeytje50
-			    .replace( /position:\s*fixed/g, 'position:/**/fixed' );
-			    
+                            .replace( /(\})\n(.)/g, '$1\n\n$2' );
+                
             // indent by 4 spaces or tabs depending on config
-	    // indent with tabs
-	    if ( dev.less.useTabs ) {
-	        result.replace( /\n {2}(.)/g, '\n\t$1' );
-	    // indent with 4 spaces
-	    } else {
-	        result = result.replace( /\n {2}(.)/g, '\n    $1' );
-	    }
+            if ( dev.less.useTabs ) {
+                // indent with tabs
+                result.replace( /\n {2}(.)/g, '\n\t$1' );
+            } else {
+                // indent with 4 spaces
+                result = result.replace( /\n {2}(.)/g, '\n    $1' );
+            }
 
             dev.less.addHeader( result );
 
@@ -305,7 +301,7 @@
                     action: 'raw'
                 },
                 success: function ( response ) {
-                    var result = response + css;
+                    var result = response + '\n' + css;
                     dev.less.submit( result );
                 }
             } );
