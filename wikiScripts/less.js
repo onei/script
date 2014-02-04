@@ -1,5 +1,5 @@
 /** <nowiki>
- * Less Compiler designed for Wikia
+ * Less Compiling Interface designed for Wikia wikis
  *
  * @author Cqm <cqm.fwd@gmail.com>
  * @version 0.1
@@ -8,6 +8,7 @@
  * @todo Figure out how to use @import for mixin stuff
  *       Doesn't seem to like it for some reason
  * @todo Add a custom modal to use for formatting configuration and error/success messages
+ *       In progress....
  */
 
 // don't add less into the closure or it causes errors
@@ -80,7 +81,42 @@
                                     
                                 $( '<div>' )
                                     .attr( 'id', 'less-modal-content' )
-                                    .append(),
+                                    .append(
+                                        $( '<div>' )
+                                            .attr( 'id', 'less-modal-source' )
+                                            .append(
+                                                $( '<span>' )
+                                                    .attr()
+                                                    .append(
+                                                        'Source page: ' + dev.less.source,
+                                                        ' (',
+                                                        $( '<a>' )
+                                                            .attr( {
+                                                                'target': '_blank',
+                                                                'href': '/wiki/' + dev.less.source + '?action=raw&templates=expand&maxage=0&smaxage=0',
+                                                                'title': 'View LESS source'
+                                                            } )
+                                                            .text( 'view' ),
+                                                        ').'
+                                                    ),
+                                                    
+                                                $( '<span>' )
+                                                    .attr()
+                                                    .text( 'Target page: ' + dev.less.target + '.' ),
+                                                    
+                                                $( '<span>' )
+                                                    .attr()
+                                                    .text( 'To compile the source LESS, click the compile button below.' )
+                                            ),
+                                        
+                                        $( '<div>' )
+                                            .attr( 'id', 'less-modal-status' )
+                                            .append(),
+                                            
+                                        $( '<div>' )
+                                            .attr( 'id', 'less-modal-errors' )
+                                            .append()
+                                    ),
                                     
                                 $( '<div>' )
                                     .attr( 'id', 'less-modal-footer' )
@@ -106,7 +142,7 @@
                             )
                     );
                     
-                console.log( modal )
+                console.log( modal );
 
                 // append to body
                 $( 'body' ).append( modal );
@@ -382,3 +418,5 @@
     $( dev.less.init );
 
 }( this.document, this.jQuery, this.mediaWiki, this.dev = this.dev || {} ) );
+
+/* </nowiki> */
