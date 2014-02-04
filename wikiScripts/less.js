@@ -86,7 +86,7 @@
                                             .attr( 'id', 'less-modal-source' )
                                             .append(
                                                 $( '<span>' )
-                                                    .attr()
+                                                    .attr( 'id', 'less-modal-source-1' )
                                                     .append(
                                                         'Source page: ' + dev.less.source,
                                                         ' (',
@@ -101,11 +101,11 @@
                                                     ),
                                                     
                                                 $( '<span>' )
-                                                    .attr()
+                                                    .attr( 'id', 'less-modal-source-2' )
                                                     .text( 'Target page: ' + dev.less.target + '.' ),
                                                     
                                                 $( '<span>' )
-                                                    .attr()
+                                                    .attr( 'id', 'less-modal-source-3' )
                                                     .text( 'To compile the source LESS, click the compile button below.' )
                                             ),
                                         
