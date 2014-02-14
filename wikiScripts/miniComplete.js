@@ -66,7 +66,7 @@
 	'use strict';
 
 	// prevent loading twice
-	if ( dev.minicomplete && dev.minicomplete.loaded ) {
+	if ( dev.minicomplete !== undefined ) {
 		mw.log( 'Error: dev.minicomplete already loaded. Aborting...' );
 		return;
 	}
