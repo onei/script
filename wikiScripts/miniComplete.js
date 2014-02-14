@@ -96,7 +96,6 @@
 				// only do this once
 				// problems caused by re-adding event listeners to
 				// textareas with editing comments/posts
-				// @todo maybe run this with init (would need separate function for use as module)?
 				if ( !document.getElementById( 'minicomplete-list' ) ) {
 					// load css
 					local.insertCSS();
@@ -156,13 +155,13 @@
 					selector;
 
 				// prevent loading twice
-				if ( local.loaded ) {
+				if ( global.loaded ) {
 					// @todo remove after testing
 					console.log( 'init already loaded, aborting...' );
 					return;
 				}
 
-				local.loaded = true;
+				global.loaded = true;
 
 				// Special:Upload and Special:MultipleUpload
 				if ( special.indexOf( config.wgCanonicalSpecialPageName ) > -1 ) {
@@ -315,13 +314,10 @@
 						$select = $( '.minicomplete-option.selected' ),
 						i;
 
-					// stop if the list is empty?
-					// @todo test this
-					/*
+					// stop if the list is empty
 					if ( !$option.length ) {
 						return;
 					}
-					*/
 
 					switch ( e.keyCode ) {
 					// hide options on esc keydown
