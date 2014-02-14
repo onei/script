@@ -143,7 +143,7 @@
 			*/
 			init: function () {
 
-				var	config = mw.config.get( ['wgCanonicalSpecialPageName', 'wgNamespaceNumber' ] ),
+				var	config = mw.config.get( ['wgCanonicalSpecialPageName', 'wgNamespaceNumber'] ),
 					special = ['Upload', 'MultipleUpload'],
 					namespace = {
 						// message wall
@@ -172,15 +172,15 @@
 				// Message Wall and Special:Forum
 				// will not work for Special:Forum replies
 				// or editing existing posts on either
-				if ( namespace[ config.wgNamespaceNumber ] ) {
-					selector = namespace[ config.wgNamespaceNumber ];
+				if ( namespace[config.wgNamespaceNumber] ) {
+					selector = namespace[config.wgNamespaceNumber];
 				}
 
 				// Article and Blog comments
 				if ( $( '#WikiaArticleComments' ).length ) {
 					// create custom ResourceLoader module
 					mw.loader.implement( 'minicomplete.dependencies',
-						[ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
+						['/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts'],
 							// don't load css here as there's no way to differentiate between a module being loaded with css or without
 							// and it would get confusing when this script is used as a module
 							{}, {} );
@@ -207,13 +207,13 @@
 
 				// create custom ResourceLoader module
 				mw.loader.implement( 'minicomplete.dependencies',
-					[ '/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts' ],
+					['/load.php?debug=false&lang=en&mode=articles&skin=oasis&missingCallback=importArticleMissing&articles=u%3Acamtest%3AMediaWiki%3ATextareaHelper.js%7Cu%3Adev%3AColors%2Fcode.js&only=scripts'],
 					{}, {} );
 
 				// we need custom module after this point
 				// so declare our dependencies and run the rest of the script
 				// in the callback
-				mw.loader.using( [ 'mediawiki.api', 'minicomplete.dependencies' ], function () {
+				mw.loader.using( ['mediawiki.api', 'minicomplete.dependencies'], function () {
 					global.load( selector );
 				} );
 
