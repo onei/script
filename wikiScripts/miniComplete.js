@@ -9,7 +9,7 @@
  * - Article comments
  * - Blog comments
  * - Special:Forum posts
- * 
+ *
  * Can also be used in other scripts that require an autocomplete
  * See documentation page for details
  *
@@ -78,13 +78,13 @@
 			 * @param selector {string} Selector to bind events in textarea to
 			 */
 			load: function ( selector ) {
-            
+
 				// type check for when this is used in other scripts
 				if ( typeof selector !== 'string' ) {
 					mw.log( 'Error: Incorrect type passed to dev.minicomplete.load');
 					return;
 				}
-            
+
 				// if the selector being used doesn't match anything
 				// it'll silently fail before being passed to the next function
 				// this is just to help with debugging
@@ -100,12 +100,12 @@
 				if ( !document.getElementById( 'minicomplete-list' ) ) {
 					// load css
 					local.insertCSS();
-            
+
 					// create wrapper
 					var ul = document.createElement( 'ul' );
 					ul.setAttribute( 'id', 'minicomplete-list' );
 					document.getElementsByTagName( 'body' )[0].appendChild( ul );
-            
+
 					// attach required event listeners to document
 					// don't attach listeners to options until it's populated
 					local.bindEvents();
@@ -187,7 +187,7 @@
 
 					mw.loader.using( 'minicomplete.dependencies', local.commentsLoaded );
 				}
-            
+
 				// fix when editing special:forum posts and message wall comments
 				// don't run on special:forum (board)
 				if ( [1200, 1201].indexOf( config.wgNamespaceNumber ) > -1 ) {
@@ -218,7 +218,7 @@
 				} );
 
 			},
-                
+
 			/**
 			 * @desc Checks if Article comments are loaded and run autocomplete when done
 			 */
@@ -228,15 +228,15 @@
 
 					mw.log( 'Article comments loaded' );
 					local.load( '#article-comm' );
-                
+
 					// this is where we detect replies being added
 					// as the textareas used aren't inserted when the comments are loaded
 					// but when someone actually wants to reply
 					// @todo Why am I passing a jQuery object to jQuery?
 					$( $( '.article-comm-reply' ) ).on( 'click', function () {
-                    
+
 						mw.log( 'reply detected' );
-                    
+
 						// don't continue if there is already an editor present
 						// which is leftover from making a reply previously
 						if ( $( this ).parent().parent().next().find( '.wikiaEditor' ).length ) {
@@ -251,7 +251,7 @@
 					setTimeout( local.commentsLoaded, 500 );
 				}
 			},
-        
+
 			/**
 			 * @desc Looks for new textareas to run script on
 			 * @param editors {number} Number of editor at start of check
@@ -602,7 +602,7 @@
 					}
 
 				}
-            
+
 				$.ajax( {
 					url: config.wgServer + config.wgScriptPath + '/api.php',
 					data: query,
@@ -638,7 +638,7 @@
 					$body = $( 'body' ).width(),
 					i, coords, offset,
 					$list, leftpos, $options;
-                
+
 				mw.log( result );
 
 				for ( i = 0; i < result.length; i += 1 ) {
@@ -658,9 +658,9 @@
 				// position option list
 				coords = $( local.elem ).textareaHelper( 'caretPos' );
 				offset = $( local.elem ).offset();
-            
+
 				leftpos = offset.left + coords.left;
-            
+
 				// realign against right side of page if overflowing
 				// monobook issue on Special:Upload
 				// this won't work if someone's extended the body past the limits of the window
@@ -725,18 +725,18 @@
 
 				// insert search term
 				local.elem.value = before + open + complete + close + val.substring( caret );
-        
+
 				// hide and empty options
 				$( '#minicomplete-list' ).hide().empty();
 
 			}
 
 		};
-            
+
 		local.init();
-        
+
 		return global;
-    
+
 	} () );
 
 }( this, this.document, this.setTimeout, this.jQuery, this.mediaWiki, this.dev = this.dev || {} ) );
