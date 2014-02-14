@@ -65,6 +65,11 @@
 
 	'use strict';
 
+	// prevent loading twice
+	if ( dev.minicomplete !== undefined ) {
+		mw.log( 'Error: dev.minicomplete already loaded. Aborting...' );
+	}
+
 	dev.minicomplete = ( function () {
 
 		/**
@@ -153,15 +158,6 @@
 						'2000': '.body'
 					},
 					selector;
-
-				// prevent loading twice
-				if ( global.loaded ) {
-					// @todo remove after testing
-					console.log( 'init already loaded, aborting...' );
-					return;
-				}
-
-				global.loaded = true;
 
 				// Special:Upload and Special:MultipleUpload
 				if ( special.indexOf( config.wgCanonicalSpecialPageName ) > -1 ) {
