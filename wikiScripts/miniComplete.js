@@ -14,12 +14,12 @@
  * See documentation page for details
  *
  * The development version of this script is kept on github.
- * <https://github.com/onei/script/wikiScripts/miniComplete.js>
+ * @link <https://github.com/onei/script/wikiScripts/miniComplete.js>
  * It may contain new features that will be moved to the stable version of the script at a later date.
  * This version is not guaranteed to work and may be untested.
  *
  * The stable version of this script is kept on Dev Wiki.
- * <http://dev.wikia.com/wiki/MiniComplete/code.js>
+ * @link <http://dev.wikia.com/wiki/MiniComplete/code.js>
  * This version has been tested and should be bug free.
  *
  * @author Cqm <cqm.fwd@gmail.com>
@@ -44,7 +44,7 @@
  *                @notes Bug with redirects appearing in suggestions
  *                       due to incorrect redirects object in returned JSON object
  *                       <https://github.com/Wikia/app/blob/dev/extensions/wikia/LinkSuggest/LinkSuggest.class.php>
- *                       bugfix submitted via S:C, awaiting response from search team
+ *                       Fix submitted via S:C, awaiting response from search team/Sean
  *       @example /api/v1/Search/List/?query=foo&limit=5
  *                @link <http://api.wikia.com> Documentation
  */
