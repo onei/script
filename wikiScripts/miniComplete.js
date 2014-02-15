@@ -194,7 +194,7 @@
 
 				// Special:Upload and Special:MultipleUpload
 				if ( special.indexOf( config.wgCanonicalSpecialPageName ) > -1 ) {
-					selector = '#wpUploadDescription';
+					selector = $( '#wpUploadDescription' );
 				}
 
 				// Message Wall and Special:Forum
