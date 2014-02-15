@@ -14,7 +14,7 @@
  * See documentation page for details
  *
  * The development version of this script is kept on github.
- * @link <https://github.com/onei/script/wikiScripts/miniComplete.js>
+ * @link <https://github.com/onei/script/blob/master/wikiScripts/miniComplete.js>
  * It may contain new features that will be moved to the stable version of the script at a later date.
  * This version is not guaranteed to work and may be untested.
  *
@@ -23,7 +23,7 @@
  * This version has been tested and should be bug free.
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.3.0
+ * @version 1.3.1
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -81,22 +81,54 @@
 
 			/**
 			 * @desc Main loading function
-			 * @param selector {string} Selector to bind events in textarea to
+			 * @param arguments {string|DOM element|jQuery object}
 			 */
-			load: function ( selector ) {
+			load: function () {
 
-				// type check for when this is used in other scripts
-				if ( typeof selector !== 'string' ) {
-					mw.log( 'Error: Incorrect type passed to dev.minicomplete.load');
+				var	check, $elem,
+					i, ul;
+
+				// check for arguments
+				if ( arguments.length === 0 ) {
+					mw.log( 'Error: No parameters passed to dev.minicomplete.load' );
 					return;
 				}
 
-				// if the selector being used doesn't match anything
-				// it'll silently fail before being passed to the next function
-				// this is just to help with debugging
-				if ( !$( selector ).length ) {
-					mw.log( 'Error: No match for selector found' );
-					return;
+				// handle one argument
+				if ( arguments.length === 1 ) {
+					check = local.elemCheck( arguments[0] );
+					if ( check === false ) {
+						mw.log( 'Error: No matches for arguments passed to dev.minicomplete.load' );
+						return;
+					}
+
+					$elem = check;
+				}
+
+				// handle multiple arguments
+				if ( arguments.length > 1 ) {
+					for ( i = 0; i < arguments.length; i += 1 ) {
+						check = local.elemCheck( arguments[i] );
+
+						// handle no results for match
+						if ( check === false ) {
+							continue;
+
+						// assign first result directly to $elem
+						} else if ( $elem === undefined ) {
+							$elem = check;
+
+						// merge subsequent results with $elem
+						} else {
+							$elem.add( check );
+						}
+					}
+
+					// make sure $elem is defined
+					if ( $elem === undefined ) {
+						mw.log( 'Error: No matches for arguments passed to dev.minicomplete.load' );
+						return;
+					}
 				}
 
 				// only do this once
@@ -107,7 +139,7 @@
 					local.insertCSS();
 
 					// create wrapper
-					var ul = document.createElement( 'ul' );
+					ul = document.createElement( 'ul' );
 					ul.setAttribute( 'id', 'minicomplete-list' );
 					document.getElementsByTagName( 'body' )[0].appendChild( ul );
 
@@ -121,7 +153,7 @@
 
 				// remove any existing event listeners
 				// caused by running this function when new .wikiaEditor textareas are added
-				$( selector ).off( 'input' ).on( 'input', function () {
+				$elem.off( 'input' ).on( 'input', function () {
 					// hide and empty menu
 					$( '#minicomplete-list' ).hide().empty();
 
@@ -213,6 +245,36 @@
 					global.load( selector );
 				} );
 
+			},
+			
+			/**
+			 * @desc Tests for selector, DOM node or jQuery object
+			 * @param elem {string|DOM element|jQuery object} Element or selector to check
+			 * @return {jQuery object|boolean} Element to manipulate or false if there's no match
+			 */
+			elemCheck: function ( elem ) {
+			
+				// test for selector
+				if ( typeof elem === 'string' && $( elem ).length ) {
+					return $( elem );
+				}
+				
+				// test for DOM element
+				if ( elem.nodeType && $( elem ).length ) {
+					return $( elem );
+				}
+				
+				// test for jquery object
+				if ( elem.jquery && elem.length ) {
+					return elem;
+				}
+
+				// returning a jquery object will pass a simple conditonal
+				// @example if ( $elem ) {...}
+				// so return false for a strict comparison
+				mw.log( 'Error: Argument passed to dev.minicomplete.load is not a selector, DOM element of jQuery object' );
+				return false;
+			
 			},
 
 			/**
@@ -707,8 +769,8 @@
 					before = text.substring( 0, text.lastIndexOf( open ) );
 
 				// strip template namespace for template transclusion
-				if ( open === '{{' && complete.split( ':' )[ 0 ] === 'Template' ) {
-					complete = complete.split( ':' )[ 1 ];
+				if ( open === '{{' && complete.split( ':' )[0] === 'Template' ) {
+					complete = complete.split( ':' )[1];
 				}
 
 				// check if a colon is after the opening brackets
