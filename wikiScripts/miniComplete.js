@@ -297,7 +297,7 @@
 					if ( window.ArticleComments.initCompleted ) {
 
 						mw.log( 'Article comments loaded' );
-						local.load( '#article-comm' );
+						global.load( '#article-comm' );
 
 						// this is where we detect replies being added
 						// as the textareas used aren't inserted when the comments are loaded
@@ -331,7 +331,7 @@
 
 					if ( $( selector ).length !== editors ) {
 						mw.log( 'new editor inserted' );
-						local.load( selector );
+						global.load( selector );
 					} else {
 						setTimeout( function () {
 							local.editorInserted( editors, selector );
