@@ -227,6 +227,8 @@
 					
 					params.title = options.target.replace( / /g, '_' );
 					
+					console.log( 'test1' );
+					
 					// load less.js src
 					if ( !mw.loader.getState( 'less' ) ) {
 						mw.loader.implement(
@@ -236,6 +238,8 @@
 							{}, {}
 						);
 					}
+					
+					console.log( 'test2' );
 					
 					mw.loader.using( 'less', function () {
 					
@@ -247,6 +251,10 @@
 									pages = [],
 									page,
 									i;
+								
+								console.log( 'test3' );
+								console.log( lines );
+								
 								
 								for ( i = 0; i < lines; i += 1 ) {
 									page = lines[i].trim();
