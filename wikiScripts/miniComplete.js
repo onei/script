@@ -626,6 +626,12 @@
 						};
 
 					mw.log( term );
+					
+					// suggestions api returns nothing if query
+					// is less than three characters
+					if ( term.length < 3 ) {
+						return;
+					}
 
 					$.ajax( {
 						url: config.wgScriptPath + config.wgScript,
