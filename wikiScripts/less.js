@@ -12,7 +12,7 @@
  */
 
 // don't add less into the closure or it causes errors
-/*global less:true */
+/*global less:true, console:true */
 
 ;( function ( window, document, $, mw, dev, undefined ) {
 
@@ -34,13 +34,13 @@
 		header: 'MediaWiki:Css-header'
 	} ];
 
-	var less = ( function () {
+	var self = ( function () {
 
 		var	i18n = {
 				en: {
 					compile: 'Compile LESS'
 				}
-			}
+			},
 		
 			/**
 			 * Cache mw.config variables
@@ -64,14 +64,14 @@
 		
 				init: function () {
 
-					var 	profile = $.client.profile(),
+					var	profile = $.client.profile(),
 						opts = false,
 						i,
 						elem;
 						
 					if ( config.wgAction !== 'view' ) {
 						// only run on action=view (default action)
-						return
+						return;
 					}
 					
 					if ( profile.name === 'msie' && profile.versionNumber < 9 ) {
@@ -146,7 +146,7 @@
 				 */
 				msg: function ( msg ) {
 					return i18n[config.wgUserLanguage][msg] || i18n.en[msg];
-				}
+				},
 
 				/**
 				 *
@@ -186,7 +186,7 @@
 									.text( text )
 									.css( 'cursor', 'pointer' )
 									.on( 'click', local.getSource )
-							)
+							);
 					
 					} else {
 						// error message
@@ -207,8 +207,7 @@
 							maxage: '0',
 							smaxage: '0',
 							title: ''
-						},
-						err = false;
+						};
 						
 					// disable the compile button
 					
@@ -240,22 +239,20 @@
 						$.ajax( {
 							data: params,
 							success: function ( res ) {
-						
-								var i;
 
 								res = res.split( '\n' )
 									.filter( function ( elem ) {
-										return !!elem.length
+										return !!elem.length;
 									} )
 									.map( function ( elem ) {
 										return elem.trim();
 									} );
 								
-								self.getLess( res, params );
+								local.getLess( res, params );
 							}
 						} );
 						
-					})
+					} );
 					
 					return false;
 
@@ -267,9 +264,9 @@
 				 * @param {array} pages
 				 * @param {object} ajaxParams
 				 */
-				getLess: function ( pages, ajaxParams ) {
+				getLess: function ( pages ) {
 				
-					var 	params = {
+					var	params = {
 							action: 'raw',
 							maxage: '0',
 							smaxage: '0',
@@ -285,7 +282,7 @@
 						$.ajax( {
 							data: params,
 							success: function ( res ) {
-								css.push( self.compileLess( res, params.title ) );
+								css.push( local.compileLess( res, params.title ) );
 							}
 						} );
 						
@@ -312,7 +309,7 @@
 				compileLess: function ( res, page ) {
 					// attempt to compile less
 					var parser = new less.Parser( {} );
-					parser.parse( toCompile, function ( error, root ) {
+					parser.parse( res, function ( error, root ) {
 
 						// error is null if no errors
 						if ( !error ) {
@@ -328,7 +325,7 @@
 						
 						// do something with error to get a useful description message
 						
-						self.displayError( page, res, error );
+						local.displayError( page, res, error );
 						return '';
 
 					} );
@@ -385,7 +382,7 @@
 						// this strips the selector down to the last id in the selector
 						.replace( /\n(?:[\.\w\-# ]+)(#.+?)(,|{)/g, '\n$1 $2' );
 						
-					self.addHeader( css );
+					local.addHeader( css );
 					
 				},
 
@@ -396,7 +393,7 @@
 				 */
 				addHeader: function ( css ) {
 					
-					var 	title = options.header.replace( / /g, '_' ),
+					var	title = options.header.replace( / /g, '_' ),
 						params = {
 							action: 'raw',
 							maxage: '0',
@@ -407,7 +404,7 @@
 					$.ajax( {
 						data: params,
 						success: function ( res ) {
-							self.postResult( res + '\n' + css );
+							local.postResult( res + '\n' + css );
 						}
 					} );
 					
@@ -428,7 +425,7 @@
 					$.ajax( {
 						data: {
 							action: 'edit',
-							title: options.target
+							title: options.target,
 							summary: 'summary',
 							token: mw.user.tokens.get( 'editToken' ),
 							format: 'json'
@@ -466,11 +463,11 @@
 	} () );
 
 	// run script
-	$( less.init );
+	$( self.init );
 
 	// export to global scope
 	window.dev = window.dev || {};
-	window.dev.less = less.init;
+	window.dev.less = self.init;
 
 }( this, this.document, this.jQuery, this.mediaWiki ) );
 
