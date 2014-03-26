@@ -632,19 +632,13 @@
 						data: query,
 						dataType: 'json',
 						success: function ( data ) {
-							mw.log( data )
-							// error handling
-							if ( data.error ) {
-								mw.log( 'API error: ', data.error.code, data.error.info );
-								return;
-							}
 
 							// no suggestions
-							if ( !data.query.allpages.length ) {
+							if ( !data.suggestions.length ) {
 								return;
 							}
 
-							local.showSuggestions( data.query.allpages );
+							local.showSuggestions( data.suggestions );
 						},
 						error: function ( xhr, error, desc ) {
 							mw.log( 'AJAX error', error, desc );
