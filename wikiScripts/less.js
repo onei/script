@@ -14,409 +14,464 @@
 // don't add less into the closure or it causes errors
 /*global less:true */
 
-;( function ( document, $, mw, dev ) {
+;( function ( window, document, $, mw, dev, undefined ) {
 
-    'use strict';
+	'use strict';
+	
+	// temp hardcoded config
+	window.lessOptions = [ {
+		// target page for compiled LESS
+		target: 'MediaWiki:Common.css',
+		// the list of pages to compile from
+		source: 'MediaWiki:Common.css/less',
+		// pages to load the compile button on
+		load: [
+			'MediaWiki:Common.css',
+			'MediaWiki:Common.css/less'
+		],
+		// page of comment(s) to add at the top of the compiled LESS
+		// when posting to the page
+		header: 'MediaWiki:Css-header'
+	} ];
 
-    dev.less = {
+	var less = ( function () {
 
-        /**
-         * Config options, are filled out at a later stage
-         * @todo Allow options to be configurable
-         */
-        options: [ {
-            // pages to load compile button on
-            pages: [
-                'MediaWiki:Common.css',
-                'MediaWiki:Common.css/less'
-            ],
-            // page to edit with compiled less
-            target: 'MediaWiki:Common.css',
-            // page to get header comment from
-            header: 'MediaWiki:Css-header',
-            // page to get raw less from (optional to define)
-            source: 'MediaWiki:Common.css/less'
-        } ],
-        target: '',
-        header: '',
-        source: '',
-        useTabs: false,
+		var	i18n = {
+				en: {
+					compile: 'Compile LESS'
+				}
+			}
+		
+			/**
+			 * Cache mw.config variables
+			 */
+			config = mw.config.get( [
+				'skin',
+				'wgAction',
+				'wgPageName',
+				'wgUserLanguage'
+			] ),
 
-        /**
-         * Compiling interface
-         */
-        modal: function () {
+			/**
+			 * Cache script configuration
+			 */
+			options = dev.lessOptions || [],
 
-            if ( $( '#less-modal-overlay' ).length ) {
-                $( '#less-modal-overlay' ).show();
-            } else {
-            
-                // load css
-                // do the rest of this in a callback
-                // css currently located at <http://camtest.wikia.com/wiki/MediaWiki:Wikia.css>
+			/**
+			 *
+			 */
+			global = {
+		
+				init: function () {
 
-                // create nodes
-                var modal = $( '<div>' )
-                    .attr( 'id', 'less-modal-overlay' )
-                    .click( dev.less.closeModal )
-                    .append(
-                        $( '<div>' )
-                            .attr( 'id', 'less-modal' )
-                            // stop trigering parent events
-                            .click( function ( e ) {
-                                e.stopPropagation();
-                            } )
-                            .append(
-                                $( '<div>' )
-                                    .attr( 'id', 'less-modal-header' )
-                                    .append(
-                                        $( '<span>' )
-                                            .attr( 'id', 'less-modal-title' )
-                                            .text( 'LESS Compiler Interface' ),
-                                        
-                                        $( '<span>' )
-                                            .attr( 'id', 'less-modal-close' )
-                                            .click( dev.less.closeModal )
-                                    ),
-                                    
-                                $( '<div>' )
-                                    .attr( 'id', 'less-modal-content' )
-                                    .append(
-                                        $( '<div>' )
-                                            .attr( 'id', 'less-modal-source' )
-                                            .append(
-                                                $( '<span>' )
-                                                    .attr( 'id', 'less-modal-source-1' )
-                                                    .append(
-                                                        'Source page: ' + dev.less.source,
-                                                        ' (',
-                                                        $( '<a>' )
-                                                            .attr( {
-                                                                'target': '_blank',
-                                                                'href': '/wiki/' + dev.less.source + '?action=raw&templates=expand&maxage=0&smaxage=0',
-                                                                'title': 'View LESS source'
-                                                            } )
-                                                            .text( 'view' ),
-                                                        ').'
-                                                    ),
-                                                    
-                                                $( '<span>' )
-                                                    .attr( 'id', 'less-modal-source-2' )
-                                                    .text( 'Target page: ' + dev.less.target + '.' ),
-                                                    
-                                                $( '<span>' )
-                                                    .attr( 'id', 'less-modal-source-3' )
-                                                    .text( 'To compile the source LESS, click the compile button below.' )
-                                            ),
-                                        
-                                        $( '<div>' )
-                                            .attr( 'id', 'less-modal-status' )
-                                            .append(),
-                                            
-                                        $( '<div>' )
-                                            .attr( 'id', 'less-modal-errors' )
-                                            .append()
-                                    ),
-                                    
-                                $( '<div>' )
-                                    .attr( 'id', 'less-modal-footer' )
-                                    .append(
-                                        $( '<div>' )
-                                            .attr( 'id', 'less-modal-buttons' )
-                                            .append(
-                                                $( '<button>' )
-                                                    .attr( {
-                                                        'id': 'less-button-close',
-                                                        // wikia class
-                                                        'class': 'secondary'
-                                                    } )
-                                                    .text( 'Close' )
-                                                    .click( dev.less.closeModal ),
-                                                    
-                                                $( '<button>' )
-                                                    .attr( 'id', 'less-button-compile' )
-                                                    .text( 'Compile' )
-                                                    .click( dev.less.getStylesheet )
-                                            )
-                                    )
-                            )
-                    );
-                    
-                console.log( modal );
+					var 	profile = $.client.profile(),
+						opts = false,
+						i,
+						elem;
+						
+					if ( config.wgAction !== 'view' ) {
+						// only run on action=view (default action)
+						return
+					}
+					
+					if ( profile.name === 'msie' && profile.versionNumber < 9 ) {
+						// don't run on versions of IE older than IE9
+						return;
+					}
 
-                // append to body
-                $( 'body' ).append( modal );
-            }
+					if ( !Array.isArray( options ) ) {
+						// script has incorrect configuration
+						mw.log( 'dev.less error: Incorrect configuration.' );
+						return;
+					}
 
-        },
-        
-        /**
-         * Close modal
-         */
-        closeModal: function () {
-            $( '#less-modal-overlay' ).hide();
-            return false;
-        },
+					if ( !options.length ) {
+						// script is not configured 
+						return;
+					}
 
-        /**
-         * Checks for correct environment and loads the rest of the functions
-         */
-        init: function () {
+					for ( i = 0; i < options.length; i += 1 ) {
+					
+						elem = options[i];
+						
+						if elem.load.indexOf( config.wgPageName ) === -1 ) {
+							continue;
+						}
+						
+						opts = elem;
+						delete opts.load;
+						break;
+					
+					}
 
-            var config = mw.config.get( [
-                    'wgAction',
-                    'wgPageName',
-                    'wgUserLanguage',
-                    'wgUserGroups'
-                ] ),
-                i,
-                arr = dev.less.options,
-                i18n = dev.less.i18n[ config.wgUserLanguage ] || dev.less.i18n.en,
-                $update = function () {
-                    return $( '<button>' )
-                               .attr( 'id', 'mw-update-less' )
-                               .text( i18n.recompile )
-                               .click( dev.less.modal );
-                };
+					if ( !opts ) {
+						// not on a page to load the button on
+						return;
+					}
+					
+					if (
+						opts.target.indexOf( 'MediaWiki:' ) === 0 &&
+						config.wgUserGroups.indexOf( 'sysop' ) === -1
+					) {
+						// user cannot edit pages in mediawiki namespace
+						// this doesn't account for staff, vstf or helpers
+						// who really shouldn't be accessing the page like this anyway
+						// might be an issue if I ever need to reproduce a bug on another wiki
+						// but we'll cross that bridge when we come to it
+						return;
+					}
+					
+					options = opts;
 
-            // stop if not viewing the page
-            if ( config.wgAction !== 'view' ) {
-                return;
-            }
+					local.loadButton();
 
-            // stop if not sysop (can't edit the page if not)
-            if ( config.wgUserGroups.indexOf( 'sysop' ) === -1 ) {
-                return;
-            }
+				}
+			},
+			
+			/**
+			 *
+			 */
+			local = {
+			
+				/**
+				 *
+				 */
+				err: false,
+			
+				/**
+				 *
+				 *
+				 * @param {string} msg Message to get translation for
+				 * @returns {string} Translated message or english message if translation does not exist
+				 */
+				msg: function ( msg ) {
+					return i18n[config.wgUserLanguage][msg] || i18n.en[msg];
+				}
 
-            for ( i = 0; i < arr.length; i += 1 ) {
-                if ( arr[ i ].pages.indexOf( config.wgPageName ) > -1 ) {
+				/**
+				 *
+				 */
+				loadButton: function () {
+					
+					var	text = local.msg( 'compile' ),
+						$parent,
+						$link;
+					
+					if ( config.skin === 'oasis' ) {
+					
+						$parent = $( '#WikiaPageHeader' );
 
-                    // set target page and header
-                    dev.less.target = arr[ i ].target;
-                    dev.less.header = arr[ i ].header;
+						if ( !$parent.length ) {
+							// special or user page
+							return;
+						}
+						
+						$link = $( '<button>' )
+							.attr( {
+								'id': 'dev-less-compile',
+								'class': 'wikia-button'
+							} )
+							.text( text )
+							.on( 'click', local.getSource );
+					
+					} else if ( config.skin === 'monobook' ) {
+					
+						$parent = $( '#p-tb > .pBody > ul' );
+								
+						$link = $( '<li>' )
+							.attr( 'id', 't-compile-less' )
+							.append(
+								$( '<a>' )
+									.attr( 'title', text )
+									.text( text )
+									.css( 'cursor', 'pointer' )
+									.on( 'click', local.getSource )
+							)
+					
+					} else {
+						// error message
+						return;
+					}
 
-                    // check if source has been set, default to target/less
-                    dev.less.source = !!arr[ i ].source ?
-                        arr[ i ].source : dev.less.target + '/less';
+					$parent.append( $link );
+					
+				},
 
-                    // @todo monobook support
-                    $( '#WikiaPageHeader' ).append( $update() );
+				/**
+				 *
+				 */
+				getSource: function () {
+				
+					var	params = {
+							action: 'raw',
+							maxage: '0',
+							smaxage: '0',
+							title: ''
+						},
+						err = false;
+						
+					// disable the compile button
+					
+					$.ajaxSetup( {
+						async: 'false',
+						dataType: 'text',
+						error: function ( xhr, error, status ) {
+							local.err = true;
+							mw.log( status, error );
+						},
+						type: 'GET',
+						url: config.wgScriptPath + '/index.php',
+					} );
+					
+					params.title = options.target.replace( / /g, '_' );
+					
+					// load less.js src
+					if ( !mw.loader.getState( 'less' ) ) {
+						mw.loader.implement(
+							'less',
+							// @todo move to wikia url
+							[ 'https://raw.github.com/less/less.js/master/dist/less-1.7.0.min.js' ],
+							{}, {}
+						);
+					}
+					
+					mw.loader.using( 'less', function () {
+					
+						$.ajax( {
+							data: params,
+							success: function ( res ) {
+						
+								var i;
 
-                    return;
-                }
-            }
+								res = res.split( '\n' )
+									.filter( function ( elem ) {
+										return !!elem.length
+									} )
+									.map( function ( elem ) {
+										return elem.trim();
+									} );
+								
+								self.getLess( res, params );
+							}
+						} );
+						
+					})
+					
+					return false;
 
-            return;
+				},
+				
+				/**
+				 *
+				 *
+				 * @param {array} pages
+				 * @param {object} ajaxParams
+				 */
+				getLess: function ( pages, ajaxParams ) {
+				
+					var 	params = {
+							action: 'raw',
+							maxage: '0',
+							smaxage: '0',
+							title: ''
+						},
+						css = [],
+						i;
+					
+					for ( i = 0; i < pages.length; i += 1 ) {
+					
+						params.title = pages[i];
+					
+						$.ajax( {
+							data: params,
+							success: function ( res ) {
+								css.push( self.compileLess( res, params.title ) );
+							}
+						} );
+						
+						if ( local.err ) {
+							break;
+						}
+						
+					}
+					
+					if ( local.err ) {
+						return;
+					}
+					
+					console.log( css.join() );
+				
+				},
+				
+				/**
+				 *
+				 *
+				 * @param {string} res
+				 * @returns {object}
+				 */
+				compileLess: function ( res, page ) {
+					// attempt to compile less
+					var parser = new less.Parser( {} );
+					parser.parse( toCompile, function ( error, root ) {
 
-        },
+						// error is null if no errors
+						if ( !error ) {
+							var css = root.toCSS();
+							return css;
+						}
 
-        /**
-         * i18n messages
-         */
-        i18n: {
-            en: {
-                recompile: 'Recompile LESS',
-                done: 'Done message',
-                fail: 'Fail message'
-            }
-        },
+						// @todo find docs on error object
+						//       and show result to user if error comes up
+						mw.log( error );
+						
+						local.err = true;
+						
+						// do something with error to get a useful description message
+						
+						self.displayError( page, res, error );
+						return '';
 
-        /**
-         * Queries mw API for uncompiled LESS
-         */
-        getStylesheet: function () {
+					} );
 
-            var sheet = dev.less.source,
-                config = mw.config.get( [
-                    'wgServer',
-                    'wgScript'
-                ] );
+				},
+				
+				/**
+				 * Used for displaying any errors encountered
+				 *
+				 * @todo Display line number where error was found
+				 *       and content of said line, +/- 5 lines either side for context
+				 *
+				 * @param {string} page Page that contains the error
+				 * @param {string} text
+				 * @param {number} line
+				 * @param {string} error Error message to display
+				 */
+				displayError: function ( page, text, line, error ) {
+					// create error modal
+					
+					// error on `page`
+					
+					// get text of lines +/-5
+						// handle if there's less than 5 lines either side
+					
+					// highlight line with error in red
+					// append error in line note below
+					// lines should have numbers at the start
+					
+				},
+				
+				/**
+				 *
+				 *
+				 * @param {string} css CSS to format
+				 */
+				formatResult: function ( css ) {
+					
+					css = css
+						// strip comments
+						// @source <http://stackoverflow.com/a/2458830/1942596>
+						.replace( /\/\*([\s\S]*?)\*\//g, '' )
+						
+						// strip extra newlines
+						.replace( /\n\s*\n/g, '\n' )
+						
+						// format with uniform newlines between rules
+						.replace( /(\})\n(.)/g, '$1\n\n$2' )
+						
+						// indent with 4 spaces
+						.replace( /\n {2}(.)/g, '\n    $1' )
+						
+						// it's bad practice having more than one id in a selector
+						// this strips the selector down to the last id in the selector
+						.replace( /\n(?:[\.\w\-# ]+)(#.+?)(,|{)/g, '\n$1 $2' );
+						
+					self.addHeader( css );
+					
+				},
 
-            // configure $.ajax for later on
-            $.ajaxSetup( {
-                url: config.wgServer + config.wgScript,
-                dataType: 'text',
-                type: 'GET',
-                error: function ( xhr, status, error ) {
-                    mw.log( 'AJAX error:', xhr.responseText, status, error );
-                }
-            } );
+				/**
+				 *
+				 *
+				 * @param {string} css CSS to add header to
+				 */
+				addHeader: function ( css ) {
+					
+					var 	title = options.header.replace( / /g, '_' ),
+						params = {
+							action: 'raw',
+							maxage: '0',
+							smaxage: '0',
+							title: title
+						};
+						
+					$.ajax( {
+						data: params,
+						success: function ( res ) {
+							self.postResult( res + '\n' + css );
+						}
+					} );
+					
+					if ( local.err ) {
+						mw.log( 'Header page does not exist.' );
+					}
+					
+				},
 
-            $.ajax( {
-                data: {
-                    title: sheet,
-                    action: 'raw',
-                    templates: 'expand',
-                    maxage: '0',
-                    smaxage: '0'
-                },
-                success: function ( response ) {
-                    dev.less.compile( response );
-                }
-            } );
+				/**
+				 *
+				 *
+				 * @param {string} text Content to submit to target page
+				 */
+				postResult: function ( text ) {
+					console.log( text );
+					
+					$.ajax( {
+						data: {
+							action: 'edit',
+							title: options.target
+							summary: 'summary',
+							token: mw.user.tokens.get( 'editToken' ),
+							format: 'json'
+						},
+						dataType: 'POST',
+						success: function ( res ) {
+							console.log( res );
 
-        },
+							// if success
+								// alert the user of success
+								// if we're on the target page
+									// refresh (notify the user it's going to happen)
+								// else
+									// close the alert
+									// and re-enable the compile button
 
-        /**
-         * Compiles LESS into CSS
-         * @param toCompile {string} String of uncompiled LESS
-         */
-        compile: function ( toCompile ) {
+							// else
+								// show the error
+								// probably a permissions error
+								// with a link to w:c:dev:Talk:Less for bug reports if required
+								// re-enable the compile button
 
-            // define custom less module if not already defined
-            // this throws an error in the console due to something in wikia's code
-            // @todo find out if said error is bad before releasing this
-            // error thrown due to require function definition
-            // less.js thinks this is part of node.js (server side js) and overrides it for client side use
-            // except it is defined on wikia
-            // Grunny says should be fine as this is only loaded as required
-            if ( !mw.loader.getState( 'less' ) ) {
-                mw.loader.implement( 'less',
-                    [ 'https://raw.github.com/less/less.js/master/dist/less-1.6.0.js' ],
-                        {}, {} );
-            }
+						},
+						type: 'POST'
+					} );
+					
 
-            mw.loader.using( [ 'less' ], function () {
+				}
+			
+			};
+			
+		return global;
+	
+    
+	} () );
 
-                // parse less
-                var parser = new less.Parser( {} );
-                parser.parse( toCompile, function ( error, root ) {
-                    // error is null if no errors
-                    if ( !error ) {
-                        var css = root.toCSS();
-                        dev.less.format( css );
-                    } else {
-                        // @todo find docs on error object
-                        //       and show result to user if error comes up
-                        mw.log( error );
-                    }
-                } );
-            } );
+	// run script
+	$( less.init );
 
-        },
+	// export to global scope
+	window.dev = window.dev || {};
+	window.dev.less = less.init;
 
-        /**
-         * @desc Optionally formats resulting CSS
-         * @param css {string} CSS resulting from compiling LESS
-         * @todo Make this optional/configurable
-         * @todo format this a bit better
-         *       4 space/tab indents
-         *       remove empty lines
-         *       add one line between end of rule and next selector
-         */
-        format: function ( css ) {
-
-                            // strip comments
-                            // @source <http://stackoverflow.com/a/2458830/1942596>
-            var result = css.replace( /\/\*([\s\S]*?)\*\//g, '' )
-                            // strip extra newlines
-                            .replace( /\n\s*\n/g, '\n' )
-                            // it's bad practice having more than one id in a selector
-                            // this strips the selector down to the last id in the selector
-                            .replace( /\n(?:[\.\w\-# ]+)(#.+?)(,|{)/g, '\n$1 $2' )
-                            // add an extra newline between rules
-                            .replace( /(\})\n(.)/g, '$1\n\n$2' );
-                
-            // indent by 4 spaces or tabs depending on config
-            if ( dev.less.useTabs ) {
-                // indent with tabs
-                result.replace( /\n {2}(.)/g, '\n\t$1' );
-            } else {
-                // indent with 4 spaces
-                result = result.replace( /\n {2}(.)/g, '\n    $1' );
-            }
-
-            dev.less.addHeader( result );
-
-        },
-
-        /**
-         * @desc Adds a comment header containing instructions and documentation
-         * @param css {string} CSS after comments have been stripped
-         */
-        addHeader: function ( css ) {
-
-            $.ajax( {
-                data: {
-                    title: dev.less.header,
-                    action: 'raw'
-                },
-                success: function ( response ) {
-                    var result = response + '\n' + css;
-                    dev.less.submit( result );
-                }
-            } );
-
-        },
-
-        /**
-         * @desc Submit changes to the target page
-         * @param content {string}
-         */
-        submit: function ( content ) {
-
-            // redefine $.ajax for API queries
-            $.ajaxSetup( {
-                url: mw.config.get( 'wgServer' ) + '/api.php',
-                dataType: 'json'
-            } );
-
-            $.ajax( {
-                data: {
-                    action: 'query',
-                    prop: 'info',
-                    intoken: 'edit',
-                    titles: dev.less.target,
-                    format: 'json'
-                },
-                success: function ( response ) {
-                    var page = response.query.pages,
-                        prop,
-                        token;
-
-                    // extract token
-                    for ( prop in page ) {
-                        if ( page.hasOwnProperty( prop ) ) {
-                            token = page[ prop ].edittoken;
-                            // should only be one page in result
-                            // but break just in case
-                            break;
-                        }
-                    }
-
-                    $.ajax( {
-                        data: {
-                            action: 'edit',
-                            title: dev.less.target,
-                            text: content,
-                            summary: 'Updating CSS from [[' + dev.less.source + ']]',
-                            format: 'json',
-                            token: token
-                        },
-                        type: 'POST',
-                        success: function ( response ) {
-                            // @todo tell user edit has succeeded and reload page
-                            mw.log( response );
-                            // @todo find error response for this
-                            if ( response.edit && response.edit.result === 'Success' ) {
-                                alert( 'Success' );
-                                // refresh if on the target page
-                                if ( mw.config.get( 'wgPageName' ) === dev.less.target ) {
-                                    document.location.reload();
-                                }
-                            }
-                        }
-                    } );
-
-                }
-            } );
-        }
-
-    };
-
-    $( dev.less.init );
-
-}( this.document, this.jQuery, this.mediaWiki, this.dev = this.dev || {} ) );
+}( this, this.document, this.jQuery, this.mediaWiki ) );
 
 /* </nowiki> */
