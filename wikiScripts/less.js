@@ -225,7 +225,7 @@
 						url: config.wgScriptPath + config.wgScript,
 					} );
 					
-					params.title = options.target.replace( / /g, '_' );
+					params.title = options.source.replace( / /g, '_' );
 					
 					console.log( 'test1' );
 					
