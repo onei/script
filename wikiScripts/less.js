@@ -248,8 +248,9 @@
 									page,
 									i;
 								
-								for ( i = 0; i < pages; i += 1 ) {
+								for ( i = 0; i < lines; i += 1 ) {
 									page = lines[i].trim();
+									console.log( page );
 									
 									// skip comments
 									if ( page.indexOf( '//' ) === 0 ) {
