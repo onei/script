@@ -665,7 +665,7 @@
 					mw.log( result );
 
 					for ( i = 0; i < result.length; i += 1 ) {
-						options += '<li class="minicomplete-option">' + result[ i ].title + '</li>';
+						options += '<li class="minicomplete-option">' + result[i] + '</li>';
 					}
 
 					// append options to container
