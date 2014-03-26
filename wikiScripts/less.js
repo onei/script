@@ -243,15 +243,29 @@
 							data: params,
 							success: function ( res ) {
 
-								res = res.split( '\n' )
-									.filter( function ( elem ) {
-										return !!elem.length;
-									} )
-									.map( function ( elem ) {
-										return elem.trim();
-									} );
+								var 	lines = res.split( '\n' ),
+									pages = [],
+									page,
+									i;
 								
-								local.getLess( res, params );
+								for ( i = 0; i < pages; i += 1 ) {
+									page = lines[i].trim();
+									
+									// skip comments
+									if ( page.indexOf( '//' ) === 0 ) {
+										continue
+									}
+									
+									// skip empty lines
+									if ( !page.length ) {
+										continue;
+									}
+									
+									pages.push( page );
+								}
+								
+								console.log( pages );
+								// local.getLess( pages );
 							}
 						} );
 						
