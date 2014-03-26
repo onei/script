@@ -23,7 +23,7 @@
  * This version has been tested and should be bug free.
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.3.2
+ * @version 1.4.0
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  *
  * @link <http://dev.wikia.com/wiki/MiniComplete> Documentation
@@ -626,7 +626,7 @@
 						};
 
 					mw.log( term );
-					
+
 					// suggestions api returns nothing if query
 					// is less than three characters
 					if ( term.length < 3 ) {
