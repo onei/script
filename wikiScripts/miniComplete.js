@@ -632,6 +632,7 @@
 						data: query,
 						dataType: 'json',
 						success: function ( data ) {
+							mw.log( data )
 							// error handling
 							if ( data.error ) {
 								mw.log( 'API error: ', data.error.code, data.error.info );
