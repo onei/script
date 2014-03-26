@@ -49,6 +49,7 @@
 				'skin',
 				'wgAction',
 				'wgPageName',
+				'wgUserGroups',
 				'wgUserLanguage'
 			] ),
 
