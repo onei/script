@@ -55,7 +55,7 @@
 			/**
 			 * Cache script configuration
 			 */
-			options = dev.lessOptions || [],
+			options = window.lessOptions || [],
 
 			/**
 			 *
