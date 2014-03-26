@@ -80,6 +80,7 @@
 				'wgCanonicalSpecialPageName',
 				'wgNamespaceIds',
 				'wgNamespaceNumber',
+				'wgScript',
 				'wgScriptPath',
 				'wgServer'
 			] ),
@@ -500,8 +501,7 @@
 						// such as those with pipes as they signal template params or
 						// link display changes or if the user is closing the link/template themselves
 						illegalChars = /[\{\}\[\]\|#<>%\+\?\\]/,
-						term,
-						ns;
+						term;
 
 					// searchText will be empty if the browser does not support getCaretPos
 					// which will probably cause errors/confusion
@@ -540,7 +540,7 @@
 							// set type here as it's easier than
 							// passing it through all the functions
 							local.type = '[[';
-							local.getSuggestions( term, 0 );
+							local.getSuggestions( term );
 
 						}
 
@@ -565,13 +565,15 @@
 
 							// fix for when the namespace is preceded by a :
 							if ( term.indexOf( ':' ) === 0 ) {
+								// if there's a : at the start
+								// we shouldn't be looking in the Template namespace
 								term = term.substring( 1 );
-								// use mainspace queries if using a :
-								// as it signifies a page transclusion
-								// rather than a template
-								ns = 0;
 							} else {
-								ns = 10;
+								// check if the user has manually added template namespace at the start
+								if ( term.indexOf( 'Template:' ) !== 0 ) {
+									// add it if not as it's needed for our search query
+									term = 'Template:' + term;
+								}
 							}
 
 							// prevent searches for empty strings
@@ -582,7 +584,7 @@
 							// set type here as it's easier than
 							// passing it through all the functions
 							local.type = '{{';
-							local.getSuggestions( term, ns );
+							local.getSuggestions( term );
 
 						}
 
@@ -625,55 +627,20 @@
 				 * @desc Queries mw api for possible suggestions
 				 * @link <https://www.mediawiki.org/wiki/API:Allpages> Allpages API docs
 				 * @param term {string} Page title to search for
-				 * @param ns {integer} Namespace to search in
-				 * @todo Test alternative api queries, see main code docs for details
 				 */
-				getSuggestions: function ( term, ns ) {
+				getSuggestions: function ( term ) {
 
 					var	query = {
-							action: 'query',
-							list: 'allpages',
-							aplimit: '5',
-							apfilterredir: 'nonredirects',
-							apnamespace: ns,
-							apprefix: term,
-							format: 'json'
-						},
-						termSplit,
-						namespaceId,
-						title;
+							action: 'ajax',
+							rs: 'getLinkSuggest',
+							format: 'json',
+							query: term
+						};
 
 					mw.log( term );
 
-					// handles namespaces in search query
-					// if the namespace exists, this alters the query to affect that
-					// otherwise the original search term will be used
-					if ( term.indexOf( ':' ) > -1 ) {
-
-						termSplit = term.split( ':' );
-						title = termSplit[1];
-
-						// make sure there's only the namespace and the page title
-						if ( termSplit.length > 2 ) {
-							return;
-						}
-
-						namespaceId = config.wgNamespaceIds[
-							// wgNamespaceIds uses underscores and lower case
-							termSplit[0]
-								.replace( / /g, '_' )
-								.toLowerCase()
-						];
-
-						if ( namespaceId ) {
-							query.apnamespace = namespaceId;
-							query.apprefix = title;
-						}
-
-					}
-
 					$.ajax( {
-						url: config.wgServer + config.wgScriptPath + '/api.php',
+						url: config.wgServer + config.wgScriptPath + config.wgScript,
 						data: query,
 						dataType: 'json',
 						success: function ( data ) {
@@ -691,7 +658,7 @@
 							local.showSuggestions( data.query.allpages );
 						},
 						error: function ( xhr, error, desc ) {
-							mw.log( 'AJAX error: ', error, ' - ', desc );
+							mw.log( 'AJAX error', error, desc );
 						}
 					} );
 
