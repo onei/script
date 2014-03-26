@@ -37,16 +37,6 @@
  *
  * @todo Add some kind of opt out setting for sitewide installations
  * @todo Add support for custom CSS styling of the autocomplete menu
- * @todo Find a way to implement case insensitive searching
- *       The current standard search suggestions has this, but it could be
- *       phased out at some point which would ultimately break this.
- *       @example /index.php?action=ajax&rs=getLinkSuggest&format=json&query=foo
- *                @notes Bug with redirects appearing in suggestions
- *                       due to incorrect redirects object in returned JSON object
- *                       <https://github.com/Wikia/app/blob/dev/extensions/wikia/LinkSuggest/LinkSuggest.class.php>
- *                       Fix submitted via S:C, awaiting response from search team/Sean
- *       @example /api/v1/Search/List/?query=foo&limit=5
- *                @link <http://api.wikia.com> Documentation
  */
 
 /*jshint
@@ -78,11 +68,9 @@
 			 */
 		var	config = mw.config.get( [
 				'wgCanonicalSpecialPageName',
-				'wgNamespaceIds',
 				'wgNamespaceNumber',
 				'wgScript',
-				'wgScriptPath',
-				'wgServer'
+				'wgScriptPath'
 			] ),
 
 			/**
@@ -640,7 +628,7 @@
 					mw.log( term );
 
 					$.ajax( {
-						url: config.wgServer + config.wgScriptPath + config.wgScript,
+						url: config.wgScriptPath + config.wgScript,
 						data: query,
 						dataType: 'json',
 						success: function ( data ) {
