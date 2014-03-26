@@ -248,12 +248,8 @@
 									page,
 									i;
 
-								console.log( lines );
-								
-								
 								for ( i = 0; i < lines.length; i += 1 ) {
 									page = lines[i].trim();
-									console.log( page );
 									
 									// skip comments
 									if ( page.indexOf( '//' ) === 0 ) {
@@ -269,7 +265,7 @@
 								}
 								
 								console.log( pages );
-								// local.getLess( pages );
+								local.getLess( pages );
 							}
 						} );
 						
@@ -303,7 +299,8 @@
 						$.ajax( {
 							data: params,
 							success: function ( res ) {
-								css.push( local.compileLess( res, params.title ) );
+								console.log( res );
+								// css.push( local.compileLess( res, params.title ) );
 							}
 						} );
 						
