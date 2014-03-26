@@ -94,7 +94,7 @@
 					
 						elem = options[i];
 						
-						if elem.load.indexOf( config.wgPageName ) === -1 ) {
+						if ( elem.load.indexOf( config.wgPageName ) === -1 ) {
 							continue;
 						}
 						
