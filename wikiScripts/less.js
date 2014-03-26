@@ -49,6 +49,8 @@
 				'skin',
 				'wgAction',
 				'wgPageName',
+				'wgScript',
+				'wgScriptPath',
 				'wgUserGroups',
 				'wgUserLanguage'
 			] ),
@@ -220,7 +222,7 @@
 							mw.log( status, error );
 						},
 						type: 'GET',
-						url: config.wgScriptPath + '/index.php',
+						url: config.wgScriptPath + config.wgScript,
 					} );
 					
 					params.title = options.target.replace( / /g, '_' );
