@@ -292,10 +292,12 @@
 						css = [],
 						i;
 					
+					// css is defined here
 					console.log( 'css1', css );
 					
 					for ( i = 0; i < pages.length; i += 1 ) {
 					
+						// and here
 						console.log( 'css2', css );
 						params.title = pages[i];
 					
@@ -304,17 +306,22 @@
 							success: function ( res ) {
 								// @todo track how many lines are in each file
 								//       for error handling
+								
+								// but not here?!?
 								console.log( 'css3', css );
 								css.push( res );
+								
+								console.log( i, pages.length )
+								if ( i === pages.length ) {
+									css = css.join( '' );
+									console.log( css )
+									local.compileLess( css );
+								}
 							}
 						} );
 						
 					}
-					
-					css = css.join( '' );
-					console.log( css );
-					local.compileLess( css );
-				
+
 				},
 				
 				/**
