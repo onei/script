@@ -295,7 +295,7 @@
 					for ( i = 0; i < pages.length; i += 1 ) {
 
 						params.title = pages[i];
-						console.log( i, pages.length );
+						console.log( i, pages.length, params );
 
 						$.ajax( {
 							data: params,
