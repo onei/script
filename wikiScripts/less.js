@@ -299,22 +299,17 @@
 						$.ajax( {
 							data: params,
 							success: function ( res ) {
-								// console.log( res );
-								css.push( local.compileLess( res, params.title ) );
+								// @todo track how many lines are in each file
+								//       for error handling
+								css.push( res );
 							}
 						} );
 						
-						if ( local.err ) {
-							break;
-						}
-						
 					}
 					
-					if ( local.err ) {
-						return;
-					}
-					
-					console.log( css.join() );
+					css = css.join();
+					console.log( css );
+					local.compileLess( css );
 				
 				},
 				
