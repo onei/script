@@ -215,7 +215,6 @@
 					// disable the compile button
 					
 					$.ajaxSetup( {
-						async: 'false',
 						dataType: 'text',
 						error: function ( xhr, error, status ) {
 							local.err = true;
@@ -291,6 +290,7 @@
 						},
 						css = [],
 						i;
+
 					
 					for ( i = 0; i < pages.length; i += 1 ) {
 
@@ -303,19 +303,17 @@
 								// @todo track how many lines are in each file
 								//       for error handling
 								css.push( res );
-								console.log( i, pages.length )
-
-								if ( i === pages.length ) {
-									console.log( 'conditonal', i, pages.length );
-									// css = css.join( '' );
-									console.log( css )
-									// local.compileLess( css );
-								}
 
 							}
 						} );
 						
 					}
+					
+					$( document ).ajaxStop( function () {
+						css = css.join( '' );
+						console.log( css )
+						local.compileLess( css );
+					} );
 
 				},
 				
@@ -338,7 +336,8 @@
 
 						// @todo find docs on error object
 						//       and show result to user if error comes up
-						console.log( error );
+						console.log( 'parsing error' );
+						// console.log( error );
 						
 						local.err = true;
 						
