@@ -299,8 +299,8 @@
 						$.ajax( {
 							data: params,
 							success: function ( res ) {
-								console.log( res );
-								// css.push( local.compileLess( res, params.title ) );
+								// console.log( res );
+								css.push( local.compileLess( res, params.title ) );
 							}
 						} );
 						
@@ -337,7 +337,7 @@
 
 						// @todo find docs on error object
 						//       and show result to user if error comes up
-						mw.log( error );
+						console.log( error );
 						
 						local.err = true;
 						
