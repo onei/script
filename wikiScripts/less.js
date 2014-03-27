@@ -196,7 +196,7 @@
 						return;
 					}
 
-					$parent.append( $link );
+					$parent.append( $link, config.skin === 'oasis' ? '&nbsp;': '' );
 					
 				},
 
@@ -301,13 +301,14 @@
 							success: function ( res ) {
 								// @todo track how many lines are in each file
 								//       for error handling
+								console.log( css );
 								css.push( res );
 							}
 						} );
 						
 					}
 					
-					css = css.join();
+					css = css.join( '' );
 					console.log( css );
 					local.compileLess( css );
 				
