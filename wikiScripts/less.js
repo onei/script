@@ -306,7 +306,8 @@
 								console.log( i, pages.length )
 
 								if ( i === pages.length ) {
-									css = css.join( '' );
+									console.log( 'conditonal', i, pages.length );
+									// css = css.join( '' );
 									console.log( css )
 									// local.compileLess( css );
 								}
