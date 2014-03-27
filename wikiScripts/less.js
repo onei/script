@@ -292,8 +292,11 @@
 						css = [],
 						i;
 					
+					console.log( 'css1', css );
+					
 					for ( i = 0; i < pages.length; i += 1 ) {
 					
+						console.log( 'css2', css );
 						params.title = pages[i];
 					
 						$.ajax( {
@@ -301,7 +304,7 @@
 							success: function ( res ) {
 								// @todo track how many lines are in each file
 								//       for error handling
-								console.log( css );
+								console.log( 'css3', css );
 								css.push( res );
 							}
 						} );
