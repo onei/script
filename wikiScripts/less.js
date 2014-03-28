@@ -310,7 +310,7 @@
 					}
 					
 					$( document ).ajaxStop( function () {
-						css = css.join( '' );
+						css = css.join( '\n' );
 						console.log( css )
 						local.compileLess( css );
 					} );
@@ -326,40 +326,37 @@
 				compileLess: function ( res, page ) {
 					// attempt to compile less
 					var parser = new less.Parser( {} );
-					// possibly need to use a try catch block here :(
 					
 					try {
 						parser.parse( res, function ( error, root ) {
+							// error isn't actually used here
+							// due to when errors actually occur
+							// this function throws them, instead of storing them
+							// in a helpful object for us to check
+							// hence this try catch block
+							// #yay #helpful
 							var css = root.toCSS();
 							console.log( css );
 						} );
 					} catch ( e ) {
 						console.log( e );
-					}
-					
-					/*
-					parser.parse( res, function ( error, root ) {
-
-						// error is null if no errors
-						if ( !error ) {
-							var css = root.toCSS();
-							return css;
-						}
-
-						// @todo find docs on error object
-						//       and show result to user if error comes up
-						console.log( 'parsing error' );
-						// console.log( error );
-						
 						local.err = true;
+						/*
+						e.line // line number
 						
-						// do something with error to get a useful description message
+						// from the line number we need to extract the original page (not sure how to do that)
+						// and adjust that number to match the line number in that file
+						// from there, we pass the page, page content, adjusted line number, and error message
+						// to our error handling function
 						
-						local.displayError( page, res, error );
-						return '';
-
-					} );
-					*/
+						e.extract // extract of code
+						          // is this always a 3 item array?
+							  // make it into our own 11 item array
+							  // +- 5 lines either side (where possible)
+							  // use this in testing for making sure we're on the same problem line
+						e.message // error message
+						*/
+					}
 
 				},
 				
