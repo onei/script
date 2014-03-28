@@ -362,9 +362,9 @@
 										local.compileLess( css.join( '\n' ) );
 									}
 								},
-								error: ( function ( xhr, error, status ) {
+								error: function ( xhr, error, status ) {
 									if ( status === 'Not Found' ) {
-										local.addLine( 'Error: File not found. Please check ' + options.source + '.' )
+										local.addLine( 'Error: File not found. Please check ' + options.source + '.' );
 									} else {
 										mw.log( error, status );
 									}
