@@ -312,7 +312,7 @@
 								
 								console.log( pages.length );
 								local.addLine( pages.length + ' files found.' )
-								// local.getLess( pages );
+								local.getLess( pages );
 							}
 						} );
 						
@@ -340,8 +340,9 @@
 						i = 0,
 						getContent = function () {
 						
-							params.title = pages[i];
+							params.title = pages[i].replace( / /g, '_' );
 							console.log( i, pages.length, params );
+							local.addLine( 'Getting ' + pages[i] ' (' + ( i + 1 ) '/' + pages.length ').' );
 
 							$.ajax( {
 								data: params,
@@ -353,7 +354,8 @@
 										console.log( 'getting next file' );
 										getContent();
 									} else {
-										local.compileLess( css.join( '\n' ) );
+										local.addLine( 'All files retrieved.' );
+										// local.compileLess( css.join( '\n' ) );
 										console.log( 'complete' );
 									}
 								}
