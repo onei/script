@@ -413,7 +413,9 @@
 				compileLess: function ( res ) {
 					// attempt to compile less
 					var 	parser = new less.Parser( {} ),
-						page;
+						page,
+						errLine,
+						errPage;
 					
 					try {
 						parser.parse( res, function ( error, root ) {
@@ -430,12 +432,20 @@
 					} catch ( e ) {
 						console.log( lines );
 						console.log( e );
+						errLine = e.line;
 						for ( page in lines ) {
 							if ( lines.hasOwnProperty( page ) ) {
 								console.log( lines[page] );
+								if ( errLine < lines[page] ) {
+									errLine - lines[page];
+								} else {
+									errPage = page;
+								}
+								
 							}
 						}
-						local.err = true;
+						local.addLine( 'Error: Parse error on line ' + errLine + ' in [[' + errPage + ']].' );
+						local.addLine( 'Error: ' + e.message + '.' );
 						/*
 						// @todo remember to undo mixin removal on MediaWiki:Common.css/less
 						
