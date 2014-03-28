@@ -248,7 +248,7 @@
 					
 					for ( i = 0; i < match.length; i += 1 ) {
 						replace = match[i].replace( /(\[\[|\]\])/g, '' )
-						text = text.replace( match[i], '<a href="/wiki/' + replace.replace( / /g, '_' ) + '" title="' + replace + '">' + replace + '</a>' );
+						text = text.replace( match[i], '<a href="/wiki/' + replace.replace( / /g, '_' ) + '" title="' + replace + '" target="_blank">' + replace + '</a>' );
 					}
 					
 					return text;
@@ -336,8 +336,7 @@
 									
 									pages.push( page );
 								}
-								
-								console.log( pages.length );
+
 								local.addLine( pages.length + ' files found.' );
 								local.getLess( pages );
 							}
@@ -368,14 +367,11 @@
 						getContent = function () {
 						
 							params.title = pages[i].replace( / /g, '_' );
-							console.log( i, pages.length, params );
 							local.addLine( 'Getting ' + pages[i] + ' (' + ( i + 1 ) + '/' + pages.length + ').' );
 
 							$.ajax( {
 								data: params,
 								success: function ( res ) {
-									console.log( params.title, 'success' );
-									local.addLine( 'Complete.' );
 									css.push( res );
 									i += 1;
 									if ( i < pages.length ) {
@@ -505,8 +501,7 @@
 						// it's bad practice having more than one id in a selector
 						// this strips the selector down to the last id in the selector
 						.replace( /\n(?:[\.\w\-# ]+)(#.+?)(,|{)/g, '\n$1 $2' );
-					
-					console.log( css );
+
 					local.addHeader( css );
 					
 				},
