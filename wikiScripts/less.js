@@ -427,6 +427,7 @@
 							local.formatResult( css );
 						} );
 					} catch ( e ) {
+						console.log( lines );
 						console.log( e );
 						local.err = true;
 						/*
