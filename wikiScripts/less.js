@@ -336,7 +336,7 @@
 							// hence this try catch block
 							// #yay #helpful
 							var css = root.toCSS();
-							console.log( css );
+							local.formatResult( css );
 						} );
 					} catch ( e ) {
 						console.log( e );
@@ -374,6 +374,15 @@
 				 * @param {string} error Error message to display
 				 */
 				displayError: function ( page, text, line, error ) {
+					
+					var modal;
+
+					if ( !$( '#less-modal' ).length ) {
+						modal = '<div id="dev-overlay"><div="less-modal">' +
+							'<div id="less-header"><span class="title"></span><span class="close"></span></div>' +
+							'<div id="less content"></div>' +
+							'<div id="less-footer"></div></div>';
+					}
 					// create error modal
 					
 					// error on `page`
@@ -411,8 +420,9 @@
 						// it's bad practice having more than one id in a selector
 						// this strips the selector down to the last id in the selector
 						.replace( /\n(?:[\.\w\-# ]+)(#.+?)(,|{)/g, '\n$1 $2' );
-						
-					local.addHeader( css );
+					
+					console.log( css );
+					// local.addHeader( css );
 					
 				},
 
