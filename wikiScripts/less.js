@@ -342,7 +342,7 @@
 						
 							params.title = pages[i].replace( / /g, '_' );
 							console.log( i, pages.length, params );
-							local.addLine( 'Getting ' + pages[i] ' (' + ( i + 1 ) '/' + pages.length ').' );
+							local.addLine( 'Getting ' + pages[i] ' (' + ( i + 1 ) '/' + pages.length + ').' );
 
 							$.ajax( {
 								data: params,
