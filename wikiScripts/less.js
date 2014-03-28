@@ -429,6 +429,11 @@
 					} catch ( e ) {
 						console.log( lines );
 						console.log( e );
+						for ( page in lines ) {
+							if ( lines.hasOwnProperty( page ) ) {
+								console.log( lines[page] );
+							}
+						}
 						local.err = true;
 						/*
 						// @todo remember to undo mixin removal on MediaWiki:Common.css/less
