@@ -342,6 +342,8 @@
 						console.log( e );
 						local.err = true;
 						/*
+						// @todo remember to undo mixin removal on MediaWiki:Common.css/less
+						
 						e.line // line number
 						
 						// from the line number we need to extract the original page (not sure how to do that)
