@@ -242,7 +242,7 @@
 							data: params,
 							success: function ( res ) {
 
-								var 	lines = res.split( '\n' ),
+								var	lines = res.split( '\n' ),
 									pages = [],
 									page,
 									i;
@@ -252,7 +252,7 @@
 									
 									// skip comments
 									if ( page.indexOf( '//' ) === 0 ) {
-										continue
+										continue;
 									}
 									
 									// skip empty lines
@@ -288,32 +288,29 @@
 							smaxage: '0',
 							title: ''
 						},
-						css = [],
-						i;
-
-					
-					for ( i = 0; i < pages.length; i += 1 ) {
-
+						css = {},
+						i = 0;
+						
+					function getContent() {
+						
 						params.title = pages[i];
 						console.log( i, pages.length, params );
-
+						
 						$.ajax( {
 							data: params,
 							success: function ( res ) {
-								// @todo track how many lines are in each file
-								//       for error handling
 								css.push( res );
-
+								i += 1;
+								if ( i < pages.length ) {
+									getContent();
+								} else {
+									console.log( css.join( '\n' ) );
+									console.log( 'complete' );
+								}
 							}
 						} );
 						
 					}
-					
-					$( document ).ajaxStop( function () {
-						css = css.join( '\n' );
-						console.log( css )
-						local.compileLess( css );
-					} );
 
 				},
 				
@@ -351,11 +348,11 @@
 						// from there, we pass the page, page content, adjusted line number, and error message
 						// to our error handling function
 						
-						e.extract // extract of code
-						          // is this always a 3 item array?
-							  // make it into our own 11 item array
-							  // +- 5 lines either side (where possible)
-							  // use this in testing for making sure we're on the same problem line
+						e.extract	// extract of code
+								// is this always a 3 item array?
+								// make it into our own 11 item array
+								// +- 5 lines either side (where possible)
+								// use this in testing for making sure we're on the same problem line
 						e.message // error message
 						*/
 					}
