@@ -288,7 +288,7 @@
 							smaxage: '0',
 							title: ''
 						},
-						css = {},
+						css = [],
 						i = 0;
 						
 					var getContent = function () {
