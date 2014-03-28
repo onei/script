@@ -440,6 +440,7 @@
 									errLine - lines[page];
 								} else {
 									errPage = page;
+									console.log( errLine, errPage );
 									break;
 								}
 								
