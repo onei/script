@@ -226,11 +226,33 @@
 					var $content = $( '#less-content' );
 					
 					// insert text
-					$content.append( $( '<p>' ).text( text ) );
+					$content.append( $( '<p>' ).html( local.parseLink( text ) ) );
 					// scroll to the bottom of the modal
 					$content.scrollTop( $content.prop( 'scrollHeight' ) );
 				
 				},
+				
+				/**
+				 *
+				 */
+				parseLink: function ( wikitext ) {
+					
+					var 	text = mw.html.escape( wikitext ),
+						match = text.match( /\[\[[\s\S]*?\]\]/g ),
+						replace,
+						i;
+					
+					if ( match === null )
+						return text;
+					}
+					
+					for ( i = 0; i < match.length; i += 1 ) {
+						replace = match[i].replace( /(\[\[|\]\])/g, '' )
+						text = text.replace( match[i], '<a href="/wiki/' + replace.replace( / /g, '_' ) + '" title="' + replace + '">' + replace + '</a>';
+					}
+					
+					return text;
+				}
 				
 				/**
 				 *
@@ -364,7 +386,7 @@
 								},
 								error: function ( xhr, error, status ) {
 									if ( status === 'Not Found' ) {
-										local.addLine( 'Error: File not found. Please check ' + options.source + '.' );
+										local.addLine( 'Error: File not found. Please check [[' + options.source + ']].' );
 									} else {
 										mw.log( error, status );
 									}
