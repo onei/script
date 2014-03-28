@@ -266,7 +266,11 @@
 						error: function ( xhr, error, status ) {
 							local.err = true;
 							mw.log( status );
-							
+							if ( status === 'Not Found' ) {
+								local.addLine( 'Error: page not found. Please check your configuration.' );
+							} else {
+								mw.log( error, status );
+							}
 						},
 						type: 'GET',
 						url: config.wgScriptPath + config.wgScript,
