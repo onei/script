@@ -299,9 +299,11 @@
 						$.ajax( {
 							data: params,
 							success: function ( res ) {
+								console.log( 'success', params.title );
 								css.push( res );
 								i += 1;
 								if ( i < pages.length ) {
+									console.log( 'getting next file' )
 									getContent();
 								} else {
 									console.log( css.join( '\n' ) );
