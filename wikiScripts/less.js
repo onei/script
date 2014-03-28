@@ -265,7 +265,8 @@
 						dataType: 'text',
 						error: function ( xhr, error, status ) {
 							local.err = true;
-							mw.log( status, error );
+							mw.log( status );
+							
 						},
 						type: 'GET',
 						url: config.wgScriptPath + config.wgScript,
