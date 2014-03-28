@@ -175,7 +175,7 @@
 								'class': 'wikia-button'
 							} )
 							.text( text )
-							.on( 'click', local.getSource );
+							.on( 'click', local.buildModal );
 					
 					} else if ( config.skin === 'monobook' ) {
 					
