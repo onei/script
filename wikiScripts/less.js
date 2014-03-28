@@ -188,7 +188,7 @@
 									.attr( 'title', text )
 									.text( text )
 									.css( 'cursor', 'pointer' )
-									.on( 'click', local.getSource )
+									.on( 'click', local.buildModal )
 							);
 					
 					} else {
@@ -199,7 +199,48 @@
 					$parent.append( $link, config.skin === 'oasis' ? '&nbsp;': '' );
 					
 				},
-
+				
+				/**
+				 *
+				 */
+				buildModal: function () {
+				
+					// something like an irc interface
+				
+					var modal = '<div id="less-overlay"><div id="less-modal">' +
+						'<div id="less-header"><span class="title">Title</span><span id="less-header-close"></span></div>' +
+						'<div id="less-content">Content</div>' +
+						'</div></div>';
+						
+					$( 'body' ).append( modal );
+				
+				},
+				
+				/**
+				 *
+				 */
+				addLine: function ( text ) {
+				
+					var $content = $( '#less-content' );
+					
+					// insert text
+					$content.append( $( '<p>' ).text( text ) );
+					// scroll to the bottom of the modal
+					$content.scrollTop( $content.prop( 'scrollHeight' ) );
+				
+				},
+				
+				/**
+				 *
+				 */
+				addPrompt: function () {
+				
+				},
+				
+				closeModal: function () {
+					$( '#less-overlay' ).hide();
+				},
+				
 				/**
 				 *
 				 */
@@ -211,7 +252,9 @@
 							smaxage: '0',
 							title: ''
 						};
-						
+					
+					// set to false as you can run function multiple times
+					local.err = false;
 					// disable the compile button
 					
 					$.ajaxSetup( {
@@ -289,30 +332,29 @@
 							title: ''
 						},
 						css = [],
-						i = 0;
+						i = 0,
+						getContent = function () {
 						
-					var getContent = function () {
-						
-						params.title = pages[i];
-						console.log( i, pages.length, params );
-						
-						$.ajax( {
-							data: params,
-							success: function ( res ) {
-								console.log( 'success', params.title );
-								css.push( res );
-								i += 1;
-								if ( i < pages.length ) {
-									console.log( 'getting next file' )
-									getContent();
-								} else {
-									console.log( css.join( '\n' ) );
-									console.log( 'complete' );
+							params.title = pages[i];
+							console.log( i, pages.length, params );
+
+							$.ajax( {
+								data: params,
+								success: function ( res ) {
+									console.log( params.title, 'success' );
+									css.push( res );
+									i += 1;
+									if ( i < pages.length ) {
+										console.log( 'getting next file' );
+										getContent();
+									} else {
+										local.compileLess( css.join( '\n' ) );
+										console.log( 'complete' );
+									}
 								}
-							}
-						} );
+							} );
 						
-					}
+						};
 					
 					getContent();
 
@@ -324,7 +366,7 @@
 				 * @param {string} res
 				 * @returns {object}
 				 */
-				compileLess: function ( res, page ) {
+				compileLess: function ( res ) {
 					// attempt to compile less
 					var parser = new less.Parser( {} );
 					
