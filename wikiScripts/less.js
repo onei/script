@@ -267,7 +267,7 @@
 							local.err = true;
 							mw.log( status );
 							if ( status === 'Not Found' ) {
-								local.addLine( 'Error: page not found. Please check your configuration.' );
+								local.addLine( 'Error: Page not found. Please check your configuration.' );
 							} else {
 								mw.log( error, status );
 							}
@@ -360,6 +360,13 @@
 										getContent();
 									} else {
 										local.compileLess( css.join( '\n' ) );
+									}
+								},
+								error: ( function ( xhr, error, status ) {
+									if ( status === 'Not Found' ) {
+										local.addLine( 'Error: File not found. Please check ' + options.source + '.' )
+									} else {
+										mw.log( error, status );
 									}
 								}
 							} );
