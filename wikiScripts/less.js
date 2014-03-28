@@ -59,6 +59,11 @@
 			 * Cache script configuration
 			 */
 			options = window.lessOptions || [],
+			
+			/**
+			 * Storage for number of lines in a file
+			 */
+			lines = {},
 
 			/**
 			 *
@@ -378,10 +383,9 @@
 							$.ajax( {
 								data: params,
 								success: function ( res ) {
-									local.addLine( 'complete' );
-									local.addLine( 'complete' );
-									local.addLine( 'complete' );
 									css.push( res );
+									lines[pages[i]] = res.split( '\n' ).length;
+									console.log( res.split( '\n' ).length );
 									i += 1;
 									if ( i < pages.length ) {
 										getContent();
