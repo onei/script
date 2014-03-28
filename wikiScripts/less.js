@@ -540,7 +540,7 @@
 						data: params,
 						success: function ( res ) {
 							local.addLine( 'Complete.' );
-							console.log( res + '\n' + css );
+							// console.log( res + '\n' + css );
 							// local.postResult( res + '\n' + css );
 						}
 					} );
