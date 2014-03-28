@@ -291,7 +291,7 @@
 						css = {},
 						i = 0;
 						
-					function getContent() {
+					var getContent = function () {
 						
 						params.title = pages[i];
 						console.log( i, pages.length, params );
