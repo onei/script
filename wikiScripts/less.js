@@ -311,7 +311,7 @@
 								}
 								
 								console.log( pages.length );
-								local.addLine( pages.length + ' files found.' )
+								local.addLine( pages.length + ' files found.' );
 								local.getLess( pages );
 							}
 						} );
@@ -348,6 +348,7 @@
 								data: params,
 								success: function ( res ) {
 									console.log( params.title, 'success' );
+									local.addLine( 'Complete.' );
 									css.push( res );
 									i += 1;
 									if ( i < pages.length ) {
@@ -385,6 +386,7 @@
 							// in a helpful object for us to check
 							// hence this try catch block
 							// #yay #helpful
+							local.addLine( 'Compiling LESS to CSS.' );
 							var css = root.toCSS();
 							local.formatResult( css );
 						} );
@@ -452,6 +454,8 @@
 				 * @param {string} css CSS to format
 				 */
 				formatResult: function ( css ) {
+				
+					local.addLine( 'Formatting CSS.' );
 					
 					css = css
 						// strip comments
@@ -472,7 +476,7 @@
 						.replace( /\n(?:[\.\w\-# ]+)(#.+?)(,|{)/g, '\n$1 $2' );
 					
 					console.log( css );
-					// local.addHeader( css );
+					local.addHeader( css );
 					
 				},
 
@@ -491,10 +495,14 @@
 							title: title
 						};
 						
+					local.addLine( 'Getting CSS header file.' );
+						
 					$.ajax( {
 						data: params,
 						success: function ( res ) {
-							local.postResult( res + '\n' + css );
+							local.addLine( 'Complete.' );
+							console.log( res + '\n' + css );
+							// local.postResult( res + '\n' + css );
 						}
 					} );
 					
