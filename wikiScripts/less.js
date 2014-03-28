@@ -330,7 +330,8 @@
 					
 					try {
 						parser.parse( res, function ( error, root ) {
-							console.log( root );
+							var css = root.toCSS();
+							console.log( css );
 						} );
 					} catch ( e ) {
 						console.log( e );
