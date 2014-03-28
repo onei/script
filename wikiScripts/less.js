@@ -435,7 +435,7 @@
 						errLine = e.line;
 						for ( page in lines ) {
 							if ( lines.hasOwnProperty( page ) ) {
-								console.log( lines[page] );
+								console.log( lines[page], page );
 								if ( errLine < lines[page] ) {
 									errLine - lines[page];
 								} else {
