@@ -228,7 +228,13 @@
 					// insert text
 					$content.append( $( '<p>' ).html( '> ' + local.parseLink( text ) ) );
 					// scroll to the bottom of the modal
-					$content.scrollTop( $content.prop( 'scrollHeight' ) );
+					// @todo only do this when there is enough in the output to warrant scrolling down
+					if ( $content.prop( 'scrollHeight' ) > $content.prop( 'clientHeight' ) ) {
+						console.log( 'scrolling down' );
+						$content.scrollTop( $content.prop( 'scrollHeight' ) );
+					} else {
+						console.log( 'no scrolling' );
+					}
 				
 				},
 				
@@ -372,6 +378,9 @@
 							$.ajax( {
 								data: params,
 								success: function ( res ) {
+									local.addLine( 'complete' );
+									local.addLine( 'complete' );
+									local.addLine( 'complete' );
 									css.push( res );
 									i += 1;
 									if ( i < pages.length ) {
