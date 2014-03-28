@@ -242,7 +242,7 @@
 						replace,
 						i;
 					
-					if ( match === null )
+					if ( match === null ) {
 						return text;
 					}
 					
