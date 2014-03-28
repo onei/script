@@ -248,7 +248,7 @@
 					
 					for ( i = 0; i < match.length; i += 1 ) {
 						replace = match[i].replace( /(\[\[|\]\])/g, '' )
-						text = text.replace( match[i], '<a href="/wiki/' + replace.replace( / /g, '_' ) + '" title="' + replace + '">' + replace + '</a>';
+						text = text.replace( match[i], '<a href="/wiki/' + replace.replace( / /g, '_' ) + '" title="' + replace + '">' + replace + '</a>' );
 					}
 					
 					return text;
