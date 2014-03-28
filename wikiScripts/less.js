@@ -232,13 +232,9 @@
 					
 					// insert text
 					$content.append( $( '<p>' ).html( '> ' + local.parseLink( text ) ) );
-					// scroll to the bottom of the modal
-					// @todo only do this when there is enough in the output to warrant scrolling down
+					// scroll to the bottom of the modal if there's an overflow
 					if ( $content.prop( 'scrollHeight' ) > $content.prop( 'clientHeight' ) ) {
-						console.log( 'scrolling down' );
 						$content.scrollTop( $content.prop( 'scrollHeight' ) );
-					} else {
-						console.log( 'no scrolling' );
 					}
 				
 				},
@@ -466,16 +462,6 @@
 				 * @param {string} error Error message to display
 				 */
 				displayError: function ( page, text, line, error ) {
-					
-					var modal;
-
-					if ( !$( '#less-modal' ).length ) {
-						modal = '<div id="dev-overlay"><div="less-modal">' +
-							'<div id="less-header"><span class="title"></span><span class="close"></span></div>' +
-							'<div id="less content"></div>' +
-							'<div id="less-footer"></div></div>';
-					}
-					// create error modal
 					
 					// error on `page`
 					
