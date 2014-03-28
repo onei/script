@@ -226,7 +226,7 @@
 					var $content = $( '#less-content' );
 					
 					// insert text
-					$content.append( $( '<p>' ).html( local.parseLink( text ) ) );
+					$content.append( $( '<p>' ).html( '> ' + local.parseLink( text ) ) );
 					// scroll to the bottom of the modal
 					$content.scrollTop( $content.prop( 'scrollHeight' ) );
 				
