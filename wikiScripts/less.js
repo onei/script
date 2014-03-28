@@ -209,10 +209,12 @@
 				
 					var modal = '<div id="less-overlay"><div id="less-modal">' +
 						'<div id="less-header"><span class="title">Title</span><span id="less-header-close"></span></div>' +
-						'<div id="less-content">Content</div>' +
+						'<div id="less-content"></div>' +
 						'</div></div>';
 						
 					$( 'body' ).append( modal );
+					
+					local.getSource();
 				
 				},
 				
@@ -253,6 +255,8 @@
 							title: ''
 						};
 					
+					local.addLine( 'Getting number of files.' );
+
 					// set to false as you can run function multiple times
 					local.err = false;
 					// disable the compile button
@@ -306,8 +310,9 @@
 									pages.push( page );
 								}
 								
-								console.log( pages );
-								local.getLess( pages );
+								console.log( pages.length );
+								local.addLine( pages.length + ' files found.' )
+								// local.getLess( pages );
 							}
 						} );
 						
