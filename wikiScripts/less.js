@@ -326,6 +326,17 @@
 				compileLess: function ( res, page ) {
 					// attempt to compile less
 					var parser = new less.Parser( {} );
+					// possibly need to use a try catch block here :(
+					
+					try {
+						parser.parse( res, function ( error, root ) {
+							console.log( root );
+						} );
+					} catch ( e ) {
+						console.log( e );
+					}
+					
+					/*
 					parser.parse( res, function ( error, root ) {
 
 						// error is null if no errors
@@ -347,6 +358,7 @@
 						return '';
 
 					} );
+					*/
 
 				},
 				
