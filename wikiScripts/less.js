@@ -352,12 +352,9 @@
 									css.push( res );
 									i += 1;
 									if ( i < pages.length ) {
-										console.log( 'getting next file' );
 										getContent();
 									} else {
-										local.addLine( 'All files retrieved.' );
-										// local.compileLess( css.join( '\n' ) );
-										console.log( 'complete' );
+										local.compileLess( css.join( '\n' ) );
 									}
 								}
 							} );
