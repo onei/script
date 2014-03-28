@@ -412,7 +412,8 @@
 				 */
 				compileLess: function ( res ) {
 					// attempt to compile less
-					var parser = new less.Parser( {} );
+					var 	parser = new less.Parser( {} ),
+						page;
 					
 					try {
 						parser.parse( res, function ( error, root ) {
