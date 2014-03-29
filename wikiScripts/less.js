@@ -228,13 +228,21 @@
 				 */
 				addLine: function ( text ) {
 				
-					var $content = $( '#less-content' );
+					var $content = $( '#less-content' ),
+						$p = $( '<p>' ).html( '> ' + local.parseLink( text ) );
+						
+					if ( text.indexOf( 'Error' ) === 0 ) {
+						$p.attr( 'class', 'error' );
+					}
 					
 					// insert text
-					$content.append( $( '<p>' ).html( '> ' + local.parseLink( text ) ) );
+					$content.append( $p );
 					// scroll to the bottom of the modal if there's an overflow
 					if ( $content.prop( 'scrollHeight' ) > $content.prop( 'clientHeight' ) ) {
+						console.log( 'scrolling down' );
 						$content.scrollTop( $content.prop( 'scrollHeight' ) );
+					} else {
+						console.log( 'not scrolling' );
 					}
 				
 				},
@@ -296,7 +304,7 @@
 							local.err = true;
 							mw.log( status );
 							if ( status === 'Not Found' ) {
-								local.addLine( 'Error: Page not found. Please check your configuration.' );
+								local.addLine( 'Error: Page not found - please check your configuration' );
 							} else {
 								mw.log( error, status );
 							}
@@ -344,7 +352,7 @@
 									pages.push( page );
 								}
 
-								local.addLine( pages.length + ' files found.' );
+								local.addLine( pages.length + ' files found' );
 								local.getLess( pages );
 							}
 						} );
@@ -374,14 +382,13 @@
 						getContent = function () {
 						
 							params.title = pages[i].replace( / /g, '_' );
-							local.addLine( 'Getting ' + pages[i] + ' (' + ( i + 1 ) + '/' + pages.length + ').' );
+							local.addLine( 'Getting ' + pages[i] + ' (' + ( i + 1 ) + '/' + pages.length + ')' );
 
 							$.ajax( {
 								data: params,
 								success: function ( res ) {
 									css.push( res );
 									lines[pages[i]] = res.split( '\n' ).length;
-									console.log( res.split( '\n' ).length );
 									i += 1;
 									if ( i < pages.length ) {
 										getContent();
@@ -391,7 +398,7 @@
 								},
 								error: function ( xhr, error, status ) {
 									if ( status === 'Not Found' ) {
-										local.addLine( 'Error: File not found. Please check [[' + options.source + ']].' );
+										local.addLine( 'Error: File not found. Please check [[' + options.source + ']]' );
 									} else {
 										mw.log( error, status );
 									}
@@ -430,23 +437,21 @@
 							local.formatResult( css );
 						} );
 					} catch ( e ) {
-						console.log( lines );
 						console.log( e );
 						errLine = e.line;
 						for ( page in lines ) {
 							if ( lines.hasOwnProperty( page ) ) {
-								console.log( lines[page], page );
 								if ( errLine > lines[page] ) {
 									errLine = errLine - lines[page];
 								} else {
 									errPage = page;
-									console.log( errLine, errPage );
 									break;
 								}
 								
 							}
 						}
-						local.addLine( 'Error: Parse error on line ' + errLine + ' in [[' + errPage + ']].' );
+						local.addLine( 'Error: Parse error on line ' + errLine + ' in [[' + errPage + ']]' );
+						// e.extract is always a 3 item array
 						local.addLine( 'Error: ' + e.extract[1].trim() );
 						local.addLine( 'Error: ' + e.message );
 						/*
