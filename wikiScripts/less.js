@@ -203,7 +203,7 @@
 				// something like an irc interface
 				if ( !$( '#less-overlay' ).length ) {
 					var modal = '<div id="less-overlay"><div id="less-modal">' +
-						'<div id="less-header"><span class="title">Title</span><span id="less-header-close"></span></div>' +
+						'<div id="less-header"><span class="title">LESS Compiler Interface</span><span id="less-header-close"></span></div>' +
 						'<div id="less-content"></div>' +
 						'</div></div>';
 
@@ -509,7 +509,6 @@
 				$.ajax( {
 					data: params,
 					success: function ( res ) {
-						local.addLine( 'Complete.' );
 						local.postResult( res + '\n' + css );
 					}
 				} );
@@ -529,7 +528,7 @@
 						summary: 'summary',
 						token: mw.user.tokens.get( 'editToken' ),
 						format: 'json',
-						// text: text
+						text: text
 					};
 
 				new mw.Api().post( params )
