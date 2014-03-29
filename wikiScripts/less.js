@@ -447,7 +447,8 @@
 							}
 						}
 						local.addLine( 'Error: Parse error on line ' + errLine + ' in [[' + errPage + ']].' );
-						local.addLine( 'Error: ' + e.message + '.' );
+						local.addLine( 'Error: ' + e.extract[1].trim() );
+						local.addLine( 'Error: ' + e.message );
 						/*
 						// @todo remember to undo mixin removal on MediaWiki:Common.css/less
 						
