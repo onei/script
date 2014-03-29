@@ -106,7 +106,7 @@
 		lines = {},
 
 		/**
-		 *
+		 * Public functions
 		 */
 		global = {
 
@@ -175,11 +175,11 @@
 		},
 
 		/**
-		 *
+		 * Private functions
 		 */
 		local = {
 			/**
-			 *
+			 * Gets translation of the requested message with substituted parameters
 			 *
 			 * @returns {string} Translated message or english message if translation does not exist
 			 */
@@ -198,7 +198,7 @@
 			},
 
 			/**
-			 *
+			 * Load update button
 			 */
 			loadButton: function () {
 
@@ -247,7 +247,7 @@
 			},
 
 			/**
-			 *
+			 * Create interface modal
 			 */
 			buildModal: function () {
 
@@ -263,8 +263,8 @@
 						'#less-overlay{position:fixed;height:1000px;background-color:rgba(255,255,255,0.6);width:100%;top:0;left:0;z-index:20000002;}' +
 						'#less-modal{position:relative;background-color:#87ceeb;height:400px;width:60%;margin:auto;border:5px solid #87ceeb;border-radius:15px;overflow:hidden;}' +
 						'#less-header{height:50px;width:100%;position:relative;}' +
-						'#less-header>.title{font-size:25px;font-family:"Lucida Console",monospace;font-weight:bold;line-height:53px;adding-left:10px;}' +
- 						'#less-header-close{background-color:#000;height:25px;width:25px;display:block;top:10px;right:10px;position:absolute;cursor:pointer;}' +
+						'#less-header>.title{font-size:25px;font-family:"Lucida Console",monospace;font-weight:bold;line-height:53px;padding-left:10px;}' +
+ 						'#less-header-close{background:url("/resources/wikia/ui_components/modal/images/close-dark.svg");height:25px;width:25px;display:block;top:10px;right:10px;position:absolute;cursor:pointer;}' +
 						'#less-content{padding:10px;overflow-y:auto;background-color:#fff;color:#3a3a3a;height:330px;font-size:14px;}' +
 						'#less-content>p{font-family:monospace;}' +
 						'#less-content>.error {color:red;font-size:initial;}' +
@@ -283,14 +283,14 @@
 				}
 				
 				// set height dynamically
-				$( '#less-modal' ).css( 'margin-top', ( ( $( window ).height() - 400 ) / 2 ) );
+				$( '#less-modal' ).css( 'margin-top', ( ( $( window ).height() - 400 ) / 3 ) );
 
 				local.getSource();
 
 			},
 
 			/**
-			 *
+			 * Appends content to the interface
 			 *
 			 * @param {string} text
 			 */
@@ -316,7 +316,10 @@
 			},
 
 			/**
+			 * For wikitext link 'parsing'
 			 *
+			 * @param {string} wikitext Wikitext links to parse
+			 * @returns {string} Parsed wikitext
 			 */
 			parseLink: function ( wikitext ) {
 
@@ -349,7 +352,7 @@
 			},
 
 			/**
-			 *
+			 * Closes the interface
 			 */
 			closeModal: function () {
 				$( '#less-overlay' ).hide();
@@ -357,7 +360,7 @@
 			},
 
 			/**
-			 *
+			 * Gets a list of LESS files to compile
 			 */
 			getSource: function () {
 
@@ -439,7 +442,7 @@
 			},
 
 			/**
-			 *
+			 * Gets content of LESS files
 			 *
 			 * @param {array} pages
 			 */
@@ -486,7 +489,7 @@
 			},
 
 			/**
-			 *
+			 * Compiles LESS files
 			 *
 			 * @param {string} res
 			 */
@@ -531,7 +534,7 @@
 			},
 
 			/**
-			 *
+			 * Formats CSS
 			 *
 			 * @param {string} css CSS to format
 			 */
@@ -562,7 +565,7 @@
 			},
 
 			/**
-			 *
+			 * Adds a comment header to the CSS
 			 *
 			 * @param {string} css CSS to add header to
 			 */
@@ -588,7 +591,7 @@
 			},
 
 			/**
-			 *
+			 * Posts CSS to the target page
 			 *
 			 * @param {string} text Content to submit to target page
 			 */
