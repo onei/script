@@ -66,6 +66,7 @@
 				'compiling-less': 'Compiling LESS to CSS',
 				'format-css': 'Formatting CSS',
 				'get-header': 'Getting CSS header file',
+				'attempt-edit': 'Attempting to update CSS',
 				'success-edit': 'CSS has successfully been updated',
 				
 				// edit summary
@@ -605,6 +606,8 @@
 						format: 'json',
 						text: text
 					};
+
+				local.addLine( local.msg( 'edit-attempt' ) );
 
 				new mw.Api().post( params )
 					.done( function ( res ) {
