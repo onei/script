@@ -155,18 +155,21 @@
 				for ( i = 0; i < options.length; i += 1 ) {
 
 					elem = options[i];
+					console.log( elem )
 
 					if ( elem.load.indexOf( config.wgPageName ) === -1 ) {
 						continue;
 					}
 
 					opts = elem;
+					console.log( 'loading' )
 					break;
 
 				}
 
 				if ( !opts ) {
 					// not on a page to load the button on
+					console.log( 'no page' );
 					return;
 				}
 
