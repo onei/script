@@ -393,8 +393,7 @@
 				if ( !mw.loader.getState( 'less' ) ) {
 					mw.loader.implement(
 						'less',
-						// @todo move to wikia url
-						[ 'https://raw.github.com/less/less.js/master/dist/less-1.7.0.min.js' ],
+						[ 'http://camtest.wikia.com/index.php?title=MediaWiki:Less.js&action=raw&ctype=text/javascript' ],
 						{}, {}
 					);
 				}
