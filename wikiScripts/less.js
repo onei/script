@@ -1,4 +1,5 @@
-/** <nowiki>
+// <syntaxhighlight lang="javascript">
+/**
  * LESS GUI for Wikia installations of MediaWiki.
  *
  * LESS is a dynamic stylesheet language that compiles to CSS.
@@ -6,7 +7,7 @@
  * @link <http://lesscss.org/> less.js documentation
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.0.0
+ * @version 1.0.1
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  * @link <http://dev.wikia.com/wiki/Less> Documentation
  *
@@ -27,7 +28,7 @@
 
 // disable indent warning
 /*jshint -W015 */
-;( function ( window, document, $, mw ) {
+;( function ( window, $, mw ) {
 /*jshint +W015 */
 
 	'use strict';
@@ -269,7 +270,7 @@
 						'#less-header>.title{font-size:25px;font-family:"Lucida Console",monospace;font-weight:bold;line-height:53px;padding-left:10px;}' +
  						'#less-header-close{background:url("/resources/wikia/ui_components/modal/images/close-dark.svg");height:25px;width:25px;display:block;top:10px;right:10px;position:absolute;cursor:pointer;}' +
 						'#less-content{padding:10px;overflow-y:auto;background-color:#fff;color:#3a3a3a;height:330px;font-size:14px;}' +
-						'#less-content>p{font-family:monospace;}' +
+						'#less-content>p{font-family:monospace;margin:0}' +
 						'#less-content>.error {color:red;font-size:initial;}' +
 						'#less-content>.error>a{color:red;text-decoration:underline;}'
 					);
@@ -296,15 +297,15 @@
 			 * Appends content to the interface
 			 *
 			 * @param {string} text
+			 * @param {boolean} error
 			 */
-			addLine: function ( text ) {
+			addLine: function ( text, error ) {
 				
 				var	$content = $( '#less-content' ),
 					$p = $( '<p>' );
 
-				if ( text.indexOf( 'Error' ) === 0 ) {
+				if (  error ) {
 					$p.attr( 'class', 'error' );
-					text = text.replace( 'Error:', '' ).trim();
 				}
 
 				$p.html( '&gt; ' + local.parseLink( text ) );
@@ -380,7 +381,7 @@
 					dataType: 'text',
 					error: function ( xhr, error, status ) {
 						if ( status === 'Not Found' ) {
-							local.addLine( 'Error:' + local.msg( 'page-not-found' ) );
+							local.addLine( local.msg( 'page-not-found' ), true );
 						} else {
 							mw.log( error, status );
 						}
@@ -393,11 +394,16 @@
 
 				// load less.js src
 				if ( !mw.loader.getState( 'less' ) ) {
+					window._onerror = window.onerror;
+					window.onerror = function () {
+						return true;
+					};
 					mw.loader.implement(
 						'less',
 						[ 'http://camtest.wikia.com/index.php?title=MediaWiki:Less.js&action=raw&ctype=text/javascript' ],
 						{}, {}
 					);
+					window.onerror = window._onerror;
 				}
 
 				mw.loader.using( 'less', function () {
@@ -476,7 +482,7 @@
 							},
 							error: function ( xhr, error, status ) {
 								if ( status === 'Not Found' ) {
-									local.addLine( 'Error:' + local.msg( 'file-not-found', options.source ) );
+									local.addLine( local.msg( 'file-not-found', options.source ), true );
 								} else {
 									mw.log( error, status );
 								}
@@ -526,10 +532,10 @@
 
 						}
 					}
-					local.addLine( 'Error:' + local.msg( 'less-parse-error', errPage ) );
+					local.addLine( local.msg( 'less-parse-error', errPage ), true );
 					// e.extract is always a 3 item array
-					local.addLine( 'Error: ' + e.extract[1].trim() );
-					local.addLine( 'Error: ' + e.message );
+					local.addLine( e.extract[1].trim(), true );
+					local.addLine( e.message, true );
 				}
 
 			},
@@ -613,14 +619,14 @@
 					.done( function ( res ) {
 
 						if ( res.error ) {
-							local.addLine( 'Error:' + res.error.code );
-							local.addLine( 'Error:' + res.error.info );
-							local.addLine( 'Error:' + local.msg( 'api-edit-error', 'w:c:dev:Talk:Less' ) );
+							local.addLine( res.error.code, true );
+							local.addLine( res.error.info, true );
+							local.addLine( local.msg( 'api-edit-error', 'w:c:dev:Talk:Less' ), true );
 						} else if ( res.edit && res.edit.result === 'Success' ) {
 							local.addLine( local.msg( 'success-edit' ) );
 						} else {
-							local.addLine( 'Error:' + local.msg( 'api-unknown-error' ) );
-							local.addLine( 'Error:' + local.msg( 'api-error-persist', 'w:c:dev:Talk:Less' ) );
+							local.addLine( local.msg( 'api-unknown-error' ), true );
+							local.addLine( local.msg( 'api-error-persist', 'w:c:dev:Talk:Less' ), true );
 						}
 
 					} );
@@ -636,6 +642,6 @@
 	window.dev = window.dev || {};
 	window.dev.less = global;
 
-}( this, this.document, this.jQuery, this.mediaWiki ) );
+}( this, this.jQuery, this.mediaWiki ) );
 
-/* </nowiki> */
+// </syntaxhighlight>
