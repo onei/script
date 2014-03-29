@@ -7,7 +7,7 @@
  * @link <http://lesscss.org/> less.js documentation
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.0.1
+ * @version 1.0.2
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  * @link <http://dev.wikia.com/wiki/Less> Documentation
  *
@@ -55,6 +55,9 @@
 		return;
 	}
 
+		/**
+		 * i18n messages
+		 */
 	var	i18n = {
 			en: {
 				// ui messages
@@ -113,7 +116,9 @@
 		 * Public functions
 		 */
 		global = {
-
+			/**
+			 * Loading function
+			 */
 			init: function () {
 
 				var	profile = $.client.profile(),
@@ -189,9 +194,16 @@
 			 */
 			msg: function () {
 
-				var	message = i18n[config.wgUserLanguage][arguments[0]] || i18n.en[arguments[0]],
+				var	message,
 					args = arguments,
 					i;
+				
+				// check i18n[lang] exists first to stop undefined error
+				if ( i18n[config.wgUserLanguage] ) {
+					message = i18n[config.wgUserLanguage][arguments[0]] || i18n.en[arguments[0]];
+				} else {
+					message = i18n.en[arguments[0]];
+				}
 					
 				for ( i = 1; i < args.length; i += 1 ) {
 					message = message.replace( '$' + i, args[i] );
@@ -296,8 +308,8 @@
 			/**
 			 * Appends content to the interface
 			 *
-			 * @param {string} text
-			 * @param {boolean} error
+			 * @param {string} text String to output to interface
+			 * @param {boolean} error If true, adds the 'error' class to the output text
 			 */
 			addLine: function ( text, error ) {
 				
@@ -394,22 +406,20 @@
 
 				// load less.js src
 				if ( !mw.loader.getState( 'less' ) ) {
-					window._onerror = window.onerror;
-					window.onerror = function () {
-						return true;
-					};
-					console.log( 'mapping onerror' );
-					console.log( onerror );
-					try {
-						mw.loader.implement(
-							'less',
-							[ 'http://camtest.wikia.com/index.php?title=MediaWiki:Less.js&action=raw&ctype=text/javascript' ],
-							{}, {}
-						);
-					} catch ( e ) {
-					
-					}
-					window.onerror = window._onerror;
+					// require is defined as part of wikia's js
+					// which throws an error when less.js does something (not sure what)
+					// this shows up on some log wikia keeps
+					// but as this is only loaded as required, it shouldn't be too noticeable
+					//
+					// ideally we'd suppress the error, but various attempts were unsuccessful
+					// - try catch statement didn't work
+					// - temporarily overriding window onerror didn't work
+					//   - mapped onerror to _onerror and back again
+					mw.loader.implement(
+						'less',
+						[ 'http://camtest.wikia.com/index.php?title=MediaWiki:Less.js&action=raw&ctype=text/javascript' ],
+						{}, {}
+					);
 				}
 
 				mw.loader.using( 'less', function () {
@@ -457,7 +467,7 @@
 			/**
 			 * Gets content of LESS files
 			 *
-			 * @param {array} pages
+			 * @param {array} pages List of LESS file to get the content of
 			 */
 			getLess: function ( pages ) {
 
@@ -504,7 +514,7 @@
 			/**
 			 * Compiles LESS files
 			 *
-			 * @param {string} res
+			 * @param {string} res Content of LESS files joined together
 			 */
 			compileLess: function ( res ) {
 				// attempt to compile less
