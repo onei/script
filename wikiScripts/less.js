@@ -541,6 +541,9 @@
 							local.addLine( 'Error: If you think you might have found a bug, please report it [[w:c:dev:Talk:Less|here]]' );
 						} else if ( res.edit && res.edit.success ) {
 							local.addLine( 'CSS has successfully been updated' )
+						} else {
+							local.addLine( 'Error: An unknown error occured' );
+							local.addLine( 'Error: If this error persists, please report it [[w:c:dev:Talk:Less|here]]' );
 						}
 
 				} );
