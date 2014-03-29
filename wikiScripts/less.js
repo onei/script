@@ -127,8 +127,8 @@
 					elem;
 
 				if ( debug ) {
-					 // force the update button to load
-					local.loadButton()
+					// force the update button to load
+					local.loadButton();
 				}
 
 				if ( config.wgAction !== 'view' ) {
