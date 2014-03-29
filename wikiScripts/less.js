@@ -1,4 +1,4 @@
-// <syntaxhighlight lang="javascript">
+// __NOWYSIWYG__ <syntaxhighlight lang="javascript">
 /**
  * LESS GUI for Wikia installations of MediaWiki.
  *
@@ -119,12 +119,17 @@
 			/**
 			 * Loading function
 			 */
-			init: function () {
+			init: function ( debug ) {
 
 				var	profile = $.client.profile(),
 					opts = false,
 					i,
 					elem;
+
+				if ( debug ) {
+					 // force the update button to load
+					local.loadButton()
+				}
 
 				if ( config.wgAction !== 'view' ) {
 					// only run on action=view (default action)
@@ -413,7 +418,7 @@
 					//
 					// ideally we'd suppress the error, but various attempts were unsuccessful
 					// - try catch statement didn't work
-					// - temporarily overriding window onerror didn't work
+					// - temporarily overriding window.onerror didn't work
 					//   - mapped onerror to _onerror and back again
 					mw.loader.implement(
 						'less',
