@@ -210,8 +210,8 @@
 					$( 'body' ).append( modal );
 					$( '#less-header-close, #less-overlay' ).on( 'click', local.closeModal );
 					// stop events anywhere in the modal triggering click events on the overlay
-					$( '#less-modal' ).on( 'click', function ( e ) {
-						e.stopPropagtion();
+					$( '#less-modal' ).on( 'click', function () {
+						return false;
 					} );
 				} else {
 					$( '#less-content' ).empty();
@@ -432,8 +432,6 @@
 						local.formatResult( css );
 					} );
 				} catch ( e ) {
-
-					console.log( e );
 					errLine = e.line;
 					for ( page in lines ) {
 						if ( lines.hasOwnProperty( page ) ) {
@@ -450,7 +448,6 @@
 					// e.extract is always a 3 item array
 					local.addLine( 'Error: ' + e.extract[1].trim() );
 					local.addLine( 'Error: ' + e.message );
-
 				}
 
 			},
@@ -507,8 +504,7 @@
 					data: params,
 					success: function ( res ) {
 						local.addLine( 'Complete.' );
-						// console.log( res + '\n' + css );
-						// local.postResult( res + '\n' + css );
+						local.postResult( res + '\n' + css );
 					}
 				} );
 
