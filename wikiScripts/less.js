@@ -1,14 +1,16 @@
 /** <nowiki>
- * Less Compiling Interface designed for Wikia wikis
+ * LESS GUI for Wikia installations of MediaWiki.
+ *
+ * LESS is a dynamic stylesheet language that compiles to CSS.
+ * @link <https://github.com/less/less.js> less.js source
+ * @link <http://lesscss.org/> less.js documentation
  *
  * @author Cqm <cqm.fwd@gmail.com>
  * @version 0.1
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
+ * @link <http://dev.wikia.com/wiki/Less> Documentation
  *
- * @todo Figure out how to use @import for mixin stuff
- *       Doesn't seem to like it for some reason
- * @todo Add a custom modal to use for formatting configuration and error/success messages
- *       In progress....
+ * @todo Add support for @import
  */
 
 /*jshint
@@ -25,7 +27,7 @@
 
 // disable indent warning
 /*jshint -W015 */
-;( function ( window, document, $, mw, dev, undefined ) {
+;( function ( window, document, $, mw ) {
 /*jshint +W015 */
 
 	'use strict';
@@ -45,6 +47,10 @@
 		// when posting to the page
 		header: 'MediaWiki:Css-header'
 	} ];
+
+	if ( window.dev && window.dev.less ) {
+		return;
+	}
 
 	var	i18n = {
 			en: {
@@ -262,6 +268,9 @@
 					$( '#less-content' ).empty();
 					$( '#less-overlay' ).show();
 				}
+				
+				// set height dynamically
+				$( '#less-modal' ).css( 'margin-top', ( ( $( window ).height() - 400 ) / 2 ) );
 
 				local.getSource();
 
