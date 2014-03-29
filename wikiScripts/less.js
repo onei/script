@@ -32,7 +32,8 @@
 
 	'use strict';
 
-	// temp hardcoded config
+	/*
+	// example config
 	window.lessOptions = [ {
 		// target page for compiled LESS
 		target: 'MediaWiki:Common.css',
@@ -47,6 +48,7 @@
 		// when posting to the page
 		header: 'MediaWiki:Css-header'
 	} ];
+	*/
 
 	if ( window.dev && window.dev.less ) {
 		return;
