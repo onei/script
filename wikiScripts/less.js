@@ -537,8 +537,8 @@
 						console.log( res );
 
 						if ( res.error ) {
-							local.addLine( 'Error:' + error.code );
-							local.addLine( 'Error:' + error.info );
+							local.addLine( 'Error:' + res.error.code );
+							local.addLine( 'Error:' + res.error.info );
 							local.addLine( 'Error: If you think you might have found a bug, please report it [[w:c:dev:Talk:Less|here]]' );
 						} else if ( res.edit && res.edit.success ) {
 							local.addLine( 'CSS has successfully been updated' )
