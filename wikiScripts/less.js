@@ -126,9 +126,11 @@
 					i,
 					elem;
 
-				if ( debug ) {
+				if ( debug === true ) {
 					// force the update button to load
+					console.log( 'debug' );
 					local.loadButton();
+					return;
 				}
 
 				if ( config.wgAction !== 'view' ) {
