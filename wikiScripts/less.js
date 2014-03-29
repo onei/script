@@ -257,7 +257,20 @@
 						'<div id="less-header"><span class="title">' + local.msg( 'less-interface' ) + '</span><span title="' + local.msg( 'close' ) + '" id="less-header-close"></span></div>' +
 						'<div id="less-content"></div>' +
 						'</div></div>';
-
+					
+					// add CSS
+					mw.util.addCSS(
+						'#less-overlay{position:fixed;height:1000px;background-color:rgba(255,255,255,0.6);width:100%;top:0;left:0;z-index:20000002;}' +
+						'#less-modal{position:relative;background-color:#87ceeb;height:400px;width:60%;margin:auto;border:5px solid #87ceeb;border-radius:15px;overflow:hidden;}' +
+						'#less-header{height:50px;width:100%;position:relative;}' +
+						'#less-header>.title{font-size:25px;font-family:"Lucida Console",monospace;font-weight:bold;line-height:53px;adding-left:10px;}' +
+ 						'#less-header-close{background-color:#000;height:25px;width:25px;display:block;top:10px;right:10px;position:absolute;cursor:pointer;}' +
+						'#less-content{padding:10px;overflow-y:auto;background-color:#fff;color:#3a3a3a;height:330px;font-size:14px;}' +
+						'#less-content>p{font-family:monospace;}' +
+						'#less-content>.error {color:red;font-size:initial;}' +
+						'#less-content>.error>a{color:red;text-decoration:underline;}'
+					);
+					
 					$( 'body' ).append( modal );
 					$( '#less-header-close, #less-overlay' ).on( 'click', local.closeModal );
 					// stop events anywhere in the modal triggering click events on the overlay
