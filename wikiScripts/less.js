@@ -268,7 +268,7 @@
 						'#less-modal{position:relative;background-color:#87ceeb;height:400px;width:60%;margin:auto;border:5px solid #87ceeb;border-radius:15px;overflow:hidden;}' +
 						'#less-header{height:50px;width:100%;position:relative;}' +
 						'#less-header>.title{font-size:25px;font-family:"Lucida Console",monospace;font-weight:bold;line-height:53px;padding-left:10px;}' +
- 						'#less-header-close{background:url("/resources/wikia/ui_components/modal/images/close-dark.svg");height:25px;width:25px;display:block;top:10px;right:10px;position:absolute;cursor:pointer;}' +
+						'#less-header-close{background:url("/resources/wikia/ui_components/modal/images/close-dark.svg");height:25px;width:25px;display:block;top:10px;right:10px;position:absolute;cursor:pointer;}' +
 						'#less-content{padding:10px;overflow-y:auto;background-color:#fff;color:#3a3a3a;height:330px;font-size:14px;}' +
 						'#less-content>p{font-family:monospace;margin:0}' +
 						'#less-content>.error {color:red;font-size:initial;}' +
@@ -398,11 +398,17 @@
 					window.onerror = function () {
 						return true;
 					};
-					mw.loader.implement(
-						'less',
-						[ 'http://camtest.wikia.com/index.php?title=MediaWiki:Less.js&action=raw&ctype=text/javascript' ],
-						{}, {}
-					);
+					console.log( 'mapping onerror' );
+					console.log( onerror );
+					try {
+						mw.loader.implement(
+							'less',
+							[ 'http://camtest.wikia.com/index.php?title=MediaWiki:Less.js&action=raw&ctype=text/javascript' ],
+							{}, {}
+						);
+					} catch ( e ) {
+					
+					}
 					window.onerror = window._onerror;
 				}
 
