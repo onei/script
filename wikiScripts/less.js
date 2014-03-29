@@ -264,12 +264,18 @@
 
 				for ( i = 0; i < match.length; i += 1 ) {
 					replace = match[i].replace( /(\[\[|\]\])/g, '' );
-					text = text.replace(
-						match[i],
-						'<a href="/wiki/' + replace.replace( / /g, '_' ) +
-						'" title="' + replace + '" target="_blank">' +
-						replace + '</a>'
-					);
+					if ( replace.indexOf( '|' ) > -1 ) {
+						replace = replace.split( '|' );
+						text = text.replace(
+							match[i],
+							'<a href="/wiki/' + replace[0].replace( / /g, '_' ) + '" title="' + replace[0] + '">' + replace[1] + '</a>'
+						);
+					} else {
+						text = text.replace(
+							match[i],
+							'<a href="/wiki/' + replace.replace( / /g, '_' ) + '" title="' + replace + '" target="_blank">' + replace + '</a>'
+						);
+					}
 				}
 
 				return text;
@@ -516,33 +522,27 @@
 			 * @param {string} text Content to submit to target page
 			 */
 			postResult: function ( text ) {
-				console.log( text );
 				
 				var	params = {
 						action: 'edit',
 						title: options.target,
 						summary: 'summary',
 						token: mw.user.tokens.get( 'editToken' ),
-						format: 'json'
+						format: 'json',
+						// text: text
 					};
 
 				new mw.Api().post( params )
 					.done( function ( res ) {
 						console.log( res );
 
-						// if success
-							// alert the user of success
-							// if we're on the target page
-								// refresh (notify the user it's going to happen)
-							// else
-								// close the alert
-								// and re-enable the compile button
-
-						// else
-							// show the error
-							// probably a permissions error
-							// with a link to w:c:dev:Talk:Less for bug reports if required
-							// re-enable the compile button
+						if ( res.error ) {
+							local.addLine( 'Error:' + error.code );
+							local.addLine( 'Error:' + error.info );
+							local.addLine( 'Error: If you think you might have found a bug, please report it [[w:c:dev:Talk:Less|here]]' );
+						} else if ( res.edit && res.edit.success ) {
+							local.addLine( 'CSS has successfully been updated' )
+						}
 
 				} );
 
