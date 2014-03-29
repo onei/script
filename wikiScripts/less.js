@@ -234,14 +234,12 @@
 				// insert text
 				$content.append( $p );
 				// scroll to the bottom of the modal if there's an overflow
-				/*
 				if ( $content.prop( 'scrollHeight' ) > $content.prop( 'clientHeight' ) ) {
 					console.log( 'scrolling down' );
 					// $content.scrollTop( $content.prop( 'scrollHeight' ) );
 				} else {
 					console.log( 'not scrolling' );
 				}
-				*/
 
 			},
 
@@ -379,6 +377,7 @@
 						$.ajax( {
 							data: params,
 							success: function ( res ) {
+								local.addLine( 'Complete' );
 								css.push( res );
 								lines[pages[i]] = res.split( '\n' ).length;
 								i += 1;
