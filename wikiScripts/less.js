@@ -391,13 +391,17 @@
 
 				// load less.js src
 				if ( !mw.loader.getState( 'less' ) ) {
-					mw.loader.implement(
-						'less',
-						// @todo move to wikia url
-						// @todo suppress error somehow try{}catch(e){} maybe?
-						[ 'https://raw.github.com/less/less.js/master/dist/less-1.7.0.min.js' ],
-						{}, {}
-					);
+					try {
+						mw.loader.implement(
+							'less',
+							// @todo move to wikia url
+							// @todo suppress error somehow try{}catch(e){} maybe?
+							[ 'https://raw.github.com/less/less.js/master/dist/less-1.7.0.min.js' ],
+							{}, {}
+						);
+					} catch ( e ) {
+						mw.log( e );
+					}
 				}
 
 				mw.loader.using( 'less', function () {
@@ -607,7 +611,7 @@
 						text: text
 					};
 
-				local.addLine( local.msg( 'edit-attempt' ) );
+				local.addLine( local.msg( 'attempt-edit' ) );
 
 				new mw.Api().post( params )
 					.done( function ( res ) {
