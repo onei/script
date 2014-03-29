@@ -236,10 +236,7 @@
 				$content.append( $p );
 				// scroll to the bottom of the modal if there's an overflow
 				if ( $content.prop( 'scrollHeight' ) > $content.prop( 'clientHeight' ) ) {
-					console.log( 'scrolling down' );
 					$content.scrollTop( $content.prop( 'scrollHeight' ) );
-				} else {
-					console.log( 'not scrolling' );
 				}
 
 			},
@@ -379,7 +376,6 @@
 						$.ajax( {
 							data: params,
 							success: function ( res ) {
-								local.addLine( 'Complete' );
 								css.push( res );
 								lines[pages[i]] = res.split( '\n' ).length;
 								i += 1;
@@ -423,7 +419,7 @@
 						// this function throws them, instead of storing them
 						// in a helpful object for us to check
 						// hence this try catch block
-						// #yay #helpful
+						// #helpful
 						local.addLine( 'Compiling LESS to CSS.' );
 						var css = root.toCSS();
 						local.formatResult( css );
