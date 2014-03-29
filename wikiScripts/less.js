@@ -128,7 +128,6 @@
 
 				if ( debug === true ) {
 					// force the update button to load
-					console.log( 'debug' );
 					local.loadButton();
 					return;
 				}
@@ -145,7 +144,6 @@
 
 				if ( !Array.isArray( options ) ) {
 					// script has incorrect configuration
-					mw.log( 'dev.less error: Incorrect configuration.' );
 					return;
 				}
 
@@ -164,14 +162,12 @@
 					}
 
 					opts = elem;
-					console.log( 'loading' )
 					break;
 
 				}
 
 				if ( !opts ) {
 					// not on a page to load the button on
-					console.log( 'no page' );
 					return;
 				}
 
@@ -264,7 +260,8 @@
 						);
 
 				} else {
-					// error message
+					// unsupported skin
+					// wowwiki, uncyclopedia, wikia
 					return;
 				}
 
@@ -411,6 +408,9 @@
 					type: 'GET',
 					url: config.wgScriptPath + config.wgScript,
 				} );
+				
+				console.log( 'options' );
+				console.log( options );
 
 				params.title = options.source.replace( / /g, '_' );
 
