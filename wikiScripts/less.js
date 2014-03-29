@@ -208,6 +208,7 @@
 						'</div></div>';
 
 					$( 'body' ).append( modal );
+					$( '#less-header-close' ).on( 'click', local.closeModal );
 				} else {
 					$( '#less-content' ).empty();
 					$( '#less-overlay' ).show();
@@ -236,7 +237,7 @@
 				// scroll to the bottom of the modal if there's an overflow
 				if ( $content.prop( 'scrollHeight' ) > $content.prop( 'clientHeight' ) ) {
 					console.log( 'scrolling down' );
-					// $content.scrollTop( $content.prop( 'scrollHeight' ) );
+					$content.scrollTop( $content.prop( 'scrollHeight' ) );
 				} else {
 					console.log( 'not scrolling' );
 				}
@@ -275,6 +276,7 @@
 			 */
 			closeModal: function () {
 				$( '#less-overlay' ).hide();
+				return false;
 			},
 
 			/**
