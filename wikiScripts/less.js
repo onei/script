@@ -225,7 +225,7 @@
 			addLine: function ( text ) {
 				
 				var	$content = $( '#less-content' ),
-					$p = $( '<p>' ).html( '> ' + local.parseLink( text ) );
+					$p = $( '<p>' ).html( '&gt; ' + local.parseLink( text ) );
 
 				if ( text.indexOf( 'Error' ) === 0 ) {
 					$p.attr( 'class', 'error' );
@@ -234,12 +234,14 @@
 				// insert text
 				$content.append( $p );
 				// scroll to the bottom of the modal if there's an overflow
+				/*
 				if ( $content.prop( 'scrollHeight' ) > $content.prop( 'clientHeight' ) ) {
 					console.log( 'scrolling down' );
 					// $content.scrollTop( $content.prop( 'scrollHeight' ) );
 				} else {
 					console.log( 'not scrolling' );
 				}
+				*/
 
 			},
 
