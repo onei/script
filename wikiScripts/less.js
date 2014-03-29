@@ -208,7 +208,11 @@
 						'</div></div>';
 
 					$( 'body' ).append( modal );
-					$( '#less-header-close' ).on( 'click', local.closeModal );
+					$( '#less-header-close, #less-overlay' ).on( 'click', local.closeModal );
+					// stop events anywhere in the modal triggering click events on the overlay
+					$( '#less-modal' ).on( 'click', function ( e ) {
+						e.stopPropagtion();
+					} );
 				} else {
 					$( '#less-content' ).empty();
 					$( '#less-overlay' ).show();
@@ -226,11 +230,14 @@
 			addLine: function ( text ) {
 				
 				var	$content = $( '#less-content' ),
-					$p = $( '<p>' ).html( '&gt; ' + local.parseLink( text ) );
+					$p = $( '<p>' );
 
 				if ( text.indexOf( 'Error' ) === 0 ) {
 					$p.attr( 'class', 'error' );
+					text = text.replace( 'Error:', '' ).trim();
 				}
+
+				$p.html( '&gt; ' + local.parseLink( text ) );
 
 				// insert text
 				$content.append( $p );
