@@ -11,10 +11,22 @@
  *       In progress....
  */
 
-// don't add less into the closure or it causes errors
-/*global less:true, console:true */
+/*jshint
+    bitwise:true, camelcase:true, curly:true, eqeqeq:true, es3:false,
+    forin:true, immed:true, indent:4, latedef:true, newcap:true,
+    noarg:true, noempty:true, nonew:true, plusplus:true, quotmark:single,
+    undef:true, unused:true, strict:true, trailing:true,
+    browser:true, devel:false, jquery:true,
+    onevar:true
+*/
 
+// don't add less into the closure or it causes errors
+/*global less:true */
+
+// disable indent warning
+/*jshint -W015 */
 ;( function ( window, document, $, mw, dev, undefined ) {
+/*jshint +W015 */
 
 	'use strict';
 
@@ -36,7 +48,31 @@
 
 	var	i18n = {
 			en: {
-				compile: 'Compile LESS'
+				// ui messages
+				'update': 'Update CSS',
+				'less-interface': 'LESS Interface',
+				'close': 'Close',
+				
+				// status messages
+				'get-num-files': 'Getting number of files',
+				'files-found': '$1 files found',
+				'getting-file': 'Getting $1 ($2/$3)',
+				'compiling-less': 'Compiling LESS to CSS',
+				'format-css': 'Formatting CSS',
+				'get-header': 'Getting CSS header file',
+				'success-edit': 'CSS has successfully been updated',
+				
+				// edit summary
+				'edit-summary': 'Updating from [[$1]]',
+				
+				// error messages
+				'page-not-found': 'Page not found - please check your configuration',
+				'file-not-found': 'File not found. Please check [[$1]]',
+				'less-parse-error': 'Parse error on line $1 in [[$2]]',
+				'api-edit-error': 'If you think you might have found a bug, please report it [[$1|here]]',
+				'api-unknown-error': 'An unknown error occurred',
+				'api-error-persist': 'If this error persists, please report it [[$1|here]]'
+				
 			}
 		},
 
@@ -139,11 +175,20 @@
 			/**
 			 *
 			 *
-			 * @param {string} msg Message to get translation for
 			 * @returns {string} Translated message or english message if translation does not exist
 			 */
-			msg: function ( msg ) {
-				return i18n[config.wgUserLanguage][msg] || i18n.en[msg];
+			msg: function () {
+
+				var	message = i18n[config.wgUserLanguage][arguments[0]] || i18n.en[arguments[0]],
+					args = arguments,
+					i;
+					
+				for ( i = 1; i < args.length; i += 1 ) {
+					message = message.replace( '$' + i, args[i] );
+				}
+				
+				return message;
+				
 			},
 
 			/**
@@ -151,7 +196,7 @@
 			 */
 			loadButton: function () {
 
-				var	text = local.msg( 'compile' ),
+				var	text = local.msg( 'update' ),
 					$parent,
 					$link;
 
@@ -203,7 +248,7 @@
 				// something like an irc interface
 				if ( !$( '#less-overlay' ).length ) {
 					var modal = '<div id="less-overlay"><div id="less-modal">' +
-						'<div id="less-header"><span class="title">LESS Compiler Interface</span><span id="less-header-close"></span></div>' +
+						'<div id="less-header"><span class="title">' + local.msg( 'less-interface' ) + '</span><span title="' + local.msg( 'close' ) + '" id="less-header-close"></span></div>' +
 						'<div id="less-content"></div>' +
 						'</div></div>';
 
@@ -301,13 +346,13 @@
 						title: ''
 					};
 
-				local.addLine( 'Getting number of files.' );
+				local.addLine( local.msg( 'get-num-files' ) );
 
 				$.ajaxSetup( {
 					dataType: 'text',
 					error: function ( xhr, error, status ) {
 						if ( status === 'Not Found' ) {
-							local.addLine( 'Error: Page not found - please check your configuration' );
+							local.addLine( 'Error:' + local.msg( 'page-not-found' ) );
 						} else {
 							mw.log( error, status );
 						}
@@ -323,6 +368,7 @@
 					mw.loader.implement(
 						'less',
 						// @todo move to wikia url
+						// @todo suppress error somehow try{}catch(e){} maybe?
 						[ 'https://raw.github.com/less/less.js/master/dist/less-1.7.0.min.js' ],
 						{}, {}
 					);
@@ -355,8 +401,12 @@
 								pages.push( page );
 							}
 
-							local.addLine( pages.length + ' files found' );
-							local.getLess( pages );
+							local.addLine( local.msg( 'files-found', pages.length ) );
+							
+							// stop if no pages found
+							if ( pages.length ) {
+								local.getLess( pages );
+							}
 						}
 					} );
 
@@ -384,7 +434,7 @@
 					getContent = function () {
 
 						params.title = pages[i].replace( / /g, '_' );
-						local.addLine( 'Getting ' + pages[i] + ' (' + ( i + 1 ) + '/' + pages.length + ')' );
+						local.addLine( local.msg( 'getting-file', pages[i], ( i + 1 ), pages.length ) );
 
 						$.ajax( {
 							data: params,
@@ -400,7 +450,7 @@
 							},
 							error: function ( xhr, error, status ) {
 								if ( status === 'Not Found' ) {
-									local.addLine( 'Error: File not found. Please check [[' + options.source + ']]' );
+									local.addLine( 'Error:' + local.msg( 'file-not-found', options.source ) );
 								} else {
 									mw.log( error, status );
 								}
@@ -433,7 +483,7 @@
 						// in a helpful object for us to check
 						// hence this try catch block
 						// #helpful
-						local.addLine( 'Compiling LESS to CSS.' );
+						local.addLine( local.msg( 'compiling-less' ) );
 						var css = root.toCSS();
 						local.formatResult( css );
 					} );
@@ -450,7 +500,7 @@
 
 						}
 					}
-					local.addLine( 'Error: Parse error on line ' + errLine + ' in [[' + errPage + ']]' );
+					local.addLine( 'Error:' + local.msg( 'less-parse-error', errPage ) );
 					// e.extract is always a 3 item array
 					local.addLine( 'Error: ' + e.extract[1].trim() );
 					local.addLine( 'Error: ' + e.message );
@@ -465,7 +515,7 @@
 			 */
 			formatResult: function ( css ) {
 
-				local.addLine( 'Formatting CSS.' );
+				local.addLine( local.msg( 'format-css' ) );
 
 				css = css
 					// strip comments
@@ -504,7 +554,7 @@
 						title: title
 					};
 
-				local.addLine( 'Getting CSS header file.' );
+				local.addLine( local.msg( 'get-header' ) );
 
 				$.ajax( {
 					data: params,
@@ -525,7 +575,7 @@
 				var	params = {
 						action: 'edit',
 						title: options.target,
-						summary: 'summary',
+						summary: local.msg( 'edit-summary', options.source ),
 						token: mw.user.tokens.get( 'editToken' ),
 						format: 'json',
 						text: text
@@ -533,20 +583,19 @@
 
 				new mw.Api().post( params )
 					.done( function ( res ) {
-						console.log( res );
 
 						if ( res.error ) {
 							local.addLine( 'Error:' + res.error.code );
 							local.addLine( 'Error:' + res.error.info );
-							local.addLine( 'Error: If you think you might have found a bug, please report it [[w:c:dev:Talk:Less|here]]' );
+							local.addLine( 'Error:' + local.msg( 'api-edit-error', 'w:c:dev:Talk:Less' ) );
 						} else if ( res.edit && res.edit.result === 'Success' ) {
-							local.addLine( 'CSS has successfully been updated' )
+							local.addLine( local.msg( 'success-edit' ) );
 						} else {
-							local.addLine( 'Error: An unknown error occurred' );
-							local.addLine( 'Error: If this error persists, please report it [[w:c:dev:Talk:Less|here]]' );
+							local.addLine( 'Error:' + local.msg( 'api-unknown-error' ) );
+							local.addLine( 'Error:' + local.msg( 'api-error-persist', 'w:c:dev:Talk:Less' ) );
 						}
 
-				} );
+					} );
 
 			}
 			
