@@ -391,17 +391,12 @@
 
 				// load less.js src
 				if ( !mw.loader.getState( 'less' ) ) {
-					try {
-						mw.loader.implement(
-							'less',
-							// @todo move to wikia url
-							// @todo suppress error somehow try{}catch(e){} maybe?
-							[ 'https://raw.github.com/less/less.js/master/dist/less-1.7.0.min.js' ],
-							{}, {}
-						);
-					} catch ( e ) {
-						mw.log( e );
-					}
+					mw.loader.implement(
+						'less',
+						// @todo move to wikia url
+						[ 'https://raw.github.com/less/less.js/master/dist/less-1.7.0.min.js' ],
+						{}, {}
+					);
 				}
 
 				mw.loader.using( 'less', function () {
