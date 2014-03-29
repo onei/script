@@ -517,17 +517,17 @@
 			 */
 			postResult: function ( text ) {
 				console.log( text );
-
-				$.ajax( {
-					data: {
+				
+				var	params = {
 						action: 'edit',
 						title: options.target,
 						summary: 'summary',
 						token: mw.user.tokens.get( 'editToken' ),
 						format: 'json'
-					},
-					dataType: 'json',
-					success: function ( res ) {
+					};
+
+				new mw.Api().post( params )
+					.done( function ( res ) {
 						console.log( res );
 
 						// if success
@@ -544,8 +544,6 @@
 							// with a link to w:c:dev:Talk:Less for bug reports if required
 							// re-enable the compile button
 
-					},
-					type: 'POST'
 				} );
 
 			}
