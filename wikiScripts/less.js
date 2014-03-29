@@ -526,7 +526,7 @@
 						token: mw.user.tokens.get( 'editToken' ),
 						format: 'json'
 					},
-					dataType: 'POST',
+					dataType: 'json',
 					success: function ( res ) {
 						console.log( res );
 
