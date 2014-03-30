@@ -26,7 +26,7 @@
 
 // disable indent warning
 /*jshint -W015 */
-;( function ( window, $, mw ) {
+;( function ( window, document, $, mw ) {
 /*jshint +W015 */
 
 	'use strict';
@@ -684,6 +684,12 @@
 							mw.log( params );
 						} else if ( res.edit && res.edit.result === 'Success' ) {
 							local.addLine( local.msg( 'success-edit' ) );
+							// no errors have been thrown we might want to read
+							// so close the modal
+							local.closeModal();
+							if ( config.wgPageName === 'options.target' ) {
+								document.location.reload();
+							}
 						} else {
 							local.addLine( local.msg( 'unknown-error' ), true );
 							local.addLine( local.msg( 'error-persist', 'w:c:dev:Talk:Less' ), true );
@@ -702,6 +708,6 @@
 	window.dev = window.dev || {};
 	window.dev.less = global;
 
-}( this, this.jQuery, this.mediaWiki ) );
+}( this, this.document, this.jQuery, this.mediaWiki ) );
 
 // </syntaxhighlight>
