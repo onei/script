@@ -543,6 +543,10 @@
 						local.formatResult( css );
 					} );
 				} catch ( e ) {
+					// @todo handle errors with @import file.less
+					//       check e.name (TypeError)
+					//
+					// not sure what e.name is for the parse errors
 					console.log( e );
 					errLine = e.line;
 					for ( page in lines ) {
@@ -629,6 +633,8 @@
 			 * @param {string} text Content to submit to target page
 			 */
 			postResult: function ( text ) {
+			
+				console.log( text );
 				
 				var	params = {
 						action: 'edit',
@@ -645,6 +651,7 @@
 				// mediawiki.api isn't available when logged out
 				new mw.Api().post( params )
 					.done( function ( res ) {
+						console.log( params, res );
 
 						if ( res.error ) {
 							local.addLine( res.error.code, true );
