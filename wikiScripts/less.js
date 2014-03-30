@@ -557,27 +557,36 @@
 						local.formatResult( css );
 					} );
 				} catch ( e ) {
+					
+					if ( e.line ) {
+						// parse error
+						errLine = e.line;
+						for ( page in lines ) {
+							if ( lines.hasOwnProperty( page ) ) {
+								if ( errLine > lines[page] ) {
+									errLine = errLine - lines[page];
+								} else {
+									errPage = page;
+									break;
+								}
+							}
+						}
+
+						local.addLine( local.msg( 'less-parse-error', errPage ), true );
+						// e.extract is always a 3 item array
+						local.addLine( e.extract[1].trim(), true );
+						local.addLine( e.message, true );
+					} else {
+						// this should be an error with @import
+						// caused by importing less files that don't exist
+						console.log( e, e.name, e.message )
+					}
+						
 					// @todo handle errors with @import file.less
 					//       check e.name (TypeError)
 					//
 					// not sure what e.name is for the parse errors
-					console.log( e );
-					errLine = e.line;
-					for ( page in lines ) {
-						if ( lines.hasOwnProperty( page ) ) {
-							if ( errLine > lines[page] ) {
-								errLine = errLine - lines[page];
-							} else {
-								errPage = page;
-								break;
-							}
-
-						}
-					}
-					local.addLine( local.msg( 'less-parse-error', errPage ), true );
-					// e.extract is always a 3 item array
-					local.addLine( e.extract[1].trim(), true );
-					local.addLine( e.message, true );
+					
 				}
 
 			},
