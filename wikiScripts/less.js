@@ -553,6 +553,7 @@
 					} else if ( e.name === 'TypeError' && e.message === "Cannot call method 'toCSS' of undefined" ) {
 						// this should be an error with @import
 						// caused by importing less files that don't exist
+						console.log( e );
 						local.addLine( '@import error', true );
 						local.addLine( 'Please check any imported .less files exist', true );
 						local.addLine( local.msg( 'error-persist', 'w:c:dev:Talk:Less' ), true );
