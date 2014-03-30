@@ -7,11 +7,9 @@
  * @link <http://lesscss.org/> less.js documentation
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.0.3
+ * @version 1.1.0
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  * @link <http://dev.wikia.com/wiki/Less> Documentation
- *
- * @todo Add support for @import
  */
 
 /*jshint
@@ -500,7 +498,7 @@
 								if ( i < pages.length ) {
 									getContent();
 								} else {
-									local.compileLess( css.join( '\n' ) );
+									local.fixImports( css.join( '\n' ) );
 								}
 							},
 							error: function ( xhr, error, status ) {
@@ -517,6 +515,22 @@
 				getContent();
 
 			},
+			
+			/**
+			 * Fix @import rules to allow imports for less files
+			 */
+			fixImports: function ( res ) {
+			
+					// make sure this is greedy
+					// so it matches "foo.less/bar.less"
+					// if it was lazy, we'd always get "foo.less"
+				var	regex = /@import (?:'|")(.*\.less)(?:.*?)(?:'|");/g,
+					fix = '@import \'$1?action=raw&maxage=0&smaxage=0\''
+					replace = res.replace( regex, fix );
+			
+				local.compileLess( replace );
+			
+			}
 
 			/**
 			 * Compiles LESS files
