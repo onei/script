@@ -543,6 +543,7 @@
 						local.formatResult( css );
 					} );
 				} catch ( e ) {
+					console.log( e );
 					errLine = e.line;
 					for ( page in lines ) {
 						if ( lines.hasOwnProperty( page ) ) {
@@ -567,6 +568,8 @@
 			 * Formats CSS
 			 *
 			 * @param {string} css CSS to format
+			 * @todo Add support for formatting at-rules
+			 *       <https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule>
 			 */
 			formatResult: function ( css ) {
 
