@@ -530,7 +530,7 @@
 			
 				local.compileLess( replace );
 			
-			}
+			},
 
 			/**
 			 * Compiles LESS files
