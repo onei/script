@@ -126,12 +126,6 @@
 					i,
 					elem;
 
-				if ( debug === true ) {
-					// force the update button to load
-					local.loadButton();
-					return;
-				}
-
 				if ( config.wgAction !== 'view' ) {
 					// only run on action=view (default action)
 					return;
@@ -168,6 +162,13 @@
 
 				if ( !opts ) {
 					// not on a page to load the button on
+					return;
+				}
+				
+				if ( debug === true ) {
+					// force loading button
+					options = opts;
+					local.loadButton();
 					return;
 				}
 
