@@ -392,7 +392,8 @@
 						title: ''
 					};
 
-				local.addLine( local.msg( 'get-num-files' ) );
+				// local.addLine( local.msg( 'get-num-files' ) );
+				local.addLine( 'Getting source file' );
 
 				$.ajaxSetup( {
 					dataType: 'text',
@@ -432,34 +433,7 @@
 					$.ajax( {
 						data: params,
 						success: function ( res ) {
-
-							var	lines = res.split( '\n' ),
-								pages = [],
-								page,
-								i;
-
-							for ( i = 0; i < lines.length; i += 1 ) {
-								page = lines[i].trim();
-
-								// skip comments
-								if ( page.indexOf( '//' ) === 0 ) {
-									continue;
-								}
-
-								// skip empty lines
-								if ( !page.length ) {
-									continue;
-								}
-
-								pages.push( page );
-							}
-
-							local.addLine( local.msg( 'files-found', pages.length ) );
-							
-							// stop if no pages found
-							if ( pages.length ) {
-								local.getLess( pages );
-							}
+							local.getLess( res );
 						}
 					} );
 
