@@ -81,8 +81,8 @@
 				'file-not-found': 'File not found. Please check [[$1]]',
 				'less-parse-error': 'Parse error on line $1 in [[$2]]',
 				'api-edit-error': 'If you think you might have found a bug, please report it [[$1|here]]',
-				'api-unknown-error': 'An unknown error occurred',
-				'api-error-persist': 'If this error persists, please report it [[$1|here]]'
+				'unknown-error': 'An unknown error occurred',
+				'error-persist': 'If this error persists, please report it [[$1|here]]'
 				
 			}
 		},
@@ -576,16 +576,17 @@
 						// e.extract is always a 3 item array
 						local.addLine( e.extract[1].trim(), true );
 						local.addLine( e.message, true );
-					} else {
+					} else if ( e.name === 'TypeError' && e.message === "Cannot call method 'toCSS' of undefined" ) {
 						// this should be an error with @import
 						// caused by importing less files that don't exist
-						console.log( e, e.name, e.message )
+						local.addLine( '@import error', true );
+						local.addLine( 'Please check any imported .less files exist', true );
+						local.addLine( local.msg( 'error-persist', 'w:c:dev:Talk:Less' ), true );
+					} else {
+						// else something else happened that needs handling
+						local.addLine( local.msg( 'unknown-error' ), true );
+						local.addLine( local.msg( 'error-persist', 'w:c:dev:Talk:Less' ), true );
 					}
-						
-					// @todo handle errors with @import file.less
-					//       check e.name (TypeError)
-					//
-					// not sure what e.name is for the parse errors
 					
 				}
 
@@ -680,11 +681,12 @@
 							local.addLine( res.error.code, true );
 							local.addLine( res.error.info, true );
 							local.addLine( local.msg( 'api-edit-error', 'w:c:dev:Talk:Less' ), true );
+							mw.log( params );
 						} else if ( res.edit && res.edit.result === 'Success' ) {
 							local.addLine( local.msg( 'success-edit' ) );
 						} else {
-							local.addLine( local.msg( 'api-unknown-error' ), true );
-							local.addLine( local.msg( 'api-error-persist', 'w:c:dev:Talk:Less' ), true );
+							local.addLine( local.msg( 'unknown-error' ), true );
+							local.addLine( local.msg( 'error-persist', 'w:c:dev:Talk:Less' ), true );
 						}
 
 					} );
