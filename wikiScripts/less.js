@@ -638,11 +638,12 @@
 
 				local.addLine( local.msg( 'attempt-edit' ) );
 
+				// note for debugging:
+				// mediawiki.api isn't available when logged out
 				new mw.Api().post( params )
 					.done( function ( res ) {
 
 						if ( res.error ) {
-							console.log( res );
 							local.addLine( res.error.code, true );
 							local.addLine( res.error.info, true );
 							local.addLine( local.msg( 'api-edit-error', 'w:c:dev:Talk:Less' ), true );
