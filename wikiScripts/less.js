@@ -433,7 +433,7 @@
 					$.ajax( {
 						data: params,
 						success: function ( res ) {
-							local.getLess( res );
+							local.fixImports( res );
 						}
 					} );
 
