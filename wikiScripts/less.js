@@ -525,7 +525,7 @@
 					// so it matches "foo.less/bar.less"
 					// if it was lazy, we'd always get "foo.less"
 				var	regex = /@import (?:'|")(.*\.less)(?:.*?)(?:'|");/g,
-					fix = '@import \'$1?action=raw&maxage=0&smaxage=0\''
+					fix = '@import \'$1?action=raw&maxage=0&smaxage=0\'',
 					replace = res.replace( regex, fix );
 			
 				local.compileLess( replace );
