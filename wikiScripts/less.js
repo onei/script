@@ -149,7 +149,6 @@
 				for ( i = 0; i < options.length; i += 1 ) {
 
 					elem = options[i];
-					console.log( elem )
 
 					if ( elem.load.indexOf( config.wgPageName ) === -1 ) {
 						continue;
@@ -409,9 +408,6 @@
 					type: 'GET',
 					url: config.wgScriptPath + config.wgScript,
 				} );
-				
-				console.log( 'options' );
-				console.log( options );
 
 				params.title = options.source.replace( / /g, '_' );
 
@@ -646,6 +642,7 @@
 					.done( function ( res ) {
 
 						if ( res.error ) {
+							console.log( res );
 							local.addLine( res.error.code, true );
 							local.addLine( res.error.info, true );
 							local.addLine( local.msg( 'api-edit-error', 'w:c:dev:Talk:Less' ), true );
