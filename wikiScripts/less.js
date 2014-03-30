@@ -7,7 +7,7 @@
  * @link <http://lesscss.org/> less.js documentation
  *
  * @author Cqm <cqm.fwd@gmail.com>
- * @version 1.0.2
+ * @version 1.0.3
  * @license GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>
  * @link <http://dev.wikia.com/wiki/Less> Documentation
  *
